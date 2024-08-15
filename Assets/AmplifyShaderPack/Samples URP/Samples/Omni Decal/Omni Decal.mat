@@ -9,6 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Omni Decal
   m_Shader: {fileID: 4800000, guid: 102be843f3f4412a87d31b2ed415f253, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords:
   - _ADD_PRECOMPUTED_VELOCITY
@@ -25,6 +27,7 @@ Material:
   disabledShaderPasses:
   - DistortionVectors
   - TransparentBackface
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -64,7 +67,8 @@ Material:
     - _OpaqueCullMode: 2
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _Rampfalloff: 5
+    - _Rampfalloff: 0.6
+    - _ReceiveShadows: 1
     - _ReceivesSSR: 0
     - _ReceivesSSRTransparent: 0
     - _RenderQueueType: 5

@@ -219,74 +219,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 129506251}
   m_CullTransparentMesh: 0
---- !u!1001 &316491674
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 7528639642915431240, guid: fcb47f67c8d544c2bcc78af27646d6ce,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -3.173
-      objectReference: {fileID: 0}
-    - target: {fileID: 7528639642915431240, guid: fcb47f67c8d544c2bcc78af27646d6ce,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.20000005
-      objectReference: {fileID: 0}
-    - target: {fileID: 7528639642915431240, guid: fcb47f67c8d544c2bcc78af27646d6ce,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -0.515
-      objectReference: {fileID: 0}
-    - target: {fileID: 7528639642915431240, guid: fcb47f67c8d544c2bcc78af27646d6ce,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.60876137
-      objectReference: {fileID: 0}
-    - target: {fileID: 7528639642915431240, guid: fcb47f67c8d544c2bcc78af27646d6ce,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7528639642915431240, guid: fcb47f67c8d544c2bcc78af27646d6ce,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0.7933534
-      objectReference: {fileID: 0}
-    - target: {fileID: 7528639642915431240, guid: fcb47f67c8d544c2bcc78af27646d6ce,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7528639642915431240, guid: fcb47f67c8d544c2bcc78af27646d6ce,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7528639642915431240, guid: fcb47f67c8d544c2bcc78af27646d6ce,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: -105.00001
-      objectReference: {fileID: 0}
-    - target: {fileID: 7528639642915431240, guid: fcb47f67c8d544c2bcc78af27646d6ce,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7528639642915431244, guid: fcb47f67c8d544c2bcc78af27646d6ce,
-        type: 3}
-      propertyPath: m_Name
-      value: Community ForceShield Cube (1)
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: fcb47f67c8d544c2bcc78af27646d6ce, type: 3}
 --- !u!1 &489629288
 GameObject:
   m_ObjectHideFlags: 0
@@ -355,74 +287,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &760494061
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 7528639642915431240, guid: fcb47f67c8d544c2bcc78af27646d6ce,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -4.858
-      objectReference: {fileID: 0}
-    - target: {fileID: 7528639642915431240, guid: fcb47f67c8d544c2bcc78af27646d6ce,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.20000005
-      objectReference: {fileID: 0}
-    - target: {fileID: 7528639642915431240, guid: fcb47f67c8d544c2bcc78af27646d6ce,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 1.206
-      objectReference: {fileID: 0}
-    - target: {fileID: 7528639642915431240, guid: fcb47f67c8d544c2bcc78af27646d6ce,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.60876137
-      objectReference: {fileID: 0}
-    - target: {fileID: 7528639642915431240, guid: fcb47f67c8d544c2bcc78af27646d6ce,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7528639642915431240, guid: fcb47f67c8d544c2bcc78af27646d6ce,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0.7933534
-      objectReference: {fileID: 0}
-    - target: {fileID: 7528639642915431240, guid: fcb47f67c8d544c2bcc78af27646d6ce,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7528639642915431240, guid: fcb47f67c8d544c2bcc78af27646d6ce,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7528639642915431240, guid: fcb47f67c8d544c2bcc78af27646d6ce,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: -105.00001
-      objectReference: {fileID: 0}
-    - target: {fileID: 7528639642915431240, guid: fcb47f67c8d544c2bcc78af27646d6ce,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7528639642915431244, guid: fcb47f67c8d544c2bcc78af27646d6ce,
-        type: 3}
-      propertyPath: m_Name
-      value: Community ForceShield Cube (2)
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: fcb47f67c8d544c2bcc78af27646d6ce, type: 3}
 --- !u!1 &819382860
 GameObject:
   m_ObjectHideFlags: 0
@@ -1660,25 +1524,30 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 260425784669305257, guid: 3c831fd366dc492f9a2c3c52d4f38a84,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: f79ac8053c4c54a2a84dcfeda9df0fc8, type: 2}
     - target: {fileID: 260425784669305258, guid: 3c831fd366dc492f9a2c3c52d4f38a84,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.9999999
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 260425784669305258, guid: 3c831fd366dc492f9a2c3c52d4f38a84,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.9999999
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 260425784669305258, guid: 3c831fd366dc492f9a2c3c52d4f38a84,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 1.9999999
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 260425784669305258, guid: 3c831fd366dc492f9a2c3c52d4f38a84,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.125
+      value: -1.9665493
       objectReference: {fileID: 0}
     - target: {fileID: 260425784669305258, guid: 3c831fd366dc492f9a2c3c52d4f38a84,
         type: 3}
@@ -1688,7 +1557,7 @@ PrefabInstance:
     - target: {fileID: 260425784669305258, guid: 3c831fd366dc492f9a2c3c52d4f38a84,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.207
+      value: -0.20284462
       objectReference: {fileID: 0}
     - target: {fileID: 260425784669305258, guid: 3c831fd366dc492f9a2c3c52d4f38a84,
         type: 3}
@@ -2642,6 +2511,4 @@ SceneRoots:
   - {fileID: 489629291}
   - {fileID: 5856309833096720047}
   - {fileID: 8780925940992522495}
-  - {fileID: 316491674}
-  - {fileID: 760494061}
   - {fileID: 610479631176537567}

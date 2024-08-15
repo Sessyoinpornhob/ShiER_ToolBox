@@ -2,14 +2,18 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Low Poly Water
   m_Shader: {fileID: 4800000, guid: 08802ed5db73456dae20b1a7baf3c04d, type: 3}
-  m_ShaderKeywords: _LOWPOLY_ON
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - _LOWPOLY_ON
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -18,6 +22,7 @@ Material:
     MotionVector: User
   disabledShaderPasses:
   - TransparentBackface
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -43,7 +48,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _Foam:
         m_Texture: {fileID: 2800000, guid: 5f18511402154bf18ca40b7406ed597e, type: 3}
-        m_Scale: {x: 20, y: 20}
+        m_Scale: {x: 5, y: 5}
         m_Offset: {x: 0, y: 0}
     - _FoamDistortion:
         m_Texture: {fileID: 2800000, guid: 4d85556227fd4d5a8f034d10f4261675, type: 3}
@@ -89,6 +94,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AddPrecomputedVelocity: 1
     - _AlphaCutoff: 0.5
@@ -111,7 +117,7 @@ Material:
     - _EmissionWeight1: 1.12
     - _EnableFogOnTransparent: 1
     - _EnvironmentReflections: 1
-    - _FoamDist: 0.154
+    - _FoamDist: 0.053
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -160,5 +166,5 @@ Material:
     - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _FoamColor: {r: 1, g: 1, b: 1, a: 0}
-    - _WaterColor: {r: 0.043137006, g: 0.4470588, b: 1, a: 1}
+    - _WaterColor: {r: 0, g: 0.42213106, b: 1, a: 1}
   m_BuildTextureStacks: []

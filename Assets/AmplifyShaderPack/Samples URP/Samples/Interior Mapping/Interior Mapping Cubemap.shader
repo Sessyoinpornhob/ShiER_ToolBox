@@ -1,4 +1,4 @@
-// Made with Amplify Shader Editor v1.9.6.2
+// Made with Amplify Shader Editor v1.9.1.8
 // Available at the Unity Asset Store - http://u3d.as/y3X 
 Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 {
@@ -6,14 +6,14 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 	{
 		[HideInInspector] _AlphaCutoff("Alpha Cutoff ", Range(0, 1)) = 0.5
 		[HideInInspector] _EmissionColor("Emission Color", Color) = (1,1,1,1)
-		_RoomCountX("Room Count X", Float) = 4
+		[ASEBegin]_RoomCountX("Room Count X", Float) = 4
 		_RoomCountY("Room Count Y", Float) = 4
 		[SingleLineTexture]_InteriorCube("Interior Cube", CUBE) = "white" {}
 		[Header(FACADE)][ToggleUI]_EnableFacade("Enable Facade", Float) = 0
 		[SingleLineTexture]_FacadeMap("Facade Map", 2D) = "white" {}
 		_FacadeTilling("Facade Tilling", Vector) = (1,1,0,0)
 		_EmissiveIntensity("Emissive Intensity", Float) = 1
-		[SingleLineTexture]_Roof("Roof", 2D) = "white" {}
+		[ASEEnd][SingleLineTexture]_Roof("Roof", 2D) = "white" {}
 		[HideInInspector] _texcoord( "", 2D ) = "white" {}
 
 
@@ -31,8 +31,8 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 		//_TessEdgeLength ( "Tess Edge length", Range( 2, 50 ) ) = 16
 		//_TessMaxDisp( "Tess Max Displacement", Float ) = 25
 
-		[HideInInspector][ToggleOff] _SpecularHighlights("Specular Highlights", Float) = 1
-		[HideInInspector][ToggleOff] _EnvironmentReflections("Environment Reflections", Float) = 1
+		[HideInInspector][ToggleOff] _SpecularHighlights("Specular Highlights", Float) = 1.0
+		[HideInInspector][ToggleOff] _EnvironmentReflections("Environment Reflections", Float) = 1.0
 		[HideInInspector][ToggleOff] _ReceiveShadows("Receive Shadows", Float) = 1.0
 
 		[HideInInspector] _QueueOffset("_QueueOffset", Float) = 0
@@ -187,45 +187,31 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 
 			HLSLPROGRAM
 
-			
-
 			#define _NORMAL_DROPOFF_TS 1
-			#pragma shader_feature_local _RECEIVE_SHADOWS_OFF
-			#pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
 			#pragma multi_compile_instancing
 			#pragma instancing_options renderinglayer
-			#pragma multi_compile _ LOD_FADE_CROSSFADE
+			#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 			#pragma multi_compile_fog
 			#define ASE_FOG 1
 			#define _EMISSION
-			#define ASE_SRP_VERSION 140011
+			#define ASE_SRP_VERSION 140010
 
 
-			
+			#pragma shader_feature_local _RECEIVE_SHADOWS_OFF
+			#pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
+			#pragma shader_feature_local_fragment _ENVIRONMENTREFLECTIONS_OFF
 
 			#pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
 			#pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
-
-			
-            #pragma multi_compile _ EVALUATE_SH_MIXED EVALUATE_SH_VERTEX
-		
-
 			#pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
 			#pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
 			#pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
-
-			
-
-			
-			#pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
-           
-
+			#pragma multi_compile_fragment _ _SHADOWS_SOFT
+			#pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
 			#pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
-			#pragma multi_compile _ _LIGHT_LAYERS
+			#pragma multi_compile_fragment _ _LIGHT_LAYERS
 			#pragma multi_compile_fragment _ _LIGHT_COOKIES
 			#pragma multi_compile _ _FORWARD_PLUS
-
-			
 
 			#pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
 			#pragma multi_compile _ SHADOWS_SHADOWMASK
@@ -233,27 +219,12 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			#pragma multi_compile _ LIGHTMAP_ON
 			#pragma multi_compile _ DYNAMICLIGHTMAP_ON
 			#pragma multi_compile_fragment _ DEBUG_DISPLAY
+			#pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
 
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
-				#define _SPECULAR_COLOR 1
-			#endif
-
 			#define SHADERPASS SHADERPASS_FORWARD
-
-			
-            #if ASE_SRP_VERSION >=140007
-			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-			#endif
-		
-
-			
-			#if ASE_SRP_VERSION >=140007
-			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
-			#endif
-		
 
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
@@ -261,17 +232,6 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DBuffer.hlsl"
@@ -301,9 +261,9 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 
 			struct VertexInput
 			{
-				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
-				float4 tangentOS : TANGENT;
+				float4 vertex : POSITION;
+				float3 ase_normal : NORMAL;
+				float4 ase_tangent : TANGENT;
 				float4 texcoord : TEXCOORD0;
 				float4 texcoord1 : TEXCOORD1;
 				float4 texcoord2 : TEXCOORD2;
@@ -313,7 +273,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 
 			struct VertexOutput
 			{
-				ASE_SV_POSITION_QUALIFIERS float4 positionCS : SV_POSITION;
+				ASE_SV_POSITION_QUALIFIERS float4 clipPos : SV_POSITION;
 				float4 clipPosV : TEXCOORD0;
 				float4 lightmapUVOrVertexSH : TEXCOORD1;
 				half4 fogFactorAndVertexLight : TEXCOORD2;
@@ -359,10 +319,12 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			#endif
 			CBUFFER_END
 
+			// Property used by ScenePickingPass
 			#ifdef SCENEPICKINGPASS
 				float4 _SelectionID;
 			#endif
 
+			// Properties used by SceneSelectionPass
 			#ifdef SCENESELECTIONPASS
 				int _ObjectId;
 				int _PassValue;
@@ -372,6 +334,13 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			sampler2D _FacadeMap;
 			sampler2D _Roof;
 
+
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/Varyings.hlsl"
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/PBRForwardPass.hlsl"
+
+			//#ifdef HAVE_VFX_MODIFICATION
+			//#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/VisualEffectVertex.hlsl"
+			//#endif
 
 			
 			VertexOutput VertexFunction( VertexInput v  )
@@ -387,7 +356,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				o.ase_texcoord8.zw = 0;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					float3 defaultVertexValue = v.positionOS.xyz;
+					float3 defaultVertexValue = v.vertex.xyz;
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
@@ -395,19 +364,21 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				float3 vertexValue = defaultVertexValue;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					v.positionOS.xyz = vertexValue;
+					v.vertex.xyz = vertexValue;
 				#else
-					v.positionOS.xyz += vertexValue;
+					v.vertex.xyz += vertexValue;
 				#endif
-				v.normalOS = v.normalOS;
-				v.tangentOS = v.tangentOS;
+				v.ase_normal = v.ase_normal;
 
-				VertexPositionInputs vertexInput = GetVertexPositionInputs( v.positionOS.xyz );
-				VertexNormalInputs normalInput = GetVertexNormalInputs( v.normalOS, v.tangentOS );
+				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
+				float3 positionVS = TransformWorldToView( positionWS );
+				float4 positionCS = TransformWorldToHClip( positionWS );
 
-				o.tSpace0 = float4( normalInput.normalWS, vertexInput.positionWS.x );
-				o.tSpace1 = float4( normalInput.tangentWS, vertexInput.positionWS.y );
-				o.tSpace2 = float4( normalInput.bitangentWS, vertexInput.positionWS.z );
+				VertexNormalInputs normalInput = GetVertexNormalInputs( v.ase_normal, v.ase_tangent );
+
+				o.tSpace0 = float4( normalInput.normalWS, positionWS.x);
+				o.tSpace1 = float4( normalInput.tangentWS, positionWS.y);
+				o.tSpace2 = float4( normalInput.bitangentWS, positionWS.z);
 
 				#if defined(LIGHTMAP_ON)
 					OUTPUT_LIGHTMAP_UV( v.texcoord1, unity_LightmapST, o.lightmapUVOrVertexSH.xy );
@@ -426,10 +397,10 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 					o.lightmapUVOrVertexSH.xy = v.texcoord.xy * unity_LightmapST.xy + unity_LightmapST.zw;
 				#endif
 
-				half3 vertexLight = VertexLighting( vertexInput.positionWS, normalInput.normalWS );
+				half3 vertexLight = VertexLighting( positionWS, normalInput.normalWS );
 
 				#ifdef ASE_FOG
-					half fogFactor = ComputeFogFactor( vertexInput.positionCS.z );
+					half fogFactor = ComputeFogFactor( positionCS.z );
 				#else
 					half fogFactor = 0;
 				#endif
@@ -437,11 +408,14 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				o.fogFactorAndVertexLight = half4(fogFactor, vertexLight);
 
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
+					VertexPositionInputs vertexInput = (VertexPositionInputs)0;
+					vertexInput.positionWS = positionWS;
+					vertexInput.positionCS = positionCS;
 					o.shadowCoord = GetShadowCoord( vertexInput );
 				#endif
 
-				o.positionCS = vertexInput.positionCS;
-				o.clipPosV = vertexInput.positionCS;
+				o.clipPos = positionCS;
+				o.clipPosV = positionCS;
 				return o;
 			}
 
@@ -449,8 +423,8 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			struct VertexControl
 			{
 				float4 vertex : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
-				float4 tangentOS : TANGENT;
+				float3 ase_normal : NORMAL;
+				float4 ase_tangent : TANGENT;
 				float4 texcoord : TEXCOORD0;
 				float4 texcoord1 : TEXCOORD1;
 				float4 texcoord2 : TEXCOORD2;
@@ -469,9 +443,9 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				VertexControl o;
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
-				o.vertex = v.positionOS;
-				o.normalOS = v.normalOS;
-				o.tangentOS = v.tangentOS;
+				o.vertex = v.vertex;
+				o.ase_normal = v.ase_normal;
+				o.ase_tangent = v.ase_tangent;
 				o.texcoord = v.texcoord;
 				o.texcoord1 = v.texcoord1;
 				o.texcoord2 = v.texcoord2;
@@ -512,9 +486,9 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			VertexOutput DomainFunction(TessellationFactors factors, OutputPatch<VertexControl, 3> patch, float3 bary : SV_DomainLocation)
 			{
 				VertexInput o = (VertexInput) 0;
-				o.positionOS = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
-				o.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
-				o.tangentOS = patch[0].tangentOS * bary.x + patch[1].tangentOS * bary.y + patch[2].tangentOS * bary.z;
+				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
+				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
+				o.ase_tangent = patch[0].ase_tangent * bary.x + patch[1].ase_tangent * bary.y + patch[2].ase_tangent * bary.z;
 				o.texcoord = patch[0].texcoord * bary.x + patch[1].texcoord * bary.y + patch[2].texcoord * bary.z;
 				o.texcoord1 = patch[0].texcoord1 * bary.x + patch[1].texcoord1 * bary.y + patch[2].texcoord1 * bary.z;
 				o.texcoord2 = patch[0].texcoord2 * bary.x + patch[1].texcoord2 * bary.y + patch[2].texcoord2 * bary.z;
@@ -522,9 +496,9 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
-					pp[i] = o.positionOS.xyz - patch[i].normalOS * (dot(o.positionOS.xyz, patch[i].normalOS) - dot(patch[i].vertex.xyz, patch[i].normalOS));
+					pp[i] = o.vertex.xyz - patch[i].ase_normal * (dot(o.vertex.xyz, patch[i].ase_normal) - dot(patch[i].vertex.xyz, patch[i].ase_normal));
 				float phongStrength = _TessPhongStrength;
-				o.positionOS.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.positionOS.xyz;
+				o.vertex.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.vertex.xyz;
 				#endif
 				UNITY_TRANSFER_INSTANCE_ID(patch[0], o);
 				return VertexFunction(o);
@@ -548,8 +522,8 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				UNITY_SETUP_INSTANCE_ID(IN);
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(IN);
 
-				#if defined(LOD_FADE_CROSSFADE)
-					LODFadeCrossFade( IN.positionCS );
+				#ifdef LOD_FADE_CROSSFADE
+					LODFadeCrossFade( IN.clipPos );
 				#endif
 
 				#if defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
@@ -570,7 +544,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				float4 ClipPos = IN.clipPosV;
 				float4 ScreenPos = ComputeScreenPos( IN.clipPosV );
 
-				float2 NormalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(IN.positionCS);
+				float2 NormalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(IN.clipPos);
 
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
 					ShadowCoords = IN.shadowCoord;
@@ -585,16 +559,16 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				float3 tanToWorld2 = float3( WorldTangent.z, WorldBiTangent.z, WorldNormal.z );
 				float3 ase_tanViewDir =  tanToWorld0 * WorldViewDirection.x + tanToWorld1 * WorldViewDirection.y  + tanToWorld2 * WorldViewDirection.z;
 				ase_tanViewDir = normalize(ase_tanViewDir);
-				float3 temp_output_28_0_g126 = ( ase_tanViewDir * float3( -1,1,1 ) );
-				float3 temp_output_17_0_g126 = ( float3( 1,1,1 ) / temp_output_28_0_g126 );
+				float3 temp_output_28_0_g127 = ( ase_tanViewDir * float3( -1,1,1 ) );
+				float3 temp_output_17_0_g127 = ( float3( 1,1,1 ) / temp_output_28_0_g127 );
 				float2 appendResult182 = (float2(_RoomCountX , _RoomCountY));
-				float2 temp_output_32_0_g126 = ( IN.ase_texcoord8.xy * appendResult182 );
-				float3 appendResult29_g126 = (float3(( ( frac( temp_output_32_0_g126 ) * float2( 2,-2 ) ) - float2( 1,-1 ) ) , -1.0));
-				float3 break19_g126 = ( abs( temp_output_17_0_g126 ) - ( temp_output_17_0_g126 * appendResult29_g126 ) );
-				float3 temp_output_30_0_g126 = ( ( min( min( break19_g126.x , break19_g126.y ) , break19_g126.z ) * temp_output_28_0_g126 ) + appendResult29_g126 );
-				float3 break120_g126 = temp_output_30_0_g126;
-				float3 appendResult121_g126 = (float3(break120_g126.x , ( break120_g126.y * -1.0 ) , break120_g126.z));
-				float3 temp_output_31_0 = (texCUBElod( _InteriorCube, float4( appendResult121_g126, 0.0) )).rgb;
+				float2 temp_output_32_0_g127 = ( IN.ase_texcoord8.xy * appendResult182 );
+				float3 appendResult29_g127 = (float3(( ( frac( temp_output_32_0_g127 ) * float2( 2,-2 ) ) - float2( 1,-1 ) ) , -1.0));
+				float3 break19_g127 = ( abs( temp_output_17_0_g127 ) - ( temp_output_17_0_g127 * appendResult29_g127 ) );
+				float3 temp_output_30_0_g127 = ( ( min( min( break19_g127.x , break19_g127.y ) , break19_g127.z ) * temp_output_28_0_g127 ) + appendResult29_g127 );
+				float3 break120_g127 = temp_output_30_0_g127;
+				float3 appendResult121_g127 = (float3(break120_g127.x , ( break120_g127.y * -1.0 ) , break120_g127.z));
+				float3 temp_output_31_0 = (texCUBElod( _InteriorCube, float4( appendResult121_g127, 0.0) )).rgb;
 				float3 InteriorMapping406 = temp_output_31_0;
 				float4 tex2DNode178 = tex2D( _FacadeMap, ( ( IN.ase_texcoord8.xy * (_FacadeTilling).xy ) + (_FacadeTilling).zw ) );
 				float fresnelNdotV27 = dot( WorldNormal, WorldViewDirection );
@@ -606,16 +580,16 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				float2 uv_Roof = IN.ase_texcoord8.xy * _Roof_ST.xy + _Roof_ST.zw;
 				float4 lerpResult405 = lerp( float4( lerpResult399 , 0.0 ) , tex2D( _Roof, uv_Roof ) , WorldNormal.y);
 				
-				float2 break36_g126 = floor( temp_output_32_0_g126 );
-				float3 appendResult10_g126 = (float3(break36_g126.x , break36_g126.y , break36_g126.x));
-				float dotResult5_g126 = dot( appendResult10_g126 , float3(127.1,311.7,74.7) );
-				float3 appendResult3_g126 = (float3(break36_g126.y , break36_g126.x , break36_g126.x));
-				float dotResult4_g126 = dot( appendResult3_g126 , float3(269.5,183.3,246.1) );
-				float3 appendResult8_g126 = (float3(break36_g126.x , break36_g126.y , break36_g126.y));
-				float dotResult7_g126 = dot( appendResult8_g126 , float3(113.5,271.9,124.6) );
-				float3 appendResult6_g126 = (float3(dotResult5_g126 , dotResult4_g126 , dotResult7_g126));
-				float3 temp_output_39_0_g126 = round( frac( ( sin( appendResult6_g126 ) * 43758.55 ) ) );
-				float3 Emission85 = ( ( ( temp_output_25_0 * temp_output_31_0 ) * round( (temp_output_39_0_g126).y ) ) * _EmissiveIntensity );
+				float2 break36_g127 = floor( temp_output_32_0_g127 );
+				float3 appendResult10_g127 = (float3(break36_g127.x , break36_g127.y , break36_g127.x));
+				float dotResult5_g127 = dot( appendResult10_g127 , float3(127.1,311.7,74.7) );
+				float3 appendResult3_g127 = (float3(break36_g127.y , break36_g127.x , break36_g127.x));
+				float dotResult4_g127 = dot( appendResult3_g127 , float3(269.5,183.3,246.1) );
+				float3 appendResult8_g127 = (float3(break36_g127.x , break36_g127.y , break36_g127.y));
+				float dotResult7_g127 = dot( appendResult8_g127 , float3(113.5,271.9,124.6) );
+				float3 appendResult6_g127 = (float3(dotResult5_g127 , dotResult4_g127 , dotResult7_g127));
+				float3 temp_output_39_0_g127 = round( frac( ( sin( appendResult6_g127 ) * 43758.55 ) ) );
+				float3 Emission85 = ( ( ( temp_output_25_0 * temp_output_31_0 ) * round( (temp_output_39_0_g127).y ) ) * _EmissiveIntensity );
 				float3 lerpResult395 = lerp( float3( 0,0,0 ) , Emission85 , _EnableFacade);
 				float3 lerpResult404 = lerp( lerpResult395 , float3( 0,0,0 ) , WorldNormal.y);
 				
@@ -641,7 +615,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				float3 Translucency = 1;
 
 				#ifdef ASE_DEPTH_WRITE_ON
-					float DepthValue = IN.positionCS.z;
+					float DepthValue = IN.clipPos.z;
 				#endif
 
 				#ifdef _CLEARCOAT
@@ -731,14 +705,10 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				#endif
 
 				#ifdef _DBUFFER
-					ApplyDecalToSurfaceData(IN.positionCS, surfaceData, inputData);
+					ApplyDecalToSurfaceData(IN.clipPos, surfaceData, inputData);
 				#endif
 
-				#ifdef _ASE_LIGHTING_SIMPLE
-					half4 color = UniversalFragmentBlinnPhong( inputData, surfaceData);
-				#else
-					half4 color = UniversalFragmentPBR( inputData, surfaceData);
-				#endif
+				half4 color = UniversalFragmentPBR( inputData, surfaceData);
 
 				#ifdef ASE_TRANSMISSION
 				{
@@ -881,34 +851,20 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 
 			HLSLPROGRAM
 
-			
-
 			#define _NORMAL_DROPOFF_TS 1
 			#pragma multi_compile_instancing
-			#pragma multi_compile _ LOD_FADE_CROSSFADE
+			#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 			#define ASE_FOG 1
 			#define _EMISSION
-			#define ASE_SRP_VERSION 140011
+			#define ASE_SRP_VERSION 140010
 
-
-			
-
-			#pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
 
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
-				#define _SPECULAR_COLOR 1
-			#endif
+			#pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
 
 			#define SHADERPASS SHADERPASS_SHADOWCASTER
-
-			
-            #if ASE_SRP_VERSION >=140007
-			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-			#endif
-		
 
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
@@ -916,17 +872,6 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 
@@ -946,18 +891,18 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 
 			struct VertexInput
 			{
-				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
+				float4 vertex : POSITION;
+				float3 ase_normal : NORMAL;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
 			struct VertexOutput
 			{
-				ASE_SV_POSITION_QUALIFIERS float4 positionCS : SV_POSITION;
+				ASE_SV_POSITION_QUALIFIERS float4 clipPos : SV_POSITION;
 				float4 clipPosV : TEXCOORD0;
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					float3 positionWS : TEXCOORD1;
+					float3 worldPos : TEXCOORD1;
 				#endif
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
 					float4 shadowCoord : TEXCOORD2;
@@ -995,16 +940,25 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			#endif
 			CBUFFER_END
 
+			// Property used by ScenePickingPass
 			#ifdef SCENEPICKINGPASS
 				float4 _SelectionID;
 			#endif
 
+			// Properties used by SceneSelectionPass
 			#ifdef SCENESELECTIONPASS
 				int _ObjectId;
 				int _PassValue;
 			#endif
 
 			
+
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/Varyings.hlsl"
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShadowCasterPass.hlsl"
+
+			//#ifdef HAVE_VFX_MODIFICATION
+			//#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/VisualEffectVertex.hlsl"
+			//#endif
 
 			
 			float3 _LightDirection;
@@ -1020,27 +974,27 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					float3 defaultVertexValue = v.positionOS.xyz;
+					float3 defaultVertexValue = v.vertex.xyz;
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
 
 				float3 vertexValue = defaultVertexValue;
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					v.positionOS.xyz = vertexValue;
+					v.vertex.xyz = vertexValue;
 				#else
-					v.positionOS.xyz += vertexValue;
+					v.vertex.xyz += vertexValue;
 				#endif
 
-				v.normalOS = v.normalOS;
+				v.ase_normal = v.ase_normal;
 
-				float3 positionWS = TransformObjectToWorld( v.positionOS.xyz );
+				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
 
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					o.positionWS = positionWS;
+					o.worldPos = positionWS;
 				#endif
 
-				float3 normalWS = TransformObjectToWorldDir(v.normalOS);
+				float3 normalWS = TransformObjectToWorldDir(v.ase_normal);
 
 				#if _CASTING_PUNCTUAL_LIGHT_SHADOW
 					float3 lightDirectionWS = normalize(_LightPosition - positionWS);
@@ -1048,23 +1002,23 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 					float3 lightDirectionWS = _LightDirection;
 				#endif
 
-				float4 positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, lightDirectionWS));
+				float4 clipPos = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, lightDirectionWS));
 
 				#if UNITY_REVERSED_Z
-					positionCS.z = min(positionCS.z, UNITY_NEAR_CLIP_VALUE);
+					clipPos.z = min(clipPos.z, UNITY_NEAR_CLIP_VALUE);
 				#else
-					positionCS.z = max(positionCS.z, UNITY_NEAR_CLIP_VALUE);
+					clipPos.z = max(clipPos.z, UNITY_NEAR_CLIP_VALUE);
 				#endif
 
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
 					VertexPositionInputs vertexInput = (VertexPositionInputs)0;
 					vertexInput.positionWS = positionWS;
-					vertexInput.positionCS = positionCS;
+					vertexInput.positionCS = clipPos;
 					o.shadowCoord = GetShadowCoord( vertexInput );
 				#endif
 
-				o.positionCS = positionCS;
-				o.clipPosV = positionCS;
+				o.clipPos = clipPos;
+				o.clipPosV = clipPos;
 				return o;
 			}
 
@@ -1072,7 +1026,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			struct VertexControl
 			{
 				float4 vertex : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
+				float3 ase_normal : NORMAL;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -1088,8 +1042,8 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				VertexControl o;
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
-				o.vertex = v.positionOS;
-				o.normalOS = v.normalOS;
+				o.vertex = v.vertex;
+				o.ase_normal = v.ase_normal;
 				
 				return o;
 			}
@@ -1127,15 +1081,15 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			VertexOutput DomainFunction(TessellationFactors factors, OutputPatch<VertexControl, 3> patch, float3 bary : SV_DomainLocation)
 			{
 				VertexInput o = (VertexInput) 0;
-				o.positionOS = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
-				o.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
+				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
+				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
 				
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
-					pp[i] = o.positionOS.xyz - patch[i].normalOS * (dot(o.positionOS.xyz, patch[i].normalOS) - dot(patch[i].vertex.xyz, patch[i].normalOS));
+					pp[i] = o.vertex.xyz - patch[i].ase_normal * (dot(o.vertex.xyz, patch[i].ase_normal) - dot(patch[i].vertex.xyz, patch[i].ase_normal));
 				float phongStrength = _TessPhongStrength;
-				o.positionOS.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.positionOS.xyz;
+				o.vertex.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.vertex.xyz;
 				#endif
 				UNITY_TRANSFER_INSTANCE_ID(patch[0], o);
 				return VertexFunction(o);
@@ -1157,7 +1111,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX( IN );
 
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					float3 WorldPosition = IN.positionWS;
+					float3 WorldPosition = IN.worldPos;
 				#endif
 
 				float4 ShadowCoords = float4( 0, 0, 0, 0 );
@@ -1179,7 +1133,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				float AlphaClipThresholdShadow = 0.5;
 
 				#ifdef ASE_DEPTH_WRITE_ON
-					float DepthValue = IN.positionCS.z;
+					float DepthValue = IN.clipPos.z;
 				#endif
 
 				#ifdef _ALPHATEST_ON
@@ -1190,8 +1144,8 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 					#endif
 				#endif
 
-				#if defined(LOD_FADE_CROSSFADE)
-					LODFadeCrossFade( IN.positionCS );
+				#ifdef LOD_FADE_CROSSFADE
+					LODFadeCrossFade( IN.clipPos );
 				#endif
 
 				#ifdef ASE_DEPTH_WRITE_ON
@@ -1216,32 +1170,18 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 
 			HLSLPROGRAM
 
-			
-
 			#define _NORMAL_DROPOFF_TS 1
 			#pragma multi_compile_instancing
-			#pragma multi_compile _ LOD_FADE_CROSSFADE
+			#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 			#define ASE_FOG 1
 			#define _EMISSION
-			#define ASE_SRP_VERSION 140011
+			#define ASE_SRP_VERSION 140010
 
-
-			
 
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
-				#define _SPECULAR_COLOR 1
-			#endif
-
 			#define SHADERPASS SHADERPASS_DEPTHONLY
-
-			
-            #if ASE_SRP_VERSION >=140007
-			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-			#endif
-		
 
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
@@ -1249,20 +1189,9 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
-
+			
 			#if defined(LOD_FADE_CROSSFADE)
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
             #endif
@@ -1279,18 +1208,18 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 
 			struct VertexInput
 			{
-				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
+				float4 vertex : POSITION;
+				float3 ase_normal : NORMAL;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
 			struct VertexOutput
 			{
-				ASE_SV_POSITION_QUALIFIERS float4 positionCS : SV_POSITION;
+				ASE_SV_POSITION_QUALIFIERS float4 clipPos : SV_POSITION;
 				float4 clipPosV : TEXCOORD0;
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-				float3 positionWS : TEXCOORD1;
+				float3 worldPos : TEXCOORD1;
 				#endif
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
 				float4 shadowCoord : TEXCOORD2;
@@ -1328,16 +1257,25 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			#endif
 			CBUFFER_END
 
+			// Property used by ScenePickingPass
 			#ifdef SCENEPICKINGPASS
 				float4 _SelectionID;
 			#endif
 
+			// Properties used by SceneSelectionPass
 			#ifdef SCENESELECTIONPASS
 				int _ObjectId;
 				int _PassValue;
 			#endif
 
 			
+
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/Varyings.hlsl"
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/DepthOnlyPass.hlsl"
+
+			//#ifdef HAVE_VFX_MODIFICATION
+			//#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/VisualEffectVertex.hlsl"
+			//#endif
 
 			
 			VertexOutput VertexFunction( VertexInput v  )
@@ -1350,7 +1288,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					float3 defaultVertexValue = v.positionOS.xyz;
+					float3 defaultVertexValue = v.vertex.xyz;
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
@@ -1358,25 +1296,28 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				float3 vertexValue = defaultVertexValue;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					v.positionOS.xyz = vertexValue;
+					v.vertex.xyz = vertexValue;
 				#else
-					v.positionOS.xyz += vertexValue;
+					v.vertex.xyz += vertexValue;
 				#endif
 
-				v.normalOS = v.normalOS;
-
-				VertexPositionInputs vertexInput = GetVertexPositionInputs( v.positionOS.xyz );
+				v.ase_normal = v.ase_normal;
+				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
+				float4 positionCS = TransformWorldToHClip( positionWS );
 
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					o.positionWS = vertexInput.positionWS;
+					o.worldPos = positionWS;
 				#endif
 
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
+					VertexPositionInputs vertexInput = (VertexPositionInputs)0;
+					vertexInput.positionWS = positionWS;
+					vertexInput.positionCS = positionCS;
 					o.shadowCoord = GetShadowCoord( vertexInput );
 				#endif
 
-				o.positionCS = vertexInput.positionCS;
-				o.clipPosV = vertexInput.positionCS;
+				o.clipPos = positionCS;
+				o.clipPosV = positionCS;
 				return o;
 			}
 
@@ -1384,7 +1325,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			struct VertexControl
 			{
 				float4 vertex : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
+				float3 ase_normal : NORMAL;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -1400,8 +1341,8 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				VertexControl o;
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
-				o.vertex = v.positionOS;
-				o.normalOS = v.normalOS;
+				o.vertex = v.vertex;
+				o.ase_normal = v.ase_normal;
 				
 				return o;
 			}
@@ -1439,15 +1380,15 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			VertexOutput DomainFunction(TessellationFactors factors, OutputPatch<VertexControl, 3> patch, float3 bary : SV_DomainLocation)
 			{
 				VertexInput o = (VertexInput) 0;
-				o.positionOS = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
-				o.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
+				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
+				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
 				
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
-					pp[i] = o.positionOS.xyz - patch[i].normalOS * (dot(o.positionOS.xyz, patch[i].normalOS) - dot(patch[i].vertex.xyz, patch[i].normalOS));
+					pp[i] = o.vertex.xyz - patch[i].ase_normal * (dot(o.vertex.xyz, patch[i].ase_normal) - dot(patch[i].vertex.xyz, patch[i].ase_normal));
 				float phongStrength = _TessPhongStrength;
-				o.positionOS.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.positionOS.xyz;
+				o.vertex.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.vertex.xyz;
 				#endif
 				UNITY_TRANSFER_INSTANCE_ID(patch[0], o);
 				return VertexFunction(o);
@@ -1469,7 +1410,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX( IN );
 
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-				float3 WorldPosition = IN.positionWS;
+				float3 WorldPosition = IN.worldPos;
 				#endif
 
 				float4 ShadowCoords = float4( 0, 0, 0, 0 );
@@ -1488,17 +1429,16 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 
 				float Alpha = 1;
 				float AlphaClipThreshold = 0.5;
-
 				#ifdef ASE_DEPTH_WRITE_ON
-					float DepthValue = IN.positionCS.z;
+					float DepthValue = IN.clipPos.z;
 				#endif
 
 				#ifdef _ALPHATEST_ON
 					clip(Alpha - AlphaClipThreshold);
 				#endif
 
-				#if defined(LOD_FADE_CROSSFADE)
-					LODFadeCrossFade( IN.positionCS );
+				#ifdef LOD_FADE_CROSSFADE
+					LODFadeCrossFade( IN.clipPos );
 				#endif
 
 				#ifdef ASE_DEPTH_WRITE_ON
@@ -1520,19 +1460,17 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			Cull Off
 
 			HLSLPROGRAM
+
 			#define _NORMAL_DROPOFF_TS 1
 			#define ASE_FOG 1
 			#define _EMISSION
-			#define ASE_SRP_VERSION 140011
+			#define ASE_SRP_VERSION 140010
 
-			#pragma shader_feature EDITOR_VISUALIZATION
 
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
-				#define _SPECULAR_COLOR 1
-			#endif
+			#pragma shader_feature EDITOR_VISUALIZATION
 
 			#define SHADERPASS SHADERPASS_META
 
@@ -1542,17 +1480,6 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/MetaInput.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
@@ -1563,8 +1490,8 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 
 			struct VertexInput
 			{
-				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
+				float4 vertex : POSITION;
+				float3 ase_normal : NORMAL;
 				float4 texcoord0 : TEXCOORD0;
 				float4 texcoord1 : TEXCOORD1;
 				float4 texcoord2 : TEXCOORD2;
@@ -1574,9 +1501,9 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 
 			struct VertexOutput
 			{
-				float4 positionCS : SV_POSITION;
+				float4 clipPos : SV_POSITION;
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					float3 positionWS : TEXCOORD0;
+					float3 worldPos : TEXCOORD0;
 				#endif
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
 					float4 shadowCoord : TEXCOORD1;
@@ -1621,10 +1548,12 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			#endif
 			CBUFFER_END
 
+			// Property used by ScenePickingPass
 			#ifdef SCENEPICKINGPASS
 				float4 _SelectionID;
 			#endif
 
+			// Properties used by SceneSelectionPass
 			#ifdef SCENESELECTIONPASS
 				int _ObjectId;
 				int _PassValue;
@@ -1634,6 +1563,13 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			sampler2D _FacadeMap;
 			sampler2D _Roof;
 
+
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/Varyings.hlsl"
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/LightingMetaPass.hlsl"
+
+			//#ifdef HAVE_VFX_MODIFICATION
+			//#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/VisualEffectVertex.hlsl"
+			//#endif
 
 			
 			VertexOutput VertexFunction( VertexInput v  )
@@ -1645,7 +1581,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 
 				float3 ase_worldTangent = TransformObjectToWorldDir(v.ase_tangent.xyz);
 				o.ase_texcoord4.xyz = ase_worldTangent;
-				float3 ase_worldNormal = TransformObjectToWorldNormal(v.normalOS);
+				float3 ase_worldNormal = TransformObjectToWorldNormal(v.ase_normal);
 				o.ase_texcoord5.xyz = ase_worldNormal;
 				float ase_vertexTangentSign = v.ase_tangent.w * ( unity_WorldTransformParams.w >= 0.0 ? 1.0 : -1.0 );
 				float3 ase_worldBitangent = cross( ase_worldNormal, ase_worldTangent ) * ase_vertexTangentSign;
@@ -1660,7 +1596,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				o.ase_texcoord7.zw = 0;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					float3 defaultVertexValue = v.positionOS.xyz;
+					float3 defaultVertexValue = v.vertex.xyz;
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
@@ -1668,25 +1604,25 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				float3 vertexValue = defaultVertexValue;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					v.positionOS.xyz = vertexValue;
+					v.vertex.xyz = vertexValue;
 				#else
-					v.positionOS.xyz += vertexValue;
+					v.vertex.xyz += vertexValue;
 				#endif
 
-				v.normalOS = v.normalOS;
+				v.ase_normal = v.ase_normal;
 
-				float3 positionWS = TransformObjectToWorld( v.positionOS.xyz );
+				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
 
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					o.positionWS = positionWS;
+					o.worldPos = positionWS;
 				#endif
 
-				o.positionCS = MetaVertexPosition( v.positionOS, v.texcoord1.xy, v.texcoord1.xy, unity_LightmapST, unity_DynamicLightmapST );
+				o.clipPos = MetaVertexPosition( v.vertex, v.texcoord1.xy, v.texcoord1.xy, unity_LightmapST, unity_DynamicLightmapST );
 
 				#ifdef EDITOR_VISUALIZATION
 					float2 VizUV = 0;
 					float4 LightCoord = 0;
-					UnityEditorVizData(v.positionOS.xyz, v.texcoord0.xy, v.texcoord1.xy, v.texcoord2.xy, VizUV, LightCoord);
+					UnityEditorVizData(v.vertex.xyz, v.texcoord0.xy, v.texcoord1.xy, v.texcoord2.xy, VizUV, LightCoord);
 					o.VizUV = float4(VizUV, 0, 0);
 					o.LightCoord = LightCoord;
 				#endif
@@ -1694,7 +1630,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
 					VertexPositionInputs vertexInput = (VertexPositionInputs)0;
 					vertexInput.positionWS = positionWS;
-					vertexInput.positionCS = o.positionCS;
+					vertexInput.positionCS = o.clipPos;
 					o.shadowCoord = GetShadowCoord( vertexInput );
 				#endif
 
@@ -1705,7 +1641,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			struct VertexControl
 			{
 				float4 vertex : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
+				float3 ase_normal : NORMAL;
 				float4 texcoord0 : TEXCOORD0;
 				float4 texcoord1 : TEXCOORD1;
 				float4 texcoord2 : TEXCOORD2;
@@ -1725,8 +1661,8 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				VertexControl o;
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
-				o.vertex = v.positionOS;
-				o.normalOS = v.normalOS;
+				o.vertex = v.vertex;
+				o.ase_normal = v.ase_normal;
 				o.texcoord0 = v.texcoord0;
 				o.texcoord1 = v.texcoord1;
 				o.texcoord2 = v.texcoord2;
@@ -1767,8 +1703,8 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			VertexOutput DomainFunction(TessellationFactors factors, OutputPatch<VertexControl, 3> patch, float3 bary : SV_DomainLocation)
 			{
 				VertexInput o = (VertexInput) 0;
-				o.positionOS = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
-				o.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
+				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
+				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
 				o.texcoord0 = patch[0].texcoord0 * bary.x + patch[1].texcoord0 * bary.y + patch[2].texcoord0 * bary.z;
 				o.texcoord1 = patch[0].texcoord1 * bary.x + patch[1].texcoord1 * bary.y + patch[2].texcoord1 * bary.z;
 				o.texcoord2 = patch[0].texcoord2 * bary.x + patch[1].texcoord2 * bary.y + patch[2].texcoord2 * bary.z;
@@ -1776,9 +1712,9 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
-					pp[i] = o.positionOS.xyz - patch[i].normalOS * (dot(o.positionOS.xyz, patch[i].normalOS) - dot(patch[i].vertex.xyz, patch[i].normalOS));
+					pp[i] = o.vertex.xyz - patch[i].ase_normal * (dot(o.vertex.xyz, patch[i].ase_normal) - dot(patch[i].vertex.xyz, patch[i].ase_normal));
 				float phongStrength = _TessPhongStrength;
-				o.positionOS.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.positionOS.xyz;
+				o.vertex.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.vertex.xyz;
 				#endif
 				UNITY_TRANSFER_INSTANCE_ID(patch[0], o);
 				return VertexFunction(o);
@@ -1796,7 +1732,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX( IN );
 
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					float3 WorldPosition = IN.positionWS;
+					float3 WorldPosition = IN.worldPos;
 				#endif
 
 				float4 ShadowCoords = float4( 0, 0, 0, 0 );
@@ -1819,16 +1755,16 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				ase_worldViewDir = normalize(ase_worldViewDir);
 				float3 ase_tanViewDir =  tanToWorld0 * ase_worldViewDir.x + tanToWorld1 * ase_worldViewDir.y  + tanToWorld2 * ase_worldViewDir.z;
 				ase_tanViewDir = normalize(ase_tanViewDir);
-				float3 temp_output_28_0_g126 = ( ase_tanViewDir * float3( -1,1,1 ) );
-				float3 temp_output_17_0_g126 = ( float3( 1,1,1 ) / temp_output_28_0_g126 );
+				float3 temp_output_28_0_g127 = ( ase_tanViewDir * float3( -1,1,1 ) );
+				float3 temp_output_17_0_g127 = ( float3( 1,1,1 ) / temp_output_28_0_g127 );
 				float2 appendResult182 = (float2(_RoomCountX , _RoomCountY));
-				float2 temp_output_32_0_g126 = ( IN.ase_texcoord7.xy * appendResult182 );
-				float3 appendResult29_g126 = (float3(( ( frac( temp_output_32_0_g126 ) * float2( 2,-2 ) ) - float2( 1,-1 ) ) , -1.0));
-				float3 break19_g126 = ( abs( temp_output_17_0_g126 ) - ( temp_output_17_0_g126 * appendResult29_g126 ) );
-				float3 temp_output_30_0_g126 = ( ( min( min( break19_g126.x , break19_g126.y ) , break19_g126.z ) * temp_output_28_0_g126 ) + appendResult29_g126 );
-				float3 break120_g126 = temp_output_30_0_g126;
-				float3 appendResult121_g126 = (float3(break120_g126.x , ( break120_g126.y * -1.0 ) , break120_g126.z));
-				float3 temp_output_31_0 = (texCUBElod( _InteriorCube, float4( appendResult121_g126, 0.0) )).rgb;
+				float2 temp_output_32_0_g127 = ( IN.ase_texcoord7.xy * appendResult182 );
+				float3 appendResult29_g127 = (float3(( ( frac( temp_output_32_0_g127 ) * float2( 2,-2 ) ) - float2( 1,-1 ) ) , -1.0));
+				float3 break19_g127 = ( abs( temp_output_17_0_g127 ) - ( temp_output_17_0_g127 * appendResult29_g127 ) );
+				float3 temp_output_30_0_g127 = ( ( min( min( break19_g127.x , break19_g127.y ) , break19_g127.z ) * temp_output_28_0_g127 ) + appendResult29_g127 );
+				float3 break120_g127 = temp_output_30_0_g127;
+				float3 appendResult121_g127 = (float3(break120_g127.x , ( break120_g127.y * -1.0 ) , break120_g127.z));
+				float3 temp_output_31_0 = (texCUBElod( _InteriorCube, float4( appendResult121_g127, 0.0) )).rgb;
 				float3 InteriorMapping406 = temp_output_31_0;
 				float4 tex2DNode178 = tex2D( _FacadeMap, ( ( IN.ase_texcoord7.xy * (_FacadeTilling).xy ) + (_FacadeTilling).zw ) );
 				float fresnelNdotV27 = dot( ase_worldNormal, ase_worldViewDir );
@@ -1840,16 +1776,16 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				float2 uv_Roof = IN.ase_texcoord7.xy * _Roof_ST.xy + _Roof_ST.zw;
 				float4 lerpResult405 = lerp( float4( lerpResult399 , 0.0 ) , tex2D( _Roof, uv_Roof ) , ase_worldNormal.y);
 				
-				float2 break36_g126 = floor( temp_output_32_0_g126 );
-				float3 appendResult10_g126 = (float3(break36_g126.x , break36_g126.y , break36_g126.x));
-				float dotResult5_g126 = dot( appendResult10_g126 , float3(127.1,311.7,74.7) );
-				float3 appendResult3_g126 = (float3(break36_g126.y , break36_g126.x , break36_g126.x));
-				float dotResult4_g126 = dot( appendResult3_g126 , float3(269.5,183.3,246.1) );
-				float3 appendResult8_g126 = (float3(break36_g126.x , break36_g126.y , break36_g126.y));
-				float dotResult7_g126 = dot( appendResult8_g126 , float3(113.5,271.9,124.6) );
-				float3 appendResult6_g126 = (float3(dotResult5_g126 , dotResult4_g126 , dotResult7_g126));
-				float3 temp_output_39_0_g126 = round( frac( ( sin( appendResult6_g126 ) * 43758.55 ) ) );
-				float3 Emission85 = ( ( ( temp_output_25_0 * temp_output_31_0 ) * round( (temp_output_39_0_g126).y ) ) * _EmissiveIntensity );
+				float2 break36_g127 = floor( temp_output_32_0_g127 );
+				float3 appendResult10_g127 = (float3(break36_g127.x , break36_g127.y , break36_g127.x));
+				float dotResult5_g127 = dot( appendResult10_g127 , float3(127.1,311.7,74.7) );
+				float3 appendResult3_g127 = (float3(break36_g127.y , break36_g127.x , break36_g127.x));
+				float dotResult4_g127 = dot( appendResult3_g127 , float3(269.5,183.3,246.1) );
+				float3 appendResult8_g127 = (float3(break36_g127.x , break36_g127.y , break36_g127.y));
+				float dotResult7_g127 = dot( appendResult8_g127 , float3(113.5,271.9,124.6) );
+				float3 appendResult6_g127 = (float3(dotResult5_g127 , dotResult4_g127 , dotResult7_g127));
+				float3 temp_output_39_0_g127 = round( frac( ( sin( appendResult6_g127 ) * 43758.55 ) ) );
+				float3 Emission85 = ( ( ( temp_output_25_0 * temp_output_31_0 ) * round( (temp_output_39_0_g127).y ) ) * _EmissiveIntensity );
 				float3 lerpResult395 = lerp( float3( 0,0,0 ) , Emission85 , _EnableFacade);
 				float3 lerpResult404 = lerp( lerpResult395 , float3( 0,0,0 ) , ase_worldNormal.y);
 				
@@ -1894,15 +1830,11 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			#define _NORMAL_DROPOFF_TS 1
 			#define ASE_FOG 1
 			#define _EMISSION
-			#define ASE_SRP_VERSION 140011
+			#define ASE_SRP_VERSION 140010
 
 
 			#pragma vertex vert
 			#pragma fragment frag
-
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
-				#define _SPECULAR_COLOR 1
-			#endif
 
 			#define SHADERPASS SHADERPASS_2D
 
@@ -1912,17 +1844,6 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 
@@ -1932,8 +1853,8 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 
 			struct VertexInput
 			{
-				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
+				float4 vertex : POSITION;
+				float3 ase_normal : NORMAL;
 				float4 ase_tangent : TANGENT;
 				float4 ase_texcoord : TEXCOORD0;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -1941,9 +1862,9 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 
 			struct VertexOutput
 			{
-				float4 positionCS : SV_POSITION;
+				float4 clipPos : SV_POSITION;
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					float3 positionWS : TEXCOORD0;
+					float3 worldPos : TEXCOORD0;
 				#endif
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
 					float4 shadowCoord : TEXCOORD1;
@@ -1984,10 +1905,12 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			#endif
 			CBUFFER_END
 
+			// Property used by ScenePickingPass
 			#ifdef SCENEPICKINGPASS
 				float4 _SelectionID;
 			#endif
 
+			// Properties used by SceneSelectionPass
 			#ifdef SCENESELECTIONPASS
 				int _ObjectId;
 				int _PassValue;
@@ -1997,6 +1920,13 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			sampler2D _FacadeMap;
 			sampler2D _Roof;
 
+
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/Varyings.hlsl"
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/PBR2DPass.hlsl"
+
+			//#ifdef HAVE_VFX_MODIFICATION
+			//#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/VisualEffectVertex.hlsl"
+			//#endif
 
 			
 			VertexOutput VertexFunction( VertexInput v  )
@@ -2008,7 +1938,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 
 				float3 ase_worldTangent = TransformObjectToWorldDir(v.ase_tangent.xyz);
 				o.ase_texcoord2.xyz = ase_worldTangent;
-				float3 ase_worldNormal = TransformObjectToWorldNormal(v.normalOS);
+				float3 ase_worldNormal = TransformObjectToWorldNormal(v.ase_normal);
 				o.ase_texcoord3.xyz = ase_worldNormal;
 				float ase_vertexTangentSign = v.ase_tangent.w * ( unity_WorldTransformParams.w >= 0.0 ? 1.0 : -1.0 );
 				float3 ase_worldBitangent = cross( ase_worldNormal, ase_worldTangent ) * ase_vertexTangentSign;
@@ -2023,7 +1953,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				o.ase_texcoord5.zw = 0;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					float3 defaultVertexValue = v.positionOS.xyz;
+					float3 defaultVertexValue = v.vertex.xyz;
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
@@ -2031,24 +1961,28 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				float3 vertexValue = defaultVertexValue;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					v.positionOS.xyz = vertexValue;
+					v.vertex.xyz = vertexValue;
 				#else
-					v.positionOS.xyz += vertexValue;
+					v.vertex.xyz += vertexValue;
 				#endif
 
-				v.normalOS = v.normalOS;
+				v.ase_normal = v.ase_normal;
 
-				VertexPositionInputs vertexInput = GetVertexPositionInputs( v.positionOS.xyz );
+				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
+				float4 positionCS = TransformWorldToHClip( positionWS );
 
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					o.positionWS = vertexInput.positionWS;
+					o.worldPos = positionWS;
 				#endif
 
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
+					VertexPositionInputs vertexInput = (VertexPositionInputs)0;
+					vertexInput.positionWS = positionWS;
+					vertexInput.positionCS = positionCS;
 					o.shadowCoord = GetShadowCoord( vertexInput );
 				#endif
 
-				o.positionCS = vertexInput.positionCS;
+				o.clipPos = positionCS;
 
 				return o;
 			}
@@ -2057,7 +1991,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			struct VertexControl
 			{
 				float4 vertex : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
+				float3 ase_normal : NORMAL;
 				float4 ase_tangent : TANGENT;
 				float4 ase_texcoord : TEXCOORD0;
 
@@ -2075,8 +2009,8 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				VertexControl o;
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
-				o.vertex = v.positionOS;
-				o.normalOS = v.normalOS;
+				o.vertex = v.vertex;
+				o.ase_normal = v.ase_normal;
 				o.ase_tangent = v.ase_tangent;
 				o.ase_texcoord = v.ase_texcoord;
 				return o;
@@ -2115,16 +2049,16 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			VertexOutput DomainFunction(TessellationFactors factors, OutputPatch<VertexControl, 3> patch, float3 bary : SV_DomainLocation)
 			{
 				VertexInput o = (VertexInput) 0;
-				o.positionOS = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
-				o.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
+				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
+				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
 				o.ase_tangent = patch[0].ase_tangent * bary.x + patch[1].ase_tangent * bary.y + patch[2].ase_tangent * bary.z;
 				o.ase_texcoord = patch[0].ase_texcoord * bary.x + patch[1].ase_texcoord * bary.y + patch[2].ase_texcoord * bary.z;
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
-					pp[i] = o.positionOS.xyz - patch[i].normalOS * (dot(o.positionOS.xyz, patch[i].normalOS) - dot(patch[i].vertex.xyz, patch[i].normalOS));
+					pp[i] = o.vertex.xyz - patch[i].ase_normal * (dot(o.vertex.xyz, patch[i].ase_normal) - dot(patch[i].vertex.xyz, patch[i].ase_normal));
 				float phongStrength = _TessPhongStrength;
-				o.positionOS.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.positionOS.xyz;
+				o.vertex.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.vertex.xyz;
 				#endif
 				UNITY_TRANSFER_INSTANCE_ID(patch[0], o);
 				return VertexFunction(o);
@@ -2142,7 +2076,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX( IN );
 
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					float3 WorldPosition = IN.positionWS;
+					float3 WorldPosition = IN.worldPos;
 				#endif
 
 				float4 ShadowCoords = float4( 0, 0, 0, 0 );
@@ -2165,16 +2099,16 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				ase_worldViewDir = normalize(ase_worldViewDir);
 				float3 ase_tanViewDir =  tanToWorld0 * ase_worldViewDir.x + tanToWorld1 * ase_worldViewDir.y  + tanToWorld2 * ase_worldViewDir.z;
 				ase_tanViewDir = normalize(ase_tanViewDir);
-				float3 temp_output_28_0_g126 = ( ase_tanViewDir * float3( -1,1,1 ) );
-				float3 temp_output_17_0_g126 = ( float3( 1,1,1 ) / temp_output_28_0_g126 );
+				float3 temp_output_28_0_g127 = ( ase_tanViewDir * float3( -1,1,1 ) );
+				float3 temp_output_17_0_g127 = ( float3( 1,1,1 ) / temp_output_28_0_g127 );
 				float2 appendResult182 = (float2(_RoomCountX , _RoomCountY));
-				float2 temp_output_32_0_g126 = ( IN.ase_texcoord5.xy * appendResult182 );
-				float3 appendResult29_g126 = (float3(( ( frac( temp_output_32_0_g126 ) * float2( 2,-2 ) ) - float2( 1,-1 ) ) , -1.0));
-				float3 break19_g126 = ( abs( temp_output_17_0_g126 ) - ( temp_output_17_0_g126 * appendResult29_g126 ) );
-				float3 temp_output_30_0_g126 = ( ( min( min( break19_g126.x , break19_g126.y ) , break19_g126.z ) * temp_output_28_0_g126 ) + appendResult29_g126 );
-				float3 break120_g126 = temp_output_30_0_g126;
-				float3 appendResult121_g126 = (float3(break120_g126.x , ( break120_g126.y * -1.0 ) , break120_g126.z));
-				float3 temp_output_31_0 = (texCUBElod( _InteriorCube, float4( appendResult121_g126, 0.0) )).rgb;
+				float2 temp_output_32_0_g127 = ( IN.ase_texcoord5.xy * appendResult182 );
+				float3 appendResult29_g127 = (float3(( ( frac( temp_output_32_0_g127 ) * float2( 2,-2 ) ) - float2( 1,-1 ) ) , -1.0));
+				float3 break19_g127 = ( abs( temp_output_17_0_g127 ) - ( temp_output_17_0_g127 * appendResult29_g127 ) );
+				float3 temp_output_30_0_g127 = ( ( min( min( break19_g127.x , break19_g127.y ) , break19_g127.z ) * temp_output_28_0_g127 ) + appendResult29_g127 );
+				float3 break120_g127 = temp_output_30_0_g127;
+				float3 appendResult121_g127 = (float3(break120_g127.x , ( break120_g127.y * -1.0 ) , break120_g127.z));
+				float3 temp_output_31_0 = (texCUBElod( _InteriorCube, float4( appendResult121_g127, 0.0) )).rgb;
 				float3 InteriorMapping406 = temp_output_31_0;
 				float4 tex2DNode178 = tex2D( _FacadeMap, ( ( IN.ase_texcoord5.xy * (_FacadeTilling).xy ) + (_FacadeTilling).zw ) );
 				float fresnelNdotV27 = dot( ase_worldNormal, ase_worldViewDir );
@@ -2216,43 +2150,20 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 
 			HLSLPROGRAM
 
-			
-
-			
-
 			#define _NORMAL_DROPOFF_TS 1
 			#pragma multi_compile_instancing
-			#pragma multi_compile _ LOD_FADE_CROSSFADE
+			#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 			#define ASE_FOG 1
 			#define _EMISSION
-			#define ASE_SRP_VERSION 140011
+			#define ASE_SRP_VERSION 140010
 
-
-			
-
-			
 
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
-				#define _SPECULAR_COLOR 1
-			#endif
+			#pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
 
 			#define SHADERPASS SHADERPASS_DEPTHNORMALSONLY
-			//#define SHADERPASS SHADERPASS_DEPTHNORMALS
-
-			
-            #if ASE_SRP_VERSION >=140007
-			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-			#endif
-		
-
-			
-			#if ASE_SRP_VERSION >=140007
-			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
-			#endif
-		
 
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
@@ -2260,17 +2171,6 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 
@@ -2290,21 +2190,21 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 
 			struct VertexInput
 			{
-				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
-				float4 tangentOS : TANGENT;
+				float4 vertex : POSITION;
+				float3 ase_normal : NORMAL;
+				float4 ase_tangent : TANGENT;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
 			struct VertexOutput
 			{
-				ASE_SV_POSITION_QUALIFIERS float4 positionCS : SV_POSITION;
+				ASE_SV_POSITION_QUALIFIERS float4 clipPos : SV_POSITION;
 				float4 clipPosV : TEXCOORD0;
 				float3 worldNormal : TEXCOORD1;
 				float4 worldTangent : TEXCOORD2;
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					float3 positionWS : TEXCOORD3;
+					float3 worldPos : TEXCOORD3;
 				#endif
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
 					float4 shadowCoord : TEXCOORD4;
@@ -2342,16 +2242,25 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			#endif
 			CBUFFER_END
 
+			// Property used by ScenePickingPass
 			#ifdef SCENEPICKINGPASS
 				float4 _SelectionID;
 			#endif
 
+			// Properties used by SceneSelectionPass
 			#ifdef SCENESELECTIONPASS
 				int _ObjectId;
 				int _PassValue;
 			#endif
 
 			
+
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/Varyings.hlsl"
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/DepthNormalsOnlyPass.hlsl"
+
+			//#ifdef HAVE_VFX_MODIFICATION
+			//#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/VisualEffectVertex.hlsl"
+			//#endif
 
 			
 			VertexOutput VertexFunction( VertexInput v  )
@@ -2363,7 +2272,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 
 				
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					float3 defaultVertexValue = v.positionOS.xyz;
+					float3 defaultVertexValue = v.vertex.xyz;
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
@@ -2371,32 +2280,33 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				float3 vertexValue = defaultVertexValue;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					v.positionOS.xyz = vertexValue;
+					v.vertex.xyz = vertexValue;
 				#else
-					v.positionOS.xyz += vertexValue;
+					v.vertex.xyz += vertexValue;
 				#endif
 
-				v.normalOS = v.normalOS;
-				v.tangentOS = v.tangentOS;
-
-				VertexPositionInputs vertexInput = GetVertexPositionInputs( v.positionOS.xyz );
-
-				float3 normalWS = TransformObjectToWorldNormal( v.normalOS );
-				float4 tangentWS = float4( TransformObjectToWorldDir( v.tangentOS.xyz ), v.tangentOS.w );
+				v.ase_normal = v.ase_normal;
+				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
+				float3 normalWS = TransformObjectToWorldNormal( v.ase_normal );
+				float4 tangentWS = float4(TransformObjectToWorldDir( v.ase_tangent.xyz), v.ase_tangent.w);
+				float4 positionCS = TransformWorldToHClip( positionWS );
 
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					o.positionWS = vertexInput.positionWS;
+					o.worldPos = positionWS;
 				#endif
 
 				o.worldNormal = normalWS;
 				o.worldTangent = tangentWS;
 
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
+					VertexPositionInputs vertexInput = (VertexPositionInputs)0;
+					vertexInput.positionWS = positionWS;
+					vertexInput.positionCS = positionCS;
 					o.shadowCoord = GetShadowCoord( vertexInput );
 				#endif
 
-				o.positionCS = vertexInput.positionCS;
-				o.clipPosV = vertexInput.positionCS;
+				o.clipPos = positionCS;
+				o.clipPosV = positionCS;
 				return o;
 			}
 
@@ -2404,8 +2314,8 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			struct VertexControl
 			{
 				float4 vertex : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
-				float4 tangentOS : TANGENT;
+				float3 ase_normal : NORMAL;
+				float4 ase_tangent : TANGENT;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -2421,9 +2331,9 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				VertexControl o;
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
-				o.vertex = v.positionOS;
-				o.normalOS = v.normalOS;
-				o.tangentOS = v.tangentOS;
+				o.vertex = v.vertex;
+				o.ase_normal = v.ase_normal;
+				o.ase_tangent = v.ase_tangent;
 				
 				return o;
 			}
@@ -2461,16 +2371,16 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			VertexOutput DomainFunction(TessellationFactors factors, OutputPatch<VertexControl, 3> patch, float3 bary : SV_DomainLocation)
 			{
 				VertexInput o = (VertexInput) 0;
-				o.positionOS = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
-				o.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
-				o.tangentOS = patch[0].tangentOS * bary.x + patch[1].tangentOS * bary.y + patch[2].tangentOS * bary.z;
+				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
+				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
+				o.ase_tangent = patch[0].ase_tangent * bary.x + patch[1].ase_tangent * bary.y + patch[2].ase_tangent * bary.z;
 				
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
-					pp[i] = o.positionOS.xyz - patch[i].normalOS * (dot(o.positionOS.xyz, patch[i].normalOS) - dot(patch[i].vertex.xyz, patch[i].normalOS));
+					pp[i] = o.vertex.xyz - patch[i].ase_normal * (dot(o.vertex.xyz, patch[i].ase_normal) - dot(patch[i].vertex.xyz, patch[i].ase_normal));
 				float phongStrength = _TessPhongStrength;
-				o.positionOS.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.positionOS.xyz;
+				o.vertex.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.vertex.xyz;
 				#endif
 				UNITY_TRANSFER_INSTANCE_ID(patch[0], o);
 				return VertexFunction(o);
@@ -2496,7 +2406,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX( IN );
 
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					float3 WorldPosition = IN.positionWS;
+					float3 WorldPosition = IN.worldPos;
 				#endif
 
 				float4 ShadowCoords = float4( 0, 0, 0, 0 );
@@ -2519,17 +2429,16 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				float3 Normal = float3(0, 0, 1);
 				float Alpha = 1;
 				float AlphaClipThreshold = 0.5;
-
 				#ifdef ASE_DEPTH_WRITE_ON
-					float DepthValue = IN.positionCS.z;
+					float DepthValue = IN.clipPos.z;
 				#endif
 
 				#ifdef _ALPHATEST_ON
 					clip(Alpha - AlphaClipThreshold);
 				#endif
 
-				#if defined(LOD_FADE_CROSSFADE)
-					LODFadeCrossFade( IN.positionCS );
+				#ifdef LOD_FADE_CROSSFADE
+					LODFadeCrossFade( IN.clipPos );
 				#endif
 
 				#ifdef ASE_DEPTH_WRITE_ON
@@ -2582,65 +2491,39 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 
 			HLSLPROGRAM
 
-			
-
 			#define _NORMAL_DROPOFF_TS 1
-			#pragma shader_feature_local _RECEIVE_SHADOWS_OFF
 			#pragma multi_compile_instancing
 			#pragma instancing_options renderinglayer
-			#pragma multi_compile _ LOD_FADE_CROSSFADE
+			#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 			#pragma multi_compile_fog
 			#define ASE_FOG 1
 			#define _EMISSION
-			#define ASE_SRP_VERSION 140011
+			#define ASE_SRP_VERSION 140010
 
 
-			
+			#pragma shader_feature_local _RECEIVE_SHADOWS_OFF
+			#pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
+			#pragma shader_feature_local_fragment _ENVIRONMENTREFLECTIONS_OFF
 
 			#pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
 			#pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
 			#pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
-
-			
-
-			
-			#pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
-           
-
+			#pragma multi_compile_fragment _ _SHADOWS_SOFT
 			#pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
-			#pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
 			#pragma multi_compile_fragment _ _RENDER_PASS_ENABLED
-      
-			
 
 			#pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
-			#pragma multi_compile _ _MIXED_LIGHTING_SUBTRACTIVE
 			#pragma multi_compile _ SHADOWS_SHADOWMASK
 			#pragma multi_compile _ DIRLIGHTMAP_COMBINED
 			#pragma multi_compile _ LIGHTMAP_ON
 			#pragma multi_compile _ DYNAMICLIGHTMAP_ON
-			#pragma multi_compile_fragment _ DEBUG_DISPLAY
+			#pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
+			#pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
 
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
-				#define _SPECULAR_COLOR 1
-			#endif
-
 			#define SHADERPASS SHADERPASS_GBUFFER
-
-			
-            #if ASE_SRP_VERSION >=140007
-			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-			#endif
-		
-
-			
-			#if ASE_SRP_VERSION >=140007
-			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
-			#endif
-		
 
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
@@ -2648,17 +2531,6 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DBuffer.hlsl"
@@ -2688,9 +2560,9 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 
 			struct VertexInput
 			{
-				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
-				float4 tangentOS : TANGENT;
+				float4 vertex : POSITION;
+				float3 ase_normal : NORMAL;
+				float4 ase_tangent : TANGENT;
 				float4 texcoord : TEXCOORD0;
 				float4 texcoord1 : TEXCOORD1;
 				float4 texcoord2 : TEXCOORD2;
@@ -2700,7 +2572,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 
 			struct VertexOutput
 			{
-				ASE_SV_POSITION_QUALIFIERS float4 positionCS : SV_POSITION;
+				ASE_SV_POSITION_QUALIFIERS float4 clipPos : SV_POSITION;
 				float4 clipPosV : TEXCOORD0;
 				float4 lightmapUVOrVertexSH : TEXCOORD1;
 				half4 fogFactorAndVertexLight : TEXCOORD2;
@@ -2746,10 +2618,12 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			#endif
 			CBUFFER_END
 
+			// Property used by ScenePickingPass
 			#ifdef SCENEPICKINGPASS
 				float4 _SelectionID;
 			#endif
 
+			// Properties used by SceneSelectionPass
 			#ifdef SCENESELECTIONPASS
 				int _ObjectId;
 				int _PassValue;
@@ -2760,7 +2634,9 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			sampler2D _Roof;
 
 
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/Varyings.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl"
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/PBRGBufferPass.hlsl"
 
 			
 			VertexOutput VertexFunction( VertexInput v  )
@@ -2775,7 +2651,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				//setting value to unused interpolator channels and avoid initialization warnings
 				o.ase_texcoord8.zw = 0;
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					float3 defaultVertexValue = v.positionOS.xyz;
+					float3 defaultVertexValue = v.vertex.xyz;
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
@@ -2783,20 +2659,22 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				float3 vertexValue = defaultVertexValue;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					v.positionOS.xyz = vertexValue;
+					v.vertex.xyz = vertexValue;
 				#else
-					v.positionOS.xyz += vertexValue;
+					v.vertex.xyz += vertexValue;
 				#endif
 
-				v.normalOS = v.normalOS;
-				v.tangentOS = v.tangentOS;
+				v.ase_normal = v.ase_normal;
 
-				VertexPositionInputs vertexInput = GetVertexPositionInputs( v.positionOS.xyz );
-				VertexNormalInputs normalInput = GetVertexNormalInputs( v.normalOS, v.tangentOS );
+				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
+				float3 positionVS = TransformWorldToView( positionWS );
+				float4 positionCS = TransformWorldToHClip( positionWS );
 
-				o.tSpace0 = float4( normalInput.normalWS, vertexInput.positionWS.x);
-				o.tSpace1 = float4( normalInput.tangentWS, vertexInput.positionWS.y);
-				o.tSpace2 = float4( normalInput.bitangentWS, vertexInput.positionWS.z);
+				VertexNormalInputs normalInput = GetVertexNormalInputs( v.ase_normal, v.ase_tangent );
+
+				o.tSpace0 = float4( normalInput.normalWS, positionWS.x);
+				o.tSpace1 = float4( normalInput.tangentWS, positionWS.y);
+				o.tSpace2 = float4( normalInput.bitangentWS, positionWS.z);
 
 				#if defined(LIGHTMAP_ON)
 					OUTPUT_LIGHTMAP_UV(v.texcoord1, unity_LightmapST, o.lightmapUVOrVertexSH.xy);
@@ -2815,16 +2693,19 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 					o.lightmapUVOrVertexSH.xy = v.texcoord.xy * unity_LightmapST.xy + unity_LightmapST.zw;
 				#endif
 
-				half3 vertexLight = VertexLighting( vertexInput.positionWS, normalInput.normalWS );
+				half3 vertexLight = VertexLighting( positionWS, normalInput.normalWS );
 
 				o.fogFactorAndVertexLight = half4(0, vertexLight);
 
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
+					VertexPositionInputs vertexInput = (VertexPositionInputs)0;
+					vertexInput.positionWS = positionWS;
+					vertexInput.positionCS = positionCS;
 					o.shadowCoord = GetShadowCoord( vertexInput );
 				#endif
 
-				o.positionCS = vertexInput.positionCS;
-				o.clipPosV = vertexInput.positionCS;
+				o.clipPos = positionCS;
+				o.clipPosV = positionCS;
 				return o;
 			}
 
@@ -2832,8 +2713,8 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			struct VertexControl
 			{
 				float4 vertex : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
-				float4 tangentOS : TANGENT;
+				float3 ase_normal : NORMAL;
+				float4 ase_tangent : TANGENT;
 				float4 texcoord : TEXCOORD0;
 				float4 texcoord1 : TEXCOORD1;
 				float4 texcoord2 : TEXCOORD2;
@@ -2852,9 +2733,9 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				VertexControl o;
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
-				o.vertex = v.positionOS;
-				o.normalOS = v.normalOS;
-				o.tangentOS = v.tangentOS;
+				o.vertex = v.vertex;
+				o.ase_normal = v.ase_normal;
+				o.ase_tangent = v.ase_tangent;
 				o.texcoord = v.texcoord;
 				o.texcoord1 = v.texcoord1;
 				o.texcoord2 = v.texcoord2;
@@ -2895,9 +2776,9 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			VertexOutput DomainFunction(TessellationFactors factors, OutputPatch<VertexControl, 3> patch, float3 bary : SV_DomainLocation)
 			{
 				VertexInput o = (VertexInput) 0;
-				o.positionOS = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
-				o.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
-				o.tangentOS = patch[0].tangentOS * bary.x + patch[1].tangentOS * bary.y + patch[2].tangentOS * bary.z;
+				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
+				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
+				o.ase_tangent = patch[0].ase_tangent * bary.x + patch[1].ase_tangent * bary.y + patch[2].ase_tangent * bary.z;
 				o.texcoord = patch[0].texcoord * bary.x + patch[1].texcoord * bary.y + patch[2].texcoord * bary.z;
 				o.texcoord1 = patch[0].texcoord1 * bary.x + patch[1].texcoord1 * bary.y + patch[2].texcoord1 * bary.z;
 				o.texcoord2 = patch[0].texcoord2 * bary.x + patch[1].texcoord2 * bary.y + patch[2].texcoord2 * bary.z;
@@ -2905,9 +2786,9 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
-					pp[i] = o.positionOS.xyz - patch[i].normalOS * (dot(o.positionOS.xyz, patch[i].normalOS) - dot(patch[i].vertex.xyz, patch[i].normalOS));
+					pp[i] = o.vertex.xyz - patch[i].ase_normal * (dot(o.vertex.xyz, patch[i].ase_normal) - dot(patch[i].vertex.xyz, patch[i].ase_normal));
 				float phongStrength = _TessPhongStrength;
-				o.positionOS.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.positionOS.xyz;
+				o.vertex.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.vertex.xyz;
 				#endif
 				UNITY_TRANSFER_INSTANCE_ID(patch[0], o);
 				return VertexFunction(o);
@@ -2928,8 +2809,8 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				UNITY_SETUP_INSTANCE_ID(IN);
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(IN);
 
-				#if defined(LOD_FADE_CROSSFADE)
-					LODFadeCrossFade( IN.positionCS );
+				#ifdef LOD_FADE_CROSSFADE
+					LODFadeCrossFade( IN.clipPos );
 				#endif
 
 				#if defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
@@ -2950,7 +2831,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				float4 ClipPos = IN.clipPosV;
 				float4 ScreenPos = ComputeScreenPos( IN.clipPosV );
 
-				float2 NormalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(IN.positionCS);
+				float2 NormalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(IN.clipPos);
 
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
 					ShadowCoords = IN.shadowCoord;
@@ -2967,16 +2848,16 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				float3 tanToWorld2 = float3( WorldTangent.z, WorldBiTangent.z, WorldNormal.z );
 				float3 ase_tanViewDir =  tanToWorld0 * WorldViewDirection.x + tanToWorld1 * WorldViewDirection.y  + tanToWorld2 * WorldViewDirection.z;
 				ase_tanViewDir = normalize(ase_tanViewDir);
-				float3 temp_output_28_0_g126 = ( ase_tanViewDir * float3( -1,1,1 ) );
-				float3 temp_output_17_0_g126 = ( float3( 1,1,1 ) / temp_output_28_0_g126 );
+				float3 temp_output_28_0_g127 = ( ase_tanViewDir * float3( -1,1,1 ) );
+				float3 temp_output_17_0_g127 = ( float3( 1,1,1 ) / temp_output_28_0_g127 );
 				float2 appendResult182 = (float2(_RoomCountX , _RoomCountY));
-				float2 temp_output_32_0_g126 = ( IN.ase_texcoord8.xy * appendResult182 );
-				float3 appendResult29_g126 = (float3(( ( frac( temp_output_32_0_g126 ) * float2( 2,-2 ) ) - float2( 1,-1 ) ) , -1.0));
-				float3 break19_g126 = ( abs( temp_output_17_0_g126 ) - ( temp_output_17_0_g126 * appendResult29_g126 ) );
-				float3 temp_output_30_0_g126 = ( ( min( min( break19_g126.x , break19_g126.y ) , break19_g126.z ) * temp_output_28_0_g126 ) + appendResult29_g126 );
-				float3 break120_g126 = temp_output_30_0_g126;
-				float3 appendResult121_g126 = (float3(break120_g126.x , ( break120_g126.y * -1.0 ) , break120_g126.z));
-				float3 temp_output_31_0 = (texCUBElod( _InteriorCube, float4( appendResult121_g126, 0.0) )).rgb;
+				float2 temp_output_32_0_g127 = ( IN.ase_texcoord8.xy * appendResult182 );
+				float3 appendResult29_g127 = (float3(( ( frac( temp_output_32_0_g127 ) * float2( 2,-2 ) ) - float2( 1,-1 ) ) , -1.0));
+				float3 break19_g127 = ( abs( temp_output_17_0_g127 ) - ( temp_output_17_0_g127 * appendResult29_g127 ) );
+				float3 temp_output_30_0_g127 = ( ( min( min( break19_g127.x , break19_g127.y ) , break19_g127.z ) * temp_output_28_0_g127 ) + appendResult29_g127 );
+				float3 break120_g127 = temp_output_30_0_g127;
+				float3 appendResult121_g127 = (float3(break120_g127.x , ( break120_g127.y * -1.0 ) , break120_g127.z));
+				float3 temp_output_31_0 = (texCUBElod( _InteriorCube, float4( appendResult121_g127, 0.0) )).rgb;
 				float3 InteriorMapping406 = temp_output_31_0;
 				float4 tex2DNode178 = tex2D( _FacadeMap, ( ( IN.ase_texcoord8.xy * (_FacadeTilling).xy ) + (_FacadeTilling).zw ) );
 				float fresnelNdotV27 = dot( WorldNormal, WorldViewDirection );
@@ -2988,16 +2869,16 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				float2 uv_Roof = IN.ase_texcoord8.xy * _Roof_ST.xy + _Roof_ST.zw;
 				float4 lerpResult405 = lerp( float4( lerpResult399 , 0.0 ) , tex2D( _Roof, uv_Roof ) , WorldNormal.y);
 				
-				float2 break36_g126 = floor( temp_output_32_0_g126 );
-				float3 appendResult10_g126 = (float3(break36_g126.x , break36_g126.y , break36_g126.x));
-				float dotResult5_g126 = dot( appendResult10_g126 , float3(127.1,311.7,74.7) );
-				float3 appendResult3_g126 = (float3(break36_g126.y , break36_g126.x , break36_g126.x));
-				float dotResult4_g126 = dot( appendResult3_g126 , float3(269.5,183.3,246.1) );
-				float3 appendResult8_g126 = (float3(break36_g126.x , break36_g126.y , break36_g126.y));
-				float dotResult7_g126 = dot( appendResult8_g126 , float3(113.5,271.9,124.6) );
-				float3 appendResult6_g126 = (float3(dotResult5_g126 , dotResult4_g126 , dotResult7_g126));
-				float3 temp_output_39_0_g126 = round( frac( ( sin( appendResult6_g126 ) * 43758.55 ) ) );
-				float3 Emission85 = ( ( ( temp_output_25_0 * temp_output_31_0 ) * round( (temp_output_39_0_g126).y ) ) * _EmissiveIntensity );
+				float2 break36_g127 = floor( temp_output_32_0_g127 );
+				float3 appendResult10_g127 = (float3(break36_g127.x , break36_g127.y , break36_g127.x));
+				float dotResult5_g127 = dot( appendResult10_g127 , float3(127.1,311.7,74.7) );
+				float3 appendResult3_g127 = (float3(break36_g127.y , break36_g127.x , break36_g127.x));
+				float dotResult4_g127 = dot( appendResult3_g127 , float3(269.5,183.3,246.1) );
+				float3 appendResult8_g127 = (float3(break36_g127.x , break36_g127.y , break36_g127.y));
+				float dotResult7_g127 = dot( appendResult8_g127 , float3(113.5,271.9,124.6) );
+				float3 appendResult6_g127 = (float3(dotResult5_g127 , dotResult4_g127 , dotResult7_g127));
+				float3 temp_output_39_0_g127 = round( frac( ( sin( appendResult6_g127 ) * 43758.55 ) ) );
+				float3 Emission85 = ( ( ( temp_output_25_0 * temp_output_31_0 ) * round( (temp_output_39_0_g127).y ) ) * _EmissiveIntensity );
 				float3 lerpResult395 = lerp( float3( 0,0,0 ) , Emission85 , _EnableFacade);
 				float3 lerpResult404 = lerp( lerpResult395 , float3( 0,0,0 ) , WorldNormal.y);
 				
@@ -3023,7 +2904,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				float3 Translucency = 1;
 
 				#ifdef ASE_DEPTH_WRITE_ON
-					float DepthValue = IN.positionCS.z;
+					float DepthValue = IN.clipPos.z;
 				#endif
 
 				#ifdef _ALPHATEST_ON
@@ -3032,7 +2913,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 
 				InputData inputData = (InputData)0;
 				inputData.positionWS = WorldPosition;
-				inputData.positionCS = IN.positionCS;
+				inputData.positionCS = IN.clipPos;
 				inputData.shadowCoord = ShadowCoords;
 
 				#ifdef _NORMALMAP
@@ -3083,7 +2964,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				#endif
 
 				#ifdef _DBUFFER
-					ApplyDecal(IN.positionCS,
+					ApplyDecal(IN.clipPos,
 						BaseColor,
 						Specular,
 						inputData.normalWS,
@@ -3124,26 +3005,17 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			Tags { "LightMode"="SceneSelectionPass" }
 
 			Cull Off
-			AlphaToMask Off
 
 			HLSLPROGRAM
-
-			
 
 			#define _NORMAL_DROPOFF_TS 1
 			#define ASE_FOG 1
 			#define _EMISSION
-			#define ASE_SRP_VERSION 140011
+			#define ASE_SRP_VERSION 140010
 
-
-			
 
 			#pragma vertex vert
 			#pragma fragment frag
-
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
-				#define _SPECULAR_COLOR 1
-			#endif
 
 			#define SCENESELECTIONPASS 1
 
@@ -3157,40 +3029,22 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
-
-			
-            #if ASE_SRP_VERSION >=140007
-			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-			#endif
-		
-
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 
 			
 
 			struct VertexInput
 			{
-				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
+				float4 vertex : POSITION;
+				float3 ase_normal : NORMAL;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
 			struct VertexOutput
 			{
-				float4 positionCS : SV_POSITION;
+				float4 clipPos : SV_POSITION;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
@@ -3224,16 +3078,25 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			#endif
 			CBUFFER_END
 
+			// Property used by ScenePickingPass
 			#ifdef SCENEPICKINGPASS
 				float4 _SelectionID;
 			#endif
 
+			// Properties used by SceneSelectionPass
 			#ifdef SCENESELECTIONPASS
 				int _ObjectId;
 				int _PassValue;
 			#endif
 
 			
+
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/Varyings.hlsl"
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/SelectionPickingPass.hlsl"
+
+			//#ifdef HAVE_VFX_MODIFICATION
+			//#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/VisualEffectVertex.hlsl"
+			//#endif
 
 			
 			struct SurfaceDescription
@@ -3254,7 +3117,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					float3 defaultVertexValue = v.positionOS.xyz;
+					float3 defaultVertexValue = v.vertex.xyz;
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
@@ -3262,16 +3125,16 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				float3 vertexValue = defaultVertexValue;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					v.positionOS.xyz = vertexValue;
+					v.vertex.xyz = vertexValue;
 				#else
-					v.positionOS.xyz += vertexValue;
+					v.vertex.xyz += vertexValue;
 				#endif
 
-				v.normalOS = v.normalOS;
+				v.ase_normal = v.ase_normal;
 
-				float3 positionWS = TransformObjectToWorld( v.positionOS.xyz );
+				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
 
-				o.positionCS = TransformWorldToHClip(positionWS);
+				o.clipPos = TransformWorldToHClip(positionWS);
 
 				return o;
 			}
@@ -3280,7 +3143,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			struct VertexControl
 			{
 				float4 vertex : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
+				float3 ase_normal : NORMAL;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -3296,8 +3159,8 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				VertexControl o;
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
-				o.vertex = v.positionOS;
-				o.normalOS = v.normalOS;
+				o.vertex = v.vertex;
+				o.ase_normal = v.ase_normal;
 				
 				return o;
 			}
@@ -3335,15 +3198,15 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			VertexOutput DomainFunction(TessellationFactors factors, OutputPatch<VertexControl, 3> patch, float3 bary : SV_DomainLocation)
 			{
 				VertexInput o = (VertexInput) 0;
-				o.positionOS = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
-				o.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
+				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
+				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
 				
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
-					pp[i] = o.positionOS.xyz - patch[i].normalOS * (dot(o.positionOS.xyz, patch[i].normalOS) - dot(patch[i].vertex.xyz, patch[i].normalOS));
+					pp[i] = o.vertex.xyz - patch[i].ase_normal * (dot(o.vertex.xyz, patch[i].ase_normal) - dot(patch[i].vertex.xyz, patch[i].ase_normal));
 				float phongStrength = _TessPhongStrength;
-				o.positionOS.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.positionOS.xyz;
+				o.vertex.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.vertex.xyz;
 				#endif
 				UNITY_TRANSFER_INSTANCE_ID(patch[0], o);
 				return VertexFunction(o);
@@ -3393,26 +3256,16 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			Name "ScenePickingPass"
 			Tags { "LightMode"="Picking" }
 
-			AlphaToMask Off
-
 			HLSLPROGRAM
-
-			
 
 			#define _NORMAL_DROPOFF_TS 1
 			#define ASE_FOG 1
 			#define _EMISSION
-			#define ASE_SRP_VERSION 140011
+			#define ASE_SRP_VERSION 140010
 
-
-			
 
 			#pragma vertex vert
 			#pragma fragment frag
-
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
-				#define _SPECULAR_COLOR 1
-			#endif
 
 		    #define SCENEPICKINGPASS 1
 
@@ -3426,40 +3279,22 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
-
-			
-            #if ASE_SRP_VERSION >=140007
-			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-			#endif
-		
-
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 
 			
 
 			struct VertexInput
 			{
-				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
+				float4 vertex : POSITION;
+				float3 ase_normal : NORMAL;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
 			struct VertexOutput
 			{
-				float4 positionCS : SV_POSITION;
+				float4 clipPos : SV_POSITION;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
@@ -3493,16 +3328,25 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			#endif
 			CBUFFER_END
 
+			// Property used by ScenePickingPass
 			#ifdef SCENEPICKINGPASS
 				float4 _SelectionID;
 			#endif
 
+			// Properties used by SceneSelectionPass
 			#ifdef SCENESELECTIONPASS
 				int _ObjectId;
 				int _PassValue;
 			#endif
 
 			
+
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/Varyings.hlsl"
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/SelectionPickingPass.hlsl"
+
+			//#ifdef HAVE_VFX_MODIFICATION
+			//#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/VisualEffectVertex.hlsl"
+			//#endif
 
 			
 			struct SurfaceDescription
@@ -3523,7 +3367,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					float3 defaultVertexValue = v.positionOS.xyz;
+					float3 defaultVertexValue = v.vertex.xyz;
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
@@ -3531,15 +3375,15 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				float3 vertexValue = defaultVertexValue;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					v.positionOS.xyz = vertexValue;
+					v.vertex.xyz = vertexValue;
 				#else
-					v.positionOS.xyz += vertexValue;
+					v.vertex.xyz += vertexValue;
 				#endif
 
-				v.normalOS = v.normalOS;
+				v.ase_normal = v.ase_normal;
 
-				float3 positionWS = TransformObjectToWorld( v.positionOS.xyz );
-				o.positionCS = TransformWorldToHClip(positionWS);
+				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
+				o.clipPos = TransformWorldToHClip(positionWS);
 
 				return o;
 			}
@@ -3548,7 +3392,7 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			struct VertexControl
 			{
 				float4 vertex : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
+				float3 ase_normal : NORMAL;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -3564,8 +3408,8 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 				VertexControl o;
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
-				o.vertex = v.positionOS;
-				o.normalOS = v.normalOS;
+				o.vertex = v.vertex;
+				o.ase_normal = v.ase_normal;
 				
 				return o;
 			}
@@ -3603,15 +3447,15 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 			VertexOutput DomainFunction(TessellationFactors factors, OutputPatch<VertexControl, 3> patch, float3 bary : SV_DomainLocation)
 			{
 				VertexInput o = (VertexInput) 0;
-				o.positionOS = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
-				o.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
+				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
+				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
 				
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
-					pp[i] = o.positionOS.xyz - patch[i].normalOS * (dot(o.positionOS.xyz, patch[i].normalOS) - dot(patch[i].vertex.xyz, patch[i].normalOS));
+					pp[i] = o.vertex.xyz - patch[i].ase_normal * (dot(o.vertex.xyz, patch[i].ase_normal) - dot(patch[i].vertex.xyz, patch[i].ase_normal));
 				float phongStrength = _TessPhongStrength;
-				o.positionOS.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.positionOS.xyz;
+				o.vertex.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.vertex.xyz;
 				#endif
 				UNITY_TRANSFER_INSTANCE_ID(patch[0], o);
 				return VertexFunction(o);
@@ -3662,9 +3506,9 @@ Shader "AmplifyShaderPack/Interior Mapping Cubemap"
 	Fallback Off
 }
 /*ASEBEGIN
-Version=19602
+Version=19108
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;24;-296.0719,467.0317;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0.2;False;1;FLOAT;0
-Node;AmplifyShaderEditor.SamplerNode;178;-631.3651,297.8752;Inherit;True;Property;_TextureSample1;Texture Sample 1;3;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.SamplerNode;178;-631.3651,297.8752;Inherit;True;Property;_TextureSample1;Texture Sample 1;3;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;25;-140.5865,497.8565;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.SwizzleNode;23;-146.5719,300.4169;Inherit;False;FLOAT3;0;1;2;3;1;0;COLOR;0,0,0,0;False;1;FLOAT3;0
 Node;AmplifyShaderEditor.LerpOp;80;52.13768,451.0452;Inherit;False;3;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;2;FLOAT;0;False;1;FLOAT3;0
@@ -3681,12 +3525,11 @@ Node;AmplifyShaderEditor.SwizzleNode;384;-1371.707,272.9924;Inherit;False;FLOAT2
 Node;AmplifyShaderEditor.SimpleAddOpNode;385;-1079.804,323.793;Inherit;False;2;2;0;FLOAT2;0,0;False;1;FLOAT2;0,0;False;1;FLOAT2;0
 Node;AmplifyShaderEditor.SwizzleNode;386;-1372.707,339.9924;Inherit;False;FLOAT2;2;3;2;3;1;0;FLOAT4;0,0,0,0;False;1;FLOAT2;0
 Node;AmplifyShaderEditor.Vector4Node;387;-1568.707,271.9924;Inherit;False;Property;_FacadeTilling;Facade Tilling;5;0;Create;True;0;0;0;False;0;False;1,1,0,0;2,2,0,0;0;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.FunctionNode;378;-1654.479,951.4177;Inherit;False;UV Interior Cubemap;-1;;126;22dbe19408af0d14db5aa16670d14906;1,59,0;2;62;FLOAT2;0,0;False;58;FLOAT2;1,1;False;2;FLOAT3;56;FLOAT3;61
 Node;AmplifyShaderEditor.RangedFloatNode;180;-2037.864,946.8691;Inherit;False;Property;_RoomCountX;Room Count X;0;0;Create;True;0;0;0;False;0;False;4;4;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode;181;-2039.052,1020.557;Inherit;False;Property;_RoomCountY;Room Count Y;1;0;Create;True;0;0;0;False;0;False;4;4;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.DynamicAppendNode;182;-1865.399,973.0163;Inherit;False;FLOAT2;4;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT2;0
 Node;AmplifyShaderEditor.WireNode;187;-1732.427,923.0371;Inherit;False;1;0;FLOAT2;0,0;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.SamplerNode;122;-640.4485,764.6312;Inherit;True;Property;_TextureSample0;Texture Sample 0;1;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;white;LockedToCube;False;Object;-1;MipLevel;Cube;8;0;SAMPLERCUBE;;False;1;FLOAT3;0,0,0;False;2;FLOAT;0;False;3;FLOAT3;0,0,0;False;4;FLOAT3;0,0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.SamplerNode;122;-640.4485,764.6312;Inherit;True;Property;_TextureSample0;Texture Sample 0;1;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;white;LockedToCube;False;Object;-1;MipLevel;Cube;8;0;SAMPLERCUBE;;False;1;FLOAT3;0,0,0;False;2;FLOAT;0;False;3;FLOAT3;0,0,0;False;4;FLOAT3;0,0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.WireNode;388;-712.217,981.3679;Inherit;False;1;0;FLOAT3;0,0,0;False;1;FLOAT3;0
 Node;AmplifyShaderEditor.WireNode;389;-698.217,949.3679;Inherit;False;1;0;FLOAT3;0,0,0;False;1;FLOAT3;0
 Node;AmplifyShaderEditor.WireNode;186;-1737.05,257.0649;Inherit;False;1;0;FLOAT2;0,0;False;1;FLOAT2;0
@@ -3707,7 +3550,7 @@ Node;AmplifyShaderEditor.SimpleMultiplyOpNode;29;63.21346,856.1479;Inherit;False
 Node;AmplifyShaderEditor.RegisterLocalVarNode;406;78.36826,765.6061;Inherit;False;InteriorMapping;-1;True;1;0;FLOAT3;0,0,0;False;1;FLOAT3;0
 Node;AmplifyShaderEditor.GetLocalVarNode;400;-290.7706,-676.6565;Inherit;False;406;InteriorMapping;1;0;OBJECT;;False;1;FLOAT3;0
 Node;AmplifyShaderEditor.GetLocalVarNode;401;-257.6644,-604.2272;Inherit;False;86;Facade;1;0;OBJECT;;False;1;FLOAT3;0
-Node;AmplifyShaderEditor.SamplerNode;192;-611.246,-569.8152;Inherit;True;Property;_TextureSample2;Texture Sample 2;6;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.SamplerNode;192;-611.246,-569.8152;Inherit;True;Property;_TextureSample2;Texture Sample 2;6;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.WorldNormalVector;407;8.577641,-29.43853;Inherit;False;False;1;0;FLOAT3;0,0,1;False;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
 Node;AmplifyShaderEditor.TexturePropertyNode;193;-888.3286,-569.7828;Inherit;True;Property;_Roof;Roof;7;1;[SingleLineTexture];Create;True;0;0;0;False;0;False;None;aab8de1052c54173b3d61e7f8b05aedf;False;white;Auto;Texture2D;-1;0;2;SAMPLER2D;0;SAMPLERSTATE;1
 Node;AmplifyShaderEditor.TexturePropertyNode;78;-944.4854,762.4339;Inherit;True;Property;_InteriorCube;Interior Cube;2;1;[SingleLineTexture];Create;True;0;0;0;False;0;False;None;None;False;white;LockedToCube;Cube;-1;0;2;SAMPLERCUBE;0;SAMPLERSTATE;1
@@ -3719,9 +3562,10 @@ Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;412;464.73,-583.1663;Float;
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;413;464.73,-583.1663;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;Universal2D;0;5;Universal2D;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;1;LightMode=Universal2D;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;414;464.73,-583.1663;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;DepthNormals;0;6;DepthNormals;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;False;True;1;LightMode=DepthNormals;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;415;464.73,-583.1663;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;GBuffer;0;7;GBuffer;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;1;LightMode=UniversalGBuffer;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;409;461.0236,-583.1663;Float;False;True;-1;2;UnityEditor.ShaderGraphLitGUI;0;12;AmplifyShaderPack/Interior Mapping Cubemap;94348b07e5e8bab40bd6c8a1e3df54cd;True;Forward;0;1;Forward;21;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;1;LightMode=UniversalForward;False;False;0;;0;0;Standard;42;Lighting Model;0;0;Workflow;1;0;Surface;0;0;  Refraction Model;0;0;  Blend;0;0;Two Sided;1;0;Fragment Normal Space,InvertActionOnDeselection;0;0;Forward Only;0;0;Transmission;0;0;  Transmission Shadow;0.5,False,;0;Translucency;0;0;  Translucency Strength;1,False,;0;  Normal Distortion;0.5,False,;0;  Scattering;2,False,;0;  Direct;0.9,False,;0;  Ambient;0.1,False,;0;  Shadow;0.5,False,;0;Cast Shadows;1;0;  Use Shadow Threshold;0;0;Receive Shadows;1;0;Receive SSAO;1;0;GPU Instancing;1;0;LOD CrossFade;1;0;Built-in Fog;1;0;_FinalColorxAlpha;0;0;Meta Pass;1;0;Override Baked GI;0;0;Extra Pre Pass;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,False,;0;  Type;0;0;  Tess;16,False,;0;  Min;10,False,;0;  Max;25,False,;0;  Edge Length;16,False,;0;  Max Displacement;25,False,;0;Write Depth;0;0;  Early Z;0;0;Vertex Position,InvertActionOnDeselection;1;0;Debug Display;0;0;Clear Coat;0;0;0;10;False;True;True;True;True;True;True;True;True;True;False;;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;416;461.0236,-503.1663;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;SceneSelectionPass;0;8;SceneSelectionPass;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;2;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=SceneSelectionPass;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;417;461.0236,-503.1663;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ScenePickingPass;0;9;ScenePickingPass;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Picking;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;409;461.0236,-583.1663;Float;False;True;-1;2;UnityEditor.ShaderGraphLitGUI;0;12;AmplifyShaderPack/Interior Mapping Cubemap;94348b07e5e8bab40bd6c8a1e3df54cd;True;Forward;0;1;Forward;20;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;1;LightMode=UniversalForward;False;False;0;;0;0;Standard;41;Workflow;1;0;Surface;0;0;  Refraction Model;0;0;  Blend;0;0;Two Sided;1;0;Fragment Normal Space,InvertActionOnDeselection;0;0;Forward Only;0;0;Transmission;0;0;  Transmission Shadow;0.5,False,;0;Translucency;0;0;  Translucency Strength;1,False,;0;  Normal Distortion;0.5,False,;0;  Scattering;2,False,;0;  Direct;0.9,False,;0;  Ambient;0.1,False,;0;  Shadow;0.5,False,;0;Cast Shadows;1;0;  Use Shadow Threshold;0;0;Receive Shadows;1;0;GPU Instancing;1;0;LOD CrossFade;1;0;Built-in Fog;1;0;_FinalColorxAlpha;0;0;Meta Pass;1;0;Override Baked GI;0;0;Extra Pre Pass;0;0;DOTS Instancing;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,False,;0;  Type;0;0;  Tess;16,False,;0;  Min;10,False,;0;  Max;25,False,;0;  Edge Length;16,False,;0;  Max Displacement;25,False,;0;Write Depth;0;0;  Early Z;0;0;Vertex Position,InvertActionOnDeselection;1;0;Debug Display;0;0;Clear Coat;0;0;0;10;False;True;True;True;True;True;True;True;True;True;False;;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;416;461.0236,-503.1663;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;SceneSelectionPass;0;8;SceneSelectionPass;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=SceneSelectionPass;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;417;461.0236,-503.1663;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ScenePickingPass;0;9;ScenePickingPass;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Picking;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.FunctionNode;418;-1654.479,950.4177;Inherit;False;UV Interior Cubemap;-1;;127;22dbe19408af0d14db5aa16670d14906;1,59,0;2;62;FLOAT2;0,0;False;58;FLOAT2;1,1;False;2;FLOAT3;56;FLOAT3;61
 WireConnection;24;0;178;4
 WireConnection;178;0;177;0
 WireConnection;178;1;385;0
@@ -3739,7 +3583,7 @@ WireConnection;83;0;29;0
 WireConnection;83;1;82;0
 WireConnection;84;0;83;0
 WireConnection;84;1;382;0
-WireConnection;81;0;378;61
+WireConnection;81;0;418;61
 WireConnection;85;0;84;0
 WireConnection;383;0;21;0
 WireConnection;383;1;384;0
@@ -3747,15 +3591,13 @@ WireConnection;384;0;387;0
 WireConnection;385;0;383;0
 WireConnection;385;1;386;0
 WireConnection;386;0;387;0
-WireConnection;378;62;187;0
-WireConnection;378;58;182;0
 WireConnection;182;0;180;0
 WireConnection;182;1;181;0
 WireConnection;187;0;186;0
 WireConnection;122;0;78;0
 WireConnection;122;1;389;0
 WireConnection;122;7;78;1
-WireConnection;388;0;378;56
+WireConnection;388;0;418;56
 WireConnection;389;0;388;0
 WireConnection;186;0;21;0
 WireConnection;175;0;178;4
@@ -3783,5 +3625,7 @@ WireConnection;409;0;405;0
 WireConnection;409;2;404;0
 WireConnection;409;3;403;0
 WireConnection;409;4;403;0
+WireConnection;418;62;187;0
+WireConnection;418;58;182;0
 ASEEND*/
-//CHKSM=6A7597FB0A3F50A2B8FD468B3072E790CAFF7DFB
+//CHKSM=97EF0D2AA381C88EAB7CF06D1E47201979A500BA

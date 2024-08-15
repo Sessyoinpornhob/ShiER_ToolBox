@@ -9,6 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Material Sample Fabric Standard
   m_Shader: {fileID: 4800000, guid: 95e42a2e818a4c68ae2e4ed21fe362e2, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -17,6 +19,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -87,7 +90,7 @@ Material:
     - _SpecularColorIOR: 0
     - _SpecularColorWeight: 1
     - _SpecularHighlights: 1
-    - _SpecularStrength: 0.04
+    - _SpecularStrength: 0.084
     - _ThreadMaskEnable: 1
     - _ThreadMaskOcclusionStrength: 0.24
     - _ThreadMaskSmoothnessStrength: 0.301
@@ -95,7 +98,7 @@ Material:
     - _ThreadMaskUVAffectchannel1: 0
     - _ThreadMaskUVAffectchannel2: 0
     - _ThreadMaskUVAffectchannel3: 0
-    - _ThreadNormalStrength: 0.85
+    - _ThreadNormalStrength: 1.316
     - __dirty: 0
     m_Colors:
     - _BaseColor1: {r: 0.7294118, g: 0.7294118, b: 0.7294118, a: 0}

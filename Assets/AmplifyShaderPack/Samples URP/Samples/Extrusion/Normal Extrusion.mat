@@ -9,6 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Normal Extrusion
   m_Shader: {fileID: 4800000, guid: d73cb1d37f984bd78be2432d6dc86334, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords:
   - _EMISSION
@@ -18,6 +20,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -98,8 +101,8 @@ Material:
     - _Ext: 10.62
     - _Extr: 10.62
     - _Extrs: 10.62
-    - _ExtrusionAmount: 9.6
-    - _ExtrusionPoint: 0.45
+    - _ExtrusionAmount: 20
+    - _ExtrusionPoint: 3
     - _ExtrxusionPo: 10.62
     - _ExtrxusionPoi: 10.62
     - _ExtrxusionPoin: 10.62

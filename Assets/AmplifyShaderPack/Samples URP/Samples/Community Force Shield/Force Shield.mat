@@ -39,7 +39,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ShieldPattern:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: a6da1193c8ce46cc8eb5493dcb772419, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ShieldPatternWaves:
@@ -87,9 +87,9 @@ Material:
     - _HitSize: 0.25
     - _HitTime: 3
     - _Intensity: 12.63
-    - _IntersectIntensity: 0.382
+    - _IntersectIntensity: 0.586
     - _MaskClipValue: 0
-    - _Opacity: 0.035
+    - _Opacity: 0.356
     - _OpaqueCullMode: 2
     - _QueueControl: 0
     - _QueueOffset: 0
@@ -98,11 +98,11 @@ Material:
     - _ReceivesSSRTransparent: 0
     - _RenderQueueType: 5
     - _RequireSplitLighting: 0
-    - _ShieldAnimSpeed: 6
-    - _ShieldDistortion: 0.00597
-    - _ShieldPatternPower: 27.6
-    - _ShieldPatternSize: 5
-    - _ShieldRimPower: 7
+    - _ShieldAnimSpeed: -4.39
+    - _ShieldDistortion: 0
+    - _ShieldPatternPower: 22.4
+    - _ShieldPatternSize: 20
+    - _ShieldRimPower: 10
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _StencilRef: 0
@@ -135,5 +135,5 @@ Material:
     - _HitColor: {r: 1, g: 1, b: 1, a: 1}
     - _HitPosition: {r: 0, g: 0, b: 0, a: 0}
     - _IntersectColor: {r: 0.9607843, g: 0.21960784, b: 0, a: 1}
-    - _ShieldPatternColor: {r: 0.2735849, g: 0.2735849, b: 0.2735849, a: 1}
+    - _ShieldPatternColor: {r: 0.6784314, g: 0.5822879, b: 0.30588236, a: 1}
   m_BuildTextureStacks: []

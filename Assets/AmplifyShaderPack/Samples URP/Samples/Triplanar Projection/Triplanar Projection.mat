@@ -9,6 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Triplanar Projection
   m_Shader: {fileID: 4800000, guid: 97b77af50b3c491d95fa0331eca3d165, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 5
@@ -17,6 +19,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -113,15 +116,15 @@ Material:
     - _AlphaCutoff: 0.5
     - _Coverage: 20
     - _CoverageAmount: 0
-    - _CoverageFalloff: 2
+    - _CoverageFalloff: 2.56
     - _EnvironmentReflections: 1
     - _Float0: -1.52
     - _Metallic: 0.02
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _Smoothness: 0.2
-    - _Specular: 0.02
+    - _Smoothness: 0.342
+    - _Specular: 0.037
     - _SpecularHighlights: 1
     - _WorldtoObjectSpace: 0
     - _WorldtoObjectSwitch: 1

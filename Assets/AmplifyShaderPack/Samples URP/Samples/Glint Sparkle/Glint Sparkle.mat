@@ -9,6 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Glint Sparkle
   m_Shader: {fileID: 4800000, guid: 37b892986f78405fa95ee53a4810b437, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _DIRECTION_Y
   - _INVERTDIRECTION_ON
@@ -22,6 +24,7 @@ Material:
     MotionVector: User
   disabledShaderPasses:
   - TransparentBackface
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -125,5 +128,5 @@ Material:
     - _MainGlowFresnel: {r: 0.02, g: 1, b: 5, a: 0}
     - _SizeSpeedInterval: {r: 0.5, g: 10, b: 5, a: 0}
     - _SparkleColor: {r: 1, g: 0.7779999, b: 0.29716682, a: 1}
-    - _SparkleFresnel: {r: 0.02, g: 0.8, b: 2, a: 0}
+    - _SparkleFresnel: {r: 0.13, g: 0.34, b: 1.59, a: 0}
   m_BuildTextureStacks: []

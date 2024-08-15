@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 0
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 5169045930573494952}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 0}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1456,11 +1455,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Scene Light Baked Yellow
-      objectReference: {fileID: 0}
-    - target: {fileID: 4128251927657444588, guid: 0bb4852d3c0bffb4d8558cc85b176ba5,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

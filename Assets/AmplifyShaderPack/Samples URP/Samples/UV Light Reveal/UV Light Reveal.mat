@@ -9,6 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: UV Light Reveal
   m_Shader: {fileID: 4800000, guid: 2a75acfff7144799ab6a6ef23313b612, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _RECEIVE_SHADOWS_OFF
   m_InvalidKeywords:
@@ -19,6 +21,7 @@ Material:
   m_CustomRenderQueue: 1993
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -61,7 +64,7 @@ Material:
     - _RevealThreshold: 0.9
     - _SpecularHighlights: 1
     - _UVLight00Threshold: 0.246
-    - _UVLightThreshold: 0.48
+    - _UVLightThreshold: 1
     m_Colors:
     - _ColortoBeFiltered: {r: 0.40392154, g: 0, b: 1, a: 1}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}

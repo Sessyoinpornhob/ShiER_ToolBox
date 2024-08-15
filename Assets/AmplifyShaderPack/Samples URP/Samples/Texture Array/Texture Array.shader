@@ -1,4 +1,4 @@
-// Made with Amplify Shader Editor v1.9.6.2
+// Made with Amplify Shader Editor v1.9.1.8
 // Available at the Unity Asset Store - http://u3d.as/y3X 
 Shader "AmplifyShaderPack/Texture Array"
 {
@@ -6,10 +6,14 @@ Shader "AmplifyShaderPack/Texture Array"
 	{
 		[HideInInspector] _AlphaCutoff("Alpha Cutoff ", Range(0, 1)) = 0.5
 		[HideInInspector] _EmissionColor("Emission Color", Color) = (1,1,1,1)
-		_TextureArrayAlbedo("Texture Array Albedo", 2DArray) = "white" {}
+		[ASEBegin]_TextureArrayAlbedo("Texture Array Albedo", 2DArray) = "white" {}
 		_TextureArrayNormal("Texture Array Normal", 2DArray) = "white" {}
+		_RoughnessIndex("Roughness Index", Float) = 2
+		_OcclusionIndex("Occlusion Index", Float) = 1
+		_AlbedoIndex("Albedo Index", Float) = 1
+		_NormalIndex("Normal Index", Float) = 0
 		_NormalScale("Normal Scale", Float) = 1
-		_RoughScale("Rough Scale", Range( 0 , 1)) = 0.1
+		[ASEEnd]_RoughScale("Rough Scale", Range( 0 , 1)) = 0.1
 		[HideInInspector] _texcoord( "", 2D ) = "white" {}
 
 
@@ -27,8 +31,8 @@ Shader "AmplifyShaderPack/Texture Array"
 		//_TessEdgeLength ( "Tess Edge length", Range( 2, 50 ) ) = 16
 		//_TessMaxDisp( "Tess Max Displacement", Float ) = 25
 
-		[HideInInspector][ToggleOff] _SpecularHighlights("Specular Highlights", Float) = 1
-		[HideInInspector][ToggleOff] _EnvironmentReflections("Environment Reflections", Float) = 1
+		[HideInInspector][ToggleOff] _SpecularHighlights("Specular Highlights", Float) = 1.0
+		[HideInInspector][ToggleOff] _EnvironmentReflections("Environment Reflections", Float) = 1.0
 		[HideInInspector][ToggleOff] _ReceiveShadows("Receive Shadows", Float) = 1.0
 
 		[HideInInspector] _QueueOffset("_QueueOffset", Float) = 0
@@ -183,48 +187,33 @@ Shader "AmplifyShaderPack/Texture Array"
 
 			HLSLPROGRAM
 
-			
-
 			#define _NORMAL_DROPOFF_TS 1
-			#pragma shader_feature_local _RECEIVE_SHADOWS_OFF
-			#pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
 			#pragma multi_compile_instancing
 			#pragma instancing_options renderinglayer
-			#pragma multi_compile _ LOD_FADE_CROSSFADE
+			#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 			#pragma multi_compile_fog
 			#define ASE_FOG 1
 			#define _SPECULAR_SETUP 1
+			#pragma shader_feature_local_fragment _SPECULAR_SETUP
+			#define _NORMALMAP 1
+			#define ASE_SRP_VERSION 140010
+
+
+			#pragma shader_feature_local _RECEIVE_SHADOWS_OFF
 			#pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
 			#pragma shader_feature_local_fragment _ENVIRONMENTREFLECTIONS_OFF
-			#define _NORMALMAP 1
-			#define ASE_SRP_VERSION 140011
-
-
-			
 
 			#pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
 			#pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
-
-			
-            #pragma multi_compile _ EVALUATE_SH_MIXED EVALUATE_SH_VERTEX
-		
-
 			#pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
 			#pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
 			#pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
-
-			
-
-			
-			#pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
-           
-
+			#pragma multi_compile_fragment _ _SHADOWS_SOFT
+			#pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
 			#pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
-			#pragma multi_compile _ _LIGHT_LAYERS
+			#pragma multi_compile_fragment _ _LIGHT_LAYERS
 			#pragma multi_compile_fragment _ _LIGHT_COOKIES
 			#pragma multi_compile _ _FORWARD_PLUS
-
-			
 
 			#pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
 			#pragma multi_compile _ SHADOWS_SHADOWMASK
@@ -232,27 +221,12 @@ Shader "AmplifyShaderPack/Texture Array"
 			#pragma multi_compile _ LIGHTMAP_ON
 			#pragma multi_compile _ DYNAMICLIGHTMAP_ON
 			#pragma multi_compile_fragment _ DEBUG_DISPLAY
+			#pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
 
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
-				#define _SPECULAR_COLOR 1
-			#endif
-
 			#define SHADERPASS SHADERPASS_FORWARD
-
-			
-            #if ASE_SRP_VERSION >=140007
-			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-			#endif
-		
-
-			
-			#if ASE_SRP_VERSION >=140007
-			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
-			#endif
-		
 
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
@@ -260,17 +234,6 @@ Shader "AmplifyShaderPack/Texture Array"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DBuffer.hlsl"
@@ -296,9 +259,9 @@ Shader "AmplifyShaderPack/Texture Array"
 
 			struct VertexInput
 			{
-				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
-				float4 tangentOS : TANGENT;
+				float4 vertex : POSITION;
+				float3 ase_normal : NORMAL;
+				float4 ase_tangent : TANGENT;
 				float4 texcoord : TEXCOORD0;
 				float4 texcoord1 : TEXCOORD1;
 				float4 texcoord2 : TEXCOORD2;
@@ -308,7 +271,7 @@ Shader "AmplifyShaderPack/Texture Array"
 
 			struct VertexOutput
 			{
-				ASE_SV_POSITION_QUALIFIERS float4 positionCS : SV_POSITION;
+				ASE_SV_POSITION_QUALIFIERS float4 clipPos : SV_POSITION;
 				float4 clipPosV : TEXCOORD0;
 				float4 lightmapUVOrVertexSH : TEXCOORD1;
 				half4 fogFactorAndVertexLight : TEXCOORD2;
@@ -329,8 +292,12 @@ Shader "AmplifyShaderPack/Texture Array"
 			CBUFFER_START(UnityPerMaterial)
 			float4 _TextureArrayAlbedo_ST;
 			float4 _TextureArrayNormal_ST;
+			float _AlbedoIndex;
+			float _NormalIndex;
 			float _NormalScale;
+			float _RoughnessIndex;
 			float _RoughScale;
+			float _OcclusionIndex;
 			#ifdef ASE_TRANSMISSION
 				float _TransmissionShadow;
 			#endif
@@ -352,10 +319,12 @@ Shader "AmplifyShaderPack/Texture Array"
 			#endif
 			CBUFFER_END
 
+			// Property used by ScenePickingPass
 			#ifdef SCENEPICKINGPASS
 				float4 _SelectionID;
 			#endif
 
+			// Properties used by SceneSelectionPass
 			#ifdef SCENESELECTIONPASS
 				int _ObjectId;
 				int _PassValue;
@@ -366,6 +335,13 @@ Shader "AmplifyShaderPack/Texture Array"
 			TEXTURE2D_ARRAY(_TextureArrayNormal);
 			SAMPLER(sampler_TextureArrayNormal);
 
+
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/Varyings.hlsl"
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/PBRForwardPass.hlsl"
+
+			//#ifdef HAVE_VFX_MODIFICATION
+			//#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/VisualEffectVertex.hlsl"
+			//#endif
 
 			
 			VertexOutput VertexFunction( VertexInput v  )
@@ -381,7 +357,7 @@ Shader "AmplifyShaderPack/Texture Array"
 				o.ase_texcoord8.zw = 0;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					float3 defaultVertexValue = v.positionOS.xyz;
+					float3 defaultVertexValue = v.vertex.xyz;
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
@@ -389,19 +365,21 @@ Shader "AmplifyShaderPack/Texture Array"
 				float3 vertexValue = defaultVertexValue;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					v.positionOS.xyz = vertexValue;
+					v.vertex.xyz = vertexValue;
 				#else
-					v.positionOS.xyz += vertexValue;
+					v.vertex.xyz += vertexValue;
 				#endif
-				v.normalOS = v.normalOS;
-				v.tangentOS = v.tangentOS;
+				v.ase_normal = v.ase_normal;
 
-				VertexPositionInputs vertexInput = GetVertexPositionInputs( v.positionOS.xyz );
-				VertexNormalInputs normalInput = GetVertexNormalInputs( v.normalOS, v.tangentOS );
+				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
+				float3 positionVS = TransformWorldToView( positionWS );
+				float4 positionCS = TransformWorldToHClip( positionWS );
 
-				o.tSpace0 = float4( normalInput.normalWS, vertexInput.positionWS.x );
-				o.tSpace1 = float4( normalInput.tangentWS, vertexInput.positionWS.y );
-				o.tSpace2 = float4( normalInput.bitangentWS, vertexInput.positionWS.z );
+				VertexNormalInputs normalInput = GetVertexNormalInputs( v.ase_normal, v.ase_tangent );
+
+				o.tSpace0 = float4( normalInput.normalWS, positionWS.x);
+				o.tSpace1 = float4( normalInput.tangentWS, positionWS.y);
+				o.tSpace2 = float4( normalInput.bitangentWS, positionWS.z);
 
 				#if defined(LIGHTMAP_ON)
 					OUTPUT_LIGHTMAP_UV( v.texcoord1, unity_LightmapST, o.lightmapUVOrVertexSH.xy );
@@ -420,10 +398,10 @@ Shader "AmplifyShaderPack/Texture Array"
 					o.lightmapUVOrVertexSH.xy = v.texcoord.xy * unity_LightmapST.xy + unity_LightmapST.zw;
 				#endif
 
-				half3 vertexLight = VertexLighting( vertexInput.positionWS, normalInput.normalWS );
+				half3 vertexLight = VertexLighting( positionWS, normalInput.normalWS );
 
 				#ifdef ASE_FOG
-					half fogFactor = ComputeFogFactor( vertexInput.positionCS.z );
+					half fogFactor = ComputeFogFactor( positionCS.z );
 				#else
 					half fogFactor = 0;
 				#endif
@@ -431,11 +409,14 @@ Shader "AmplifyShaderPack/Texture Array"
 				o.fogFactorAndVertexLight = half4(fogFactor, vertexLight);
 
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
+					VertexPositionInputs vertexInput = (VertexPositionInputs)0;
+					vertexInput.positionWS = positionWS;
+					vertexInput.positionCS = positionCS;
 					o.shadowCoord = GetShadowCoord( vertexInput );
 				#endif
 
-				o.positionCS = vertexInput.positionCS;
-				o.clipPosV = vertexInput.positionCS;
+				o.clipPos = positionCS;
+				o.clipPosV = positionCS;
 				return o;
 			}
 
@@ -443,8 +424,8 @@ Shader "AmplifyShaderPack/Texture Array"
 			struct VertexControl
 			{
 				float4 vertex : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
-				float4 tangentOS : TANGENT;
+				float3 ase_normal : NORMAL;
+				float4 ase_tangent : TANGENT;
 				float4 texcoord : TEXCOORD0;
 				float4 texcoord1 : TEXCOORD1;
 				float4 texcoord2 : TEXCOORD2;
@@ -463,9 +444,9 @@ Shader "AmplifyShaderPack/Texture Array"
 				VertexControl o;
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
-				o.vertex = v.positionOS;
-				o.normalOS = v.normalOS;
-				o.tangentOS = v.tangentOS;
+				o.vertex = v.vertex;
+				o.ase_normal = v.ase_normal;
+				o.ase_tangent = v.ase_tangent;
 				o.texcoord = v.texcoord;
 				o.texcoord1 = v.texcoord1;
 				o.texcoord2 = v.texcoord2;
@@ -506,9 +487,9 @@ Shader "AmplifyShaderPack/Texture Array"
 			VertexOutput DomainFunction(TessellationFactors factors, OutputPatch<VertexControl, 3> patch, float3 bary : SV_DomainLocation)
 			{
 				VertexInput o = (VertexInput) 0;
-				o.positionOS = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
-				o.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
-				o.tangentOS = patch[0].tangentOS * bary.x + patch[1].tangentOS * bary.y + patch[2].tangentOS * bary.z;
+				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
+				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
+				o.ase_tangent = patch[0].ase_tangent * bary.x + patch[1].ase_tangent * bary.y + patch[2].ase_tangent * bary.z;
 				o.texcoord = patch[0].texcoord * bary.x + patch[1].texcoord * bary.y + patch[2].texcoord * bary.z;
 				o.texcoord1 = patch[0].texcoord1 * bary.x + patch[1].texcoord1 * bary.y + patch[2].texcoord1 * bary.z;
 				o.texcoord2 = patch[0].texcoord2 * bary.x + patch[1].texcoord2 * bary.y + patch[2].texcoord2 * bary.z;
@@ -516,9 +497,9 @@ Shader "AmplifyShaderPack/Texture Array"
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
-					pp[i] = o.positionOS.xyz - patch[i].normalOS * (dot(o.positionOS.xyz, patch[i].normalOS) - dot(patch[i].vertex.xyz, patch[i].normalOS));
+					pp[i] = o.vertex.xyz - patch[i].ase_normal * (dot(o.vertex.xyz, patch[i].ase_normal) - dot(patch[i].vertex.xyz, patch[i].ase_normal));
 				float phongStrength = _TessPhongStrength;
-				o.positionOS.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.positionOS.xyz;
+				o.vertex.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.vertex.xyz;
 				#endif
 				UNITY_TRANSFER_INSTANCE_ID(patch[0], o);
 				return VertexFunction(o);
@@ -542,8 +523,8 @@ Shader "AmplifyShaderPack/Texture Array"
 				UNITY_SETUP_INSTANCE_ID(IN);
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(IN);
 
-				#if defined(LOD_FADE_CROSSFADE)
-					LODFadeCrossFade( IN.positionCS );
+				#ifdef LOD_FADE_CROSSFADE
+					LODFadeCrossFade( IN.clipPos );
 				#endif
 
 				#if defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
@@ -564,7 +545,7 @@ Shader "AmplifyShaderPack/Texture Array"
 				float4 ClipPos = IN.clipPosV;
 				float4 ScreenPos = ComputeScreenPos( IN.clipPosV );
 
-				float2 NormalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(IN.positionCS);
+				float2 NormalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(IN.clipPos);
 
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
 					ShadowCoords = IN.shadowCoord;
@@ -577,17 +558,17 @@ Shader "AmplifyShaderPack/Texture Array"
 				float2 uv_TextureArrayAlbedo = IN.ase_texcoord8.xy;
 				
 				float2 uv_TextureArrayNormal = IN.ase_texcoord8.xy;
-				float3 unpack103 = UnpackNormalScale( SAMPLE_TEXTURE2D_ARRAY( _TextureArrayNormal, sampler_TextureArrayNormal, uv_TextureArrayNormal,0.0 ), _NormalScale );
+				float3 unpack103 = UnpackNormalScale( SAMPLE_TEXTURE2D_ARRAY( _TextureArrayNormal, sampler_TextureArrayNormal, uv_TextureArrayNormal,_NormalIndex ), _NormalScale );
 				unpack103.z = lerp( 1, unpack103.z, saturate(_NormalScale) );
 				
 
-				float3 BaseColor = SAMPLE_TEXTURE2D_ARRAY( _TextureArrayAlbedo, sampler_TextureArrayAlbedo, uv_TextureArrayAlbedo,3.0 ).rgb;
+				float3 BaseColor = SAMPLE_TEXTURE2D_ARRAY( _TextureArrayAlbedo, sampler_TextureArrayAlbedo, uv_TextureArrayAlbedo,_AlbedoIndex ).rgb;
 				float3 Normal = unpack103;
 				float3 Emission = 0;
 				float3 Specular = 0.5;
 				float Metallic = 0;
-				float Smoothness = ( SAMPLE_TEXTURE2D_ARRAY( _TextureArrayAlbedo, sampler_TextureArrayAlbedo, uv_TextureArrayAlbedo,0.0 ).r * _RoughScale );
-				float Occlusion = SAMPLE_TEXTURE2D_ARRAY( _TextureArrayAlbedo, sampler_TextureArrayAlbedo, uv_TextureArrayAlbedo,1.0 ).r;
+				float Smoothness = ( SAMPLE_TEXTURE2D_ARRAY( _TextureArrayAlbedo, sampler_TextureArrayAlbedo, uv_TextureArrayAlbedo,_RoughnessIndex ).r * _RoughScale );
+				float Occlusion = SAMPLE_TEXTURE2D_ARRAY( _TextureArrayAlbedo, sampler_TextureArrayAlbedo, uv_TextureArrayAlbedo,_OcclusionIndex ).r;
 				float Alpha = 1;
 				float AlphaClipThreshold = 0.5;
 				float AlphaClipThresholdShadow = 0.5;
@@ -598,7 +579,7 @@ Shader "AmplifyShaderPack/Texture Array"
 				float3 Translucency = 1;
 
 				#ifdef ASE_DEPTH_WRITE_ON
-					float DepthValue = IN.positionCS.z;
+					float DepthValue = IN.clipPos.z;
 				#endif
 
 				#ifdef _CLEARCOAT
@@ -688,14 +669,10 @@ Shader "AmplifyShaderPack/Texture Array"
 				#endif
 
 				#ifdef _DBUFFER
-					ApplyDecalToSurfaceData(IN.positionCS, surfaceData, inputData);
+					ApplyDecalToSurfaceData(IN.clipPos, surfaceData, inputData);
 				#endif
 
-				#ifdef _ASE_LIGHTING_SIMPLE
-					half4 color = UniversalFragmentBlinnPhong( inputData, surfaceData);
-				#else
-					half4 color = UniversalFragmentPBR( inputData, surfaceData);
-				#endif
+				half4 color = UniversalFragmentPBR( inputData, surfaceData);
 
 				#ifdef ASE_TRANSMISSION
 				{
@@ -838,35 +815,21 @@ Shader "AmplifyShaderPack/Texture Array"
 
 			HLSLPROGRAM
 
-			
-
 			#define _NORMAL_DROPOFF_TS 1
 			#pragma multi_compile_instancing
-			#pragma multi_compile _ LOD_FADE_CROSSFADE
+			#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 			#define ASE_FOG 1
 			#define _SPECULAR_SETUP 1
 			#define _NORMALMAP 1
-			#define ASE_SRP_VERSION 140011
+			#define ASE_SRP_VERSION 140010
 
-
-			
-
-			#pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
 
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
-				#define _SPECULAR_COLOR 1
-			#endif
+			#pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
 
 			#define SHADERPASS SHADERPASS_SHADOWCASTER
-
-			
-            #if ASE_SRP_VERSION >=140007
-			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-			#endif
-		
 
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
@@ -874,17 +837,6 @@ Shader "AmplifyShaderPack/Texture Array"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 
@@ -904,18 +856,18 @@ Shader "AmplifyShaderPack/Texture Array"
 
 			struct VertexInput
 			{
-				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
+				float4 vertex : POSITION;
+				float3 ase_normal : NORMAL;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
 			struct VertexOutput
 			{
-				ASE_SV_POSITION_QUALIFIERS float4 positionCS : SV_POSITION;
+				ASE_SV_POSITION_QUALIFIERS float4 clipPos : SV_POSITION;
 				float4 clipPosV : TEXCOORD0;
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					float3 positionWS : TEXCOORD1;
+					float3 worldPos : TEXCOORD1;
 				#endif
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
 					float4 shadowCoord : TEXCOORD2;
@@ -928,8 +880,12 @@ Shader "AmplifyShaderPack/Texture Array"
 			CBUFFER_START(UnityPerMaterial)
 			float4 _TextureArrayAlbedo_ST;
 			float4 _TextureArrayNormal_ST;
+			float _AlbedoIndex;
+			float _NormalIndex;
 			float _NormalScale;
+			float _RoughnessIndex;
 			float _RoughScale;
+			float _OcclusionIndex;
 			#ifdef ASE_TRANSMISSION
 				float _TransmissionShadow;
 			#endif
@@ -951,16 +907,25 @@ Shader "AmplifyShaderPack/Texture Array"
 			#endif
 			CBUFFER_END
 
+			// Property used by ScenePickingPass
 			#ifdef SCENEPICKINGPASS
 				float4 _SelectionID;
 			#endif
 
+			// Properties used by SceneSelectionPass
 			#ifdef SCENESELECTIONPASS
 				int _ObjectId;
 				int _PassValue;
 			#endif
 
 			
+
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/Varyings.hlsl"
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShadowCasterPass.hlsl"
+
+			//#ifdef HAVE_VFX_MODIFICATION
+			//#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/VisualEffectVertex.hlsl"
+			//#endif
 
 			
 			float3 _LightDirection;
@@ -976,27 +941,27 @@ Shader "AmplifyShaderPack/Texture Array"
 				
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					float3 defaultVertexValue = v.positionOS.xyz;
+					float3 defaultVertexValue = v.vertex.xyz;
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
 
 				float3 vertexValue = defaultVertexValue;
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					v.positionOS.xyz = vertexValue;
+					v.vertex.xyz = vertexValue;
 				#else
-					v.positionOS.xyz += vertexValue;
+					v.vertex.xyz += vertexValue;
 				#endif
 
-				v.normalOS = v.normalOS;
+				v.ase_normal = v.ase_normal;
 
-				float3 positionWS = TransformObjectToWorld( v.positionOS.xyz );
+				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
 
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					o.positionWS = positionWS;
+					o.worldPos = positionWS;
 				#endif
 
-				float3 normalWS = TransformObjectToWorldDir(v.normalOS);
+				float3 normalWS = TransformObjectToWorldDir(v.ase_normal);
 
 				#if _CASTING_PUNCTUAL_LIGHT_SHADOW
 					float3 lightDirectionWS = normalize(_LightPosition - positionWS);
@@ -1004,23 +969,23 @@ Shader "AmplifyShaderPack/Texture Array"
 					float3 lightDirectionWS = _LightDirection;
 				#endif
 
-				float4 positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, lightDirectionWS));
+				float4 clipPos = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, lightDirectionWS));
 
 				#if UNITY_REVERSED_Z
-					positionCS.z = min(positionCS.z, UNITY_NEAR_CLIP_VALUE);
+					clipPos.z = min(clipPos.z, UNITY_NEAR_CLIP_VALUE);
 				#else
-					positionCS.z = max(positionCS.z, UNITY_NEAR_CLIP_VALUE);
+					clipPos.z = max(clipPos.z, UNITY_NEAR_CLIP_VALUE);
 				#endif
 
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
 					VertexPositionInputs vertexInput = (VertexPositionInputs)0;
 					vertexInput.positionWS = positionWS;
-					vertexInput.positionCS = positionCS;
+					vertexInput.positionCS = clipPos;
 					o.shadowCoord = GetShadowCoord( vertexInput );
 				#endif
 
-				o.positionCS = positionCS;
-				o.clipPosV = positionCS;
+				o.clipPos = clipPos;
+				o.clipPosV = clipPos;
 				return o;
 			}
 
@@ -1028,7 +993,7 @@ Shader "AmplifyShaderPack/Texture Array"
 			struct VertexControl
 			{
 				float4 vertex : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
+				float3 ase_normal : NORMAL;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -1044,8 +1009,8 @@ Shader "AmplifyShaderPack/Texture Array"
 				VertexControl o;
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
-				o.vertex = v.positionOS;
-				o.normalOS = v.normalOS;
+				o.vertex = v.vertex;
+				o.ase_normal = v.ase_normal;
 				
 				return o;
 			}
@@ -1083,15 +1048,15 @@ Shader "AmplifyShaderPack/Texture Array"
 			VertexOutput DomainFunction(TessellationFactors factors, OutputPatch<VertexControl, 3> patch, float3 bary : SV_DomainLocation)
 			{
 				VertexInput o = (VertexInput) 0;
-				o.positionOS = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
-				o.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
+				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
+				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
 				
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
-					pp[i] = o.positionOS.xyz - patch[i].normalOS * (dot(o.positionOS.xyz, patch[i].normalOS) - dot(patch[i].vertex.xyz, patch[i].normalOS));
+					pp[i] = o.vertex.xyz - patch[i].ase_normal * (dot(o.vertex.xyz, patch[i].ase_normal) - dot(patch[i].vertex.xyz, patch[i].ase_normal));
 				float phongStrength = _TessPhongStrength;
-				o.positionOS.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.positionOS.xyz;
+				o.vertex.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.vertex.xyz;
 				#endif
 				UNITY_TRANSFER_INSTANCE_ID(patch[0], o);
 				return VertexFunction(o);
@@ -1113,7 +1078,7 @@ Shader "AmplifyShaderPack/Texture Array"
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX( IN );
 
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					float3 WorldPosition = IN.positionWS;
+					float3 WorldPosition = IN.worldPos;
 				#endif
 
 				float4 ShadowCoords = float4( 0, 0, 0, 0 );
@@ -1135,7 +1100,7 @@ Shader "AmplifyShaderPack/Texture Array"
 				float AlphaClipThresholdShadow = 0.5;
 
 				#ifdef ASE_DEPTH_WRITE_ON
-					float DepthValue = IN.positionCS.z;
+					float DepthValue = IN.clipPos.z;
 				#endif
 
 				#ifdef _ALPHATEST_ON
@@ -1146,8 +1111,8 @@ Shader "AmplifyShaderPack/Texture Array"
 					#endif
 				#endif
 
-				#if defined(LOD_FADE_CROSSFADE)
-					LODFadeCrossFade( IN.positionCS );
+				#ifdef LOD_FADE_CROSSFADE
+					LODFadeCrossFade( IN.clipPos );
 				#endif
 
 				#ifdef ASE_DEPTH_WRITE_ON
@@ -1172,33 +1137,19 @@ Shader "AmplifyShaderPack/Texture Array"
 
 			HLSLPROGRAM
 
-			
-
 			#define _NORMAL_DROPOFF_TS 1
 			#pragma multi_compile_instancing
-			#pragma multi_compile _ LOD_FADE_CROSSFADE
+			#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 			#define ASE_FOG 1
 			#define _SPECULAR_SETUP 1
 			#define _NORMALMAP 1
-			#define ASE_SRP_VERSION 140011
+			#define ASE_SRP_VERSION 140010
 
-
-			
 
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
-				#define _SPECULAR_COLOR 1
-			#endif
-
 			#define SHADERPASS SHADERPASS_DEPTHONLY
-
-			
-            #if ASE_SRP_VERSION >=140007
-			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-			#endif
-		
 
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
@@ -1206,20 +1157,9 @@ Shader "AmplifyShaderPack/Texture Array"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
-
+			
 			#if defined(LOD_FADE_CROSSFADE)
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
             #endif
@@ -1236,18 +1176,18 @@ Shader "AmplifyShaderPack/Texture Array"
 
 			struct VertexInput
 			{
-				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
+				float4 vertex : POSITION;
+				float3 ase_normal : NORMAL;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
 			struct VertexOutput
 			{
-				ASE_SV_POSITION_QUALIFIERS float4 positionCS : SV_POSITION;
+				ASE_SV_POSITION_QUALIFIERS float4 clipPos : SV_POSITION;
 				float4 clipPosV : TEXCOORD0;
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-				float3 positionWS : TEXCOORD1;
+				float3 worldPos : TEXCOORD1;
 				#endif
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
 				float4 shadowCoord : TEXCOORD2;
@@ -1260,8 +1200,12 @@ Shader "AmplifyShaderPack/Texture Array"
 			CBUFFER_START(UnityPerMaterial)
 			float4 _TextureArrayAlbedo_ST;
 			float4 _TextureArrayNormal_ST;
+			float _AlbedoIndex;
+			float _NormalIndex;
 			float _NormalScale;
+			float _RoughnessIndex;
 			float _RoughScale;
+			float _OcclusionIndex;
 			#ifdef ASE_TRANSMISSION
 				float _TransmissionShadow;
 			#endif
@@ -1283,16 +1227,25 @@ Shader "AmplifyShaderPack/Texture Array"
 			#endif
 			CBUFFER_END
 
+			// Property used by ScenePickingPass
 			#ifdef SCENEPICKINGPASS
 				float4 _SelectionID;
 			#endif
 
+			// Properties used by SceneSelectionPass
 			#ifdef SCENESELECTIONPASS
 				int _ObjectId;
 				int _PassValue;
 			#endif
 
 			
+
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/Varyings.hlsl"
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/DepthOnlyPass.hlsl"
+
+			//#ifdef HAVE_VFX_MODIFICATION
+			//#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/VisualEffectVertex.hlsl"
+			//#endif
 
 			
 			VertexOutput VertexFunction( VertexInput v  )
@@ -1305,7 +1258,7 @@ Shader "AmplifyShaderPack/Texture Array"
 				
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					float3 defaultVertexValue = v.positionOS.xyz;
+					float3 defaultVertexValue = v.vertex.xyz;
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
@@ -1313,25 +1266,28 @@ Shader "AmplifyShaderPack/Texture Array"
 				float3 vertexValue = defaultVertexValue;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					v.positionOS.xyz = vertexValue;
+					v.vertex.xyz = vertexValue;
 				#else
-					v.positionOS.xyz += vertexValue;
+					v.vertex.xyz += vertexValue;
 				#endif
 
-				v.normalOS = v.normalOS;
-
-				VertexPositionInputs vertexInput = GetVertexPositionInputs( v.positionOS.xyz );
+				v.ase_normal = v.ase_normal;
+				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
+				float4 positionCS = TransformWorldToHClip( positionWS );
 
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					o.positionWS = vertexInput.positionWS;
+					o.worldPos = positionWS;
 				#endif
 
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
+					VertexPositionInputs vertexInput = (VertexPositionInputs)0;
+					vertexInput.positionWS = positionWS;
+					vertexInput.positionCS = positionCS;
 					o.shadowCoord = GetShadowCoord( vertexInput );
 				#endif
 
-				o.positionCS = vertexInput.positionCS;
-				o.clipPosV = vertexInput.positionCS;
+				o.clipPos = positionCS;
+				o.clipPosV = positionCS;
 				return o;
 			}
 
@@ -1339,7 +1295,7 @@ Shader "AmplifyShaderPack/Texture Array"
 			struct VertexControl
 			{
 				float4 vertex : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
+				float3 ase_normal : NORMAL;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -1355,8 +1311,8 @@ Shader "AmplifyShaderPack/Texture Array"
 				VertexControl o;
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
-				o.vertex = v.positionOS;
-				o.normalOS = v.normalOS;
+				o.vertex = v.vertex;
+				o.ase_normal = v.ase_normal;
 				
 				return o;
 			}
@@ -1394,15 +1350,15 @@ Shader "AmplifyShaderPack/Texture Array"
 			VertexOutput DomainFunction(TessellationFactors factors, OutputPatch<VertexControl, 3> patch, float3 bary : SV_DomainLocation)
 			{
 				VertexInput o = (VertexInput) 0;
-				o.positionOS = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
-				o.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
+				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
+				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
 				
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
-					pp[i] = o.positionOS.xyz - patch[i].normalOS * (dot(o.positionOS.xyz, patch[i].normalOS) - dot(patch[i].vertex.xyz, patch[i].normalOS));
+					pp[i] = o.vertex.xyz - patch[i].ase_normal * (dot(o.vertex.xyz, patch[i].ase_normal) - dot(patch[i].vertex.xyz, patch[i].ase_normal));
 				float phongStrength = _TessPhongStrength;
-				o.positionOS.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.positionOS.xyz;
+				o.vertex.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.vertex.xyz;
 				#endif
 				UNITY_TRANSFER_INSTANCE_ID(patch[0], o);
 				return VertexFunction(o);
@@ -1424,7 +1380,7 @@ Shader "AmplifyShaderPack/Texture Array"
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX( IN );
 
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-				float3 WorldPosition = IN.positionWS;
+				float3 WorldPosition = IN.worldPos;
 				#endif
 
 				float4 ShadowCoords = float4( 0, 0, 0, 0 );
@@ -1443,17 +1399,16 @@ Shader "AmplifyShaderPack/Texture Array"
 
 				float Alpha = 1;
 				float AlphaClipThreshold = 0.5;
-
 				#ifdef ASE_DEPTH_WRITE_ON
-					float DepthValue = IN.positionCS.z;
+					float DepthValue = IN.clipPos.z;
 				#endif
 
 				#ifdef _ALPHATEST_ON
 					clip(Alpha - AlphaClipThreshold);
 				#endif
 
-				#if defined(LOD_FADE_CROSSFADE)
-					LODFadeCrossFade( IN.positionCS );
+				#ifdef LOD_FADE_CROSSFADE
+					LODFadeCrossFade( IN.clipPos );
 				#endif
 
 				#ifdef ASE_DEPTH_WRITE_ON
@@ -1475,20 +1430,19 @@ Shader "AmplifyShaderPack/Texture Array"
 			Cull Off
 
 			HLSLPROGRAM
+
 			#define _NORMAL_DROPOFF_TS 1
 			#define ASE_FOG 1
 			#define _SPECULAR_SETUP 1
+			#pragma shader_feature_local_fragment _SPECULAR_SETUP
 			#define _NORMALMAP 1
-			#define ASE_SRP_VERSION 140011
+			#define ASE_SRP_VERSION 140010
 
-			#pragma shader_feature EDITOR_VISUALIZATION
 
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
-				#define _SPECULAR_COLOR 1
-			#endif
+			#pragma shader_feature EDITOR_VISUALIZATION
 
 			#define SHADERPASS SHADERPASS_META
 
@@ -1498,17 +1452,6 @@ Shader "AmplifyShaderPack/Texture Array"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/MetaInput.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
@@ -1517,8 +1460,8 @@ Shader "AmplifyShaderPack/Texture Array"
 
 			struct VertexInput
 			{
-				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
+				float4 vertex : POSITION;
+				float3 ase_normal : NORMAL;
 				float4 texcoord0 : TEXCOORD0;
 				float4 texcoord1 : TEXCOORD1;
 				float4 texcoord2 : TEXCOORD2;
@@ -1528,9 +1471,9 @@ Shader "AmplifyShaderPack/Texture Array"
 
 			struct VertexOutput
 			{
-				float4 positionCS : SV_POSITION;
+				float4 clipPos : SV_POSITION;
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					float3 positionWS : TEXCOORD0;
+					float3 worldPos : TEXCOORD0;
 				#endif
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
 					float4 shadowCoord : TEXCOORD1;
@@ -1547,8 +1490,12 @@ Shader "AmplifyShaderPack/Texture Array"
 			CBUFFER_START(UnityPerMaterial)
 			float4 _TextureArrayAlbedo_ST;
 			float4 _TextureArrayNormal_ST;
+			float _AlbedoIndex;
+			float _NormalIndex;
 			float _NormalScale;
+			float _RoughnessIndex;
 			float _RoughScale;
+			float _OcclusionIndex;
 			#ifdef ASE_TRANSMISSION
 				float _TransmissionShadow;
 			#endif
@@ -1570,10 +1517,12 @@ Shader "AmplifyShaderPack/Texture Array"
 			#endif
 			CBUFFER_END
 
+			// Property used by ScenePickingPass
 			#ifdef SCENEPICKINGPASS
 				float4 _SelectionID;
 			#endif
 
+			// Properties used by SceneSelectionPass
 			#ifdef SCENESELECTIONPASS
 				int _ObjectId;
 				int _PassValue;
@@ -1582,6 +1531,13 @@ Shader "AmplifyShaderPack/Texture Array"
 			TEXTURE2D_ARRAY(_TextureArrayAlbedo);
 			SAMPLER(sampler_TextureArrayAlbedo);
 
+
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/Varyings.hlsl"
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/LightingMetaPass.hlsl"
+
+			//#ifdef HAVE_VFX_MODIFICATION
+			//#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/VisualEffectVertex.hlsl"
+			//#endif
 
 			
 			VertexOutput VertexFunction( VertexInput v  )
@@ -1597,7 +1553,7 @@ Shader "AmplifyShaderPack/Texture Array"
 				o.ase_texcoord4.zw = 0;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					float3 defaultVertexValue = v.positionOS.xyz;
+					float3 defaultVertexValue = v.vertex.xyz;
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
@@ -1605,25 +1561,25 @@ Shader "AmplifyShaderPack/Texture Array"
 				float3 vertexValue = defaultVertexValue;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					v.positionOS.xyz = vertexValue;
+					v.vertex.xyz = vertexValue;
 				#else
-					v.positionOS.xyz += vertexValue;
+					v.vertex.xyz += vertexValue;
 				#endif
 
-				v.normalOS = v.normalOS;
+				v.ase_normal = v.ase_normal;
 
-				float3 positionWS = TransformObjectToWorld( v.positionOS.xyz );
+				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
 
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					o.positionWS = positionWS;
+					o.worldPos = positionWS;
 				#endif
 
-				o.positionCS = MetaVertexPosition( v.positionOS, v.texcoord1.xy, v.texcoord1.xy, unity_LightmapST, unity_DynamicLightmapST );
+				o.clipPos = MetaVertexPosition( v.vertex, v.texcoord1.xy, v.texcoord1.xy, unity_LightmapST, unity_DynamicLightmapST );
 
 				#ifdef EDITOR_VISUALIZATION
 					float2 VizUV = 0;
 					float4 LightCoord = 0;
-					UnityEditorVizData(v.positionOS.xyz, v.texcoord0.xy, v.texcoord1.xy, v.texcoord2.xy, VizUV, LightCoord);
+					UnityEditorVizData(v.vertex.xyz, v.texcoord0.xy, v.texcoord1.xy, v.texcoord2.xy, VizUV, LightCoord);
 					o.VizUV = float4(VizUV, 0, 0);
 					o.LightCoord = LightCoord;
 				#endif
@@ -1631,7 +1587,7 @@ Shader "AmplifyShaderPack/Texture Array"
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
 					VertexPositionInputs vertexInput = (VertexPositionInputs)0;
 					vertexInput.positionWS = positionWS;
-					vertexInput.positionCS = o.positionCS;
+					vertexInput.positionCS = o.clipPos;
 					o.shadowCoord = GetShadowCoord( vertexInput );
 				#endif
 
@@ -1642,7 +1598,7 @@ Shader "AmplifyShaderPack/Texture Array"
 			struct VertexControl
 			{
 				float4 vertex : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
+				float3 ase_normal : NORMAL;
 				float4 texcoord0 : TEXCOORD0;
 				float4 texcoord1 : TEXCOORD1;
 				float4 texcoord2 : TEXCOORD2;
@@ -1661,8 +1617,8 @@ Shader "AmplifyShaderPack/Texture Array"
 				VertexControl o;
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
-				o.vertex = v.positionOS;
-				o.normalOS = v.normalOS;
+				o.vertex = v.vertex;
+				o.ase_normal = v.ase_normal;
 				o.texcoord0 = v.texcoord0;
 				o.texcoord1 = v.texcoord1;
 				o.texcoord2 = v.texcoord2;
@@ -1703,8 +1659,8 @@ Shader "AmplifyShaderPack/Texture Array"
 			VertexOutput DomainFunction(TessellationFactors factors, OutputPatch<VertexControl, 3> patch, float3 bary : SV_DomainLocation)
 			{
 				VertexInput o = (VertexInput) 0;
-				o.positionOS = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
-				o.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
+				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
+				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
 				o.texcoord0 = patch[0].texcoord0 * bary.x + patch[1].texcoord0 * bary.y + patch[2].texcoord0 * bary.z;
 				o.texcoord1 = patch[0].texcoord1 * bary.x + patch[1].texcoord1 * bary.y + patch[2].texcoord1 * bary.z;
 				o.texcoord2 = patch[0].texcoord2 * bary.x + patch[1].texcoord2 * bary.y + patch[2].texcoord2 * bary.z;
@@ -1712,9 +1668,9 @@ Shader "AmplifyShaderPack/Texture Array"
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
-					pp[i] = o.positionOS.xyz - patch[i].normalOS * (dot(o.positionOS.xyz, patch[i].normalOS) - dot(patch[i].vertex.xyz, patch[i].normalOS));
+					pp[i] = o.vertex.xyz - patch[i].ase_normal * (dot(o.vertex.xyz, patch[i].ase_normal) - dot(patch[i].vertex.xyz, patch[i].ase_normal));
 				float phongStrength = _TessPhongStrength;
-				o.positionOS.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.positionOS.xyz;
+				o.vertex.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.vertex.xyz;
 				#endif
 				UNITY_TRANSFER_INSTANCE_ID(patch[0], o);
 				return VertexFunction(o);
@@ -1732,7 +1688,7 @@ Shader "AmplifyShaderPack/Texture Array"
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX( IN );
 
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					float3 WorldPosition = IN.positionWS;
+					float3 WorldPosition = IN.worldPos;
 				#endif
 
 				float4 ShadowCoords = float4( 0, 0, 0, 0 );
@@ -1748,7 +1704,7 @@ Shader "AmplifyShaderPack/Texture Array"
 				float2 uv_TextureArrayAlbedo = IN.ase_texcoord4.xy;
 				
 
-				float3 BaseColor = SAMPLE_TEXTURE2D_ARRAY( _TextureArrayAlbedo, sampler_TextureArrayAlbedo, uv_TextureArrayAlbedo,3.0 ).rgb;
+				float3 BaseColor = SAMPLE_TEXTURE2D_ARRAY( _TextureArrayAlbedo, sampler_TextureArrayAlbedo, uv_TextureArrayAlbedo,_AlbedoIndex ).rgb;
 				float3 Emission = 0;
 				float Alpha = 1;
 				float AlphaClipThreshold = 0.5;
@@ -1789,15 +1745,11 @@ Shader "AmplifyShaderPack/Texture Array"
 			#define ASE_FOG 1
 			#define _SPECULAR_SETUP 1
 			#define _NORMALMAP 1
-			#define ASE_SRP_VERSION 140011
+			#define ASE_SRP_VERSION 140010
 
 
 			#pragma vertex vert
 			#pragma fragment frag
-
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
-				#define _SPECULAR_COLOR 1
-			#endif
 
 			#define SHADERPASS SHADERPASS_2D
 
@@ -1807,17 +1759,6 @@ Shader "AmplifyShaderPack/Texture Array"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 
@@ -1825,17 +1766,17 @@ Shader "AmplifyShaderPack/Texture Array"
 
 			struct VertexInput
 			{
-				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
+				float4 vertex : POSITION;
+				float3 ase_normal : NORMAL;
 				float4 ase_texcoord : TEXCOORD0;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
 			struct VertexOutput
 			{
-				float4 positionCS : SV_POSITION;
+				float4 clipPos : SV_POSITION;
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					float3 positionWS : TEXCOORD0;
+					float3 worldPos : TEXCOORD0;
 				#endif
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
 					float4 shadowCoord : TEXCOORD1;
@@ -1848,8 +1789,12 @@ Shader "AmplifyShaderPack/Texture Array"
 			CBUFFER_START(UnityPerMaterial)
 			float4 _TextureArrayAlbedo_ST;
 			float4 _TextureArrayNormal_ST;
+			float _AlbedoIndex;
+			float _NormalIndex;
 			float _NormalScale;
+			float _RoughnessIndex;
 			float _RoughScale;
+			float _OcclusionIndex;
 			#ifdef ASE_TRANSMISSION
 				float _TransmissionShadow;
 			#endif
@@ -1871,10 +1816,12 @@ Shader "AmplifyShaderPack/Texture Array"
 			#endif
 			CBUFFER_END
 
+			// Property used by ScenePickingPass
 			#ifdef SCENEPICKINGPASS
 				float4 _SelectionID;
 			#endif
 
+			// Properties used by SceneSelectionPass
 			#ifdef SCENESELECTIONPASS
 				int _ObjectId;
 				int _PassValue;
@@ -1883,6 +1830,13 @@ Shader "AmplifyShaderPack/Texture Array"
 			TEXTURE2D_ARRAY(_TextureArrayAlbedo);
 			SAMPLER(sampler_TextureArrayAlbedo);
 
+
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/Varyings.hlsl"
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/PBR2DPass.hlsl"
+
+			//#ifdef HAVE_VFX_MODIFICATION
+			//#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/VisualEffectVertex.hlsl"
+			//#endif
 
 			
 			VertexOutput VertexFunction( VertexInput v  )
@@ -1898,7 +1852,7 @@ Shader "AmplifyShaderPack/Texture Array"
 				o.ase_texcoord2.zw = 0;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					float3 defaultVertexValue = v.positionOS.xyz;
+					float3 defaultVertexValue = v.vertex.xyz;
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
@@ -1906,24 +1860,28 @@ Shader "AmplifyShaderPack/Texture Array"
 				float3 vertexValue = defaultVertexValue;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					v.positionOS.xyz = vertexValue;
+					v.vertex.xyz = vertexValue;
 				#else
-					v.positionOS.xyz += vertexValue;
+					v.vertex.xyz += vertexValue;
 				#endif
 
-				v.normalOS = v.normalOS;
+				v.ase_normal = v.ase_normal;
 
-				VertexPositionInputs vertexInput = GetVertexPositionInputs( v.positionOS.xyz );
+				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
+				float4 positionCS = TransformWorldToHClip( positionWS );
 
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					o.positionWS = vertexInput.positionWS;
+					o.worldPos = positionWS;
 				#endif
 
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
+					VertexPositionInputs vertexInput = (VertexPositionInputs)0;
+					vertexInput.positionWS = positionWS;
+					vertexInput.positionCS = positionCS;
 					o.shadowCoord = GetShadowCoord( vertexInput );
 				#endif
 
-				o.positionCS = vertexInput.positionCS;
+				o.clipPos = positionCS;
 
 				return o;
 			}
@@ -1932,7 +1890,7 @@ Shader "AmplifyShaderPack/Texture Array"
 			struct VertexControl
 			{
 				float4 vertex : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
+				float3 ase_normal : NORMAL;
 				float4 ase_texcoord : TEXCOORD0;
 
 				UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -1949,8 +1907,8 @@ Shader "AmplifyShaderPack/Texture Array"
 				VertexControl o;
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
-				o.vertex = v.positionOS;
-				o.normalOS = v.normalOS;
+				o.vertex = v.vertex;
+				o.ase_normal = v.ase_normal;
 				o.ase_texcoord = v.ase_texcoord;
 				return o;
 			}
@@ -1988,15 +1946,15 @@ Shader "AmplifyShaderPack/Texture Array"
 			VertexOutput DomainFunction(TessellationFactors factors, OutputPatch<VertexControl, 3> patch, float3 bary : SV_DomainLocation)
 			{
 				VertexInput o = (VertexInput) 0;
-				o.positionOS = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
-				o.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
+				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
+				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
 				o.ase_texcoord = patch[0].ase_texcoord * bary.x + patch[1].ase_texcoord * bary.y + patch[2].ase_texcoord * bary.z;
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
-					pp[i] = o.positionOS.xyz - patch[i].normalOS * (dot(o.positionOS.xyz, patch[i].normalOS) - dot(patch[i].vertex.xyz, patch[i].normalOS));
+					pp[i] = o.vertex.xyz - patch[i].ase_normal * (dot(o.vertex.xyz, patch[i].ase_normal) - dot(patch[i].vertex.xyz, patch[i].ase_normal));
 				float phongStrength = _TessPhongStrength;
-				o.positionOS.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.positionOS.xyz;
+				o.vertex.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.vertex.xyz;
 				#endif
 				UNITY_TRANSFER_INSTANCE_ID(patch[0], o);
 				return VertexFunction(o);
@@ -2014,7 +1972,7 @@ Shader "AmplifyShaderPack/Texture Array"
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX( IN );
 
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					float3 WorldPosition = IN.positionWS;
+					float3 WorldPosition = IN.worldPos;
 				#endif
 
 				float4 ShadowCoords = float4( 0, 0, 0, 0 );
@@ -2030,7 +1988,7 @@ Shader "AmplifyShaderPack/Texture Array"
 				float2 uv_TextureArrayAlbedo = IN.ase_texcoord2.xy;
 				
 
-				float3 BaseColor = SAMPLE_TEXTURE2D_ARRAY( _TextureArrayAlbedo, sampler_TextureArrayAlbedo, uv_TextureArrayAlbedo,3.0 ).rgb;
+				float3 BaseColor = SAMPLE_TEXTURE2D_ARRAY( _TextureArrayAlbedo, sampler_TextureArrayAlbedo, uv_TextureArrayAlbedo,_AlbedoIndex ).rgb;
 				float Alpha = 1;
 				float AlphaClipThreshold = 0.5;
 
@@ -2059,44 +2017,21 @@ Shader "AmplifyShaderPack/Texture Array"
 
 			HLSLPROGRAM
 
-			
-
-			
-
 			#define _NORMAL_DROPOFF_TS 1
 			#pragma multi_compile_instancing
-			#pragma multi_compile _ LOD_FADE_CROSSFADE
+			#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 			#define ASE_FOG 1
 			#define _SPECULAR_SETUP 1
 			#define _NORMALMAP 1
-			#define ASE_SRP_VERSION 140011
+			#define ASE_SRP_VERSION 140010
 
-
-			
-
-			
 
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
-				#define _SPECULAR_COLOR 1
-			#endif
+			#pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
 
 			#define SHADERPASS SHADERPASS_DEPTHNORMALSONLY
-			//#define SHADERPASS SHADERPASS_DEPTHNORMALS
-
-			
-            #if ASE_SRP_VERSION >=140007
-			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-			#endif
-		
-
-			
-			#if ASE_SRP_VERSION >=140007
-			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
-			#endif
-		
 
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
@@ -2104,17 +2039,6 @@ Shader "AmplifyShaderPack/Texture Array"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 
@@ -2134,21 +2058,21 @@ Shader "AmplifyShaderPack/Texture Array"
 
 			struct VertexInput
 			{
-				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
-				float4 tangentOS : TANGENT;
+				float4 vertex : POSITION;
+				float3 ase_normal : NORMAL;
+				float4 ase_tangent : TANGENT;
 				float4 ase_texcoord : TEXCOORD0;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
 			struct VertexOutput
 			{
-				ASE_SV_POSITION_QUALIFIERS float4 positionCS : SV_POSITION;
+				ASE_SV_POSITION_QUALIFIERS float4 clipPos : SV_POSITION;
 				float4 clipPosV : TEXCOORD0;
 				float3 worldNormal : TEXCOORD1;
 				float4 worldTangent : TEXCOORD2;
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					float3 positionWS : TEXCOORD3;
+					float3 worldPos : TEXCOORD3;
 				#endif
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
 					float4 shadowCoord : TEXCOORD4;
@@ -2161,8 +2085,12 @@ Shader "AmplifyShaderPack/Texture Array"
 			CBUFFER_START(UnityPerMaterial)
 			float4 _TextureArrayAlbedo_ST;
 			float4 _TextureArrayNormal_ST;
+			float _AlbedoIndex;
+			float _NormalIndex;
 			float _NormalScale;
+			float _RoughnessIndex;
 			float _RoughScale;
+			float _OcclusionIndex;
 			#ifdef ASE_TRANSMISSION
 				float _TransmissionShadow;
 			#endif
@@ -2184,10 +2112,12 @@ Shader "AmplifyShaderPack/Texture Array"
 			#endif
 			CBUFFER_END
 
+			// Property used by ScenePickingPass
 			#ifdef SCENEPICKINGPASS
 				float4 _SelectionID;
 			#endif
 
+			// Properties used by SceneSelectionPass
 			#ifdef SCENESELECTIONPASS
 				int _ObjectId;
 				int _PassValue;
@@ -2196,6 +2126,13 @@ Shader "AmplifyShaderPack/Texture Array"
 			TEXTURE2D_ARRAY(_TextureArrayNormal);
 			SAMPLER(sampler_TextureArrayNormal);
 
+
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/Varyings.hlsl"
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/DepthNormalsOnlyPass.hlsl"
+
+			//#ifdef HAVE_VFX_MODIFICATION
+			//#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/VisualEffectVertex.hlsl"
+			//#endif
 
 			
 			VertexOutput VertexFunction( VertexInput v  )
@@ -2210,7 +2147,7 @@ Shader "AmplifyShaderPack/Texture Array"
 				//setting value to unused interpolator channels and avoid initialization warnings
 				o.ase_texcoord5.zw = 0;
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					float3 defaultVertexValue = v.positionOS.xyz;
+					float3 defaultVertexValue = v.vertex.xyz;
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
@@ -2218,32 +2155,33 @@ Shader "AmplifyShaderPack/Texture Array"
 				float3 vertexValue = defaultVertexValue;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					v.positionOS.xyz = vertexValue;
+					v.vertex.xyz = vertexValue;
 				#else
-					v.positionOS.xyz += vertexValue;
+					v.vertex.xyz += vertexValue;
 				#endif
 
-				v.normalOS = v.normalOS;
-				v.tangentOS = v.tangentOS;
-
-				VertexPositionInputs vertexInput = GetVertexPositionInputs( v.positionOS.xyz );
-
-				float3 normalWS = TransformObjectToWorldNormal( v.normalOS );
-				float4 tangentWS = float4( TransformObjectToWorldDir( v.tangentOS.xyz ), v.tangentOS.w );
+				v.ase_normal = v.ase_normal;
+				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
+				float3 normalWS = TransformObjectToWorldNormal( v.ase_normal );
+				float4 tangentWS = float4(TransformObjectToWorldDir( v.ase_tangent.xyz), v.ase_tangent.w);
+				float4 positionCS = TransformWorldToHClip( positionWS );
 
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					o.positionWS = vertexInput.positionWS;
+					o.worldPos = positionWS;
 				#endif
 
 				o.worldNormal = normalWS;
 				o.worldTangent = tangentWS;
 
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
+					VertexPositionInputs vertexInput = (VertexPositionInputs)0;
+					vertexInput.positionWS = positionWS;
+					vertexInput.positionCS = positionCS;
 					o.shadowCoord = GetShadowCoord( vertexInput );
 				#endif
 
-				o.positionCS = vertexInput.positionCS;
-				o.clipPosV = vertexInput.positionCS;
+				o.clipPos = positionCS;
+				o.clipPosV = positionCS;
 				return o;
 			}
 
@@ -2251,8 +2189,8 @@ Shader "AmplifyShaderPack/Texture Array"
 			struct VertexControl
 			{
 				float4 vertex : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
-				float4 tangentOS : TANGENT;
+				float3 ase_normal : NORMAL;
+				float4 ase_tangent : TANGENT;
 				float4 ase_texcoord : TEXCOORD0;
 
 				UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -2269,9 +2207,9 @@ Shader "AmplifyShaderPack/Texture Array"
 				VertexControl o;
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
-				o.vertex = v.positionOS;
-				o.normalOS = v.normalOS;
-				o.tangentOS = v.tangentOS;
+				o.vertex = v.vertex;
+				o.ase_normal = v.ase_normal;
+				o.ase_tangent = v.ase_tangent;
 				o.ase_texcoord = v.ase_texcoord;
 				return o;
 			}
@@ -2309,16 +2247,16 @@ Shader "AmplifyShaderPack/Texture Array"
 			VertexOutput DomainFunction(TessellationFactors factors, OutputPatch<VertexControl, 3> patch, float3 bary : SV_DomainLocation)
 			{
 				VertexInput o = (VertexInput) 0;
-				o.positionOS = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
-				o.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
-				o.tangentOS = patch[0].tangentOS * bary.x + patch[1].tangentOS * bary.y + patch[2].tangentOS * bary.z;
+				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
+				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
+				o.ase_tangent = patch[0].ase_tangent * bary.x + patch[1].ase_tangent * bary.y + patch[2].ase_tangent * bary.z;
 				o.ase_texcoord = patch[0].ase_texcoord * bary.x + patch[1].ase_texcoord * bary.y + patch[2].ase_texcoord * bary.z;
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
-					pp[i] = o.positionOS.xyz - patch[i].normalOS * (dot(o.positionOS.xyz, patch[i].normalOS) - dot(patch[i].vertex.xyz, patch[i].normalOS));
+					pp[i] = o.vertex.xyz - patch[i].ase_normal * (dot(o.vertex.xyz, patch[i].ase_normal) - dot(patch[i].vertex.xyz, patch[i].ase_normal));
 				float phongStrength = _TessPhongStrength;
-				o.positionOS.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.positionOS.xyz;
+				o.vertex.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.vertex.xyz;
 				#endif
 				UNITY_TRANSFER_INSTANCE_ID(patch[0], o);
 				return VertexFunction(o);
@@ -2344,7 +2282,7 @@ Shader "AmplifyShaderPack/Texture Array"
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX( IN );
 
 				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					float3 WorldPosition = IN.positionWS;
+					float3 WorldPosition = IN.worldPos;
 				#endif
 
 				float4 ShadowCoords = float4( 0, 0, 0, 0 );
@@ -2363,24 +2301,23 @@ Shader "AmplifyShaderPack/Texture Array"
 				#endif
 
 				float2 uv_TextureArrayNormal = IN.ase_texcoord5.xy;
-				float3 unpack103 = UnpackNormalScale( SAMPLE_TEXTURE2D_ARRAY( _TextureArrayNormal, sampler_TextureArrayNormal, uv_TextureArrayNormal,0.0 ), _NormalScale );
+				float3 unpack103 = UnpackNormalScale( SAMPLE_TEXTURE2D_ARRAY( _TextureArrayNormal, sampler_TextureArrayNormal, uv_TextureArrayNormal,_NormalIndex ), _NormalScale );
 				unpack103.z = lerp( 1, unpack103.z, saturate(_NormalScale) );
 				
 
 				float3 Normal = unpack103;
 				float Alpha = 1;
 				float AlphaClipThreshold = 0.5;
-
 				#ifdef ASE_DEPTH_WRITE_ON
-					float DepthValue = IN.positionCS.z;
+					float DepthValue = IN.clipPos.z;
 				#endif
 
 				#ifdef _ALPHATEST_ON
 					clip(Alpha - AlphaClipThreshold);
 				#endif
 
-				#if defined(LOD_FADE_CROSSFADE)
-					LODFadeCrossFade( IN.positionCS );
+				#ifdef LOD_FADE_CROSSFADE
+					LODFadeCrossFade( IN.clipPos );
 				#endif
 
 				#ifdef ASE_DEPTH_WRITE_ON
@@ -2433,68 +2370,41 @@ Shader "AmplifyShaderPack/Texture Array"
 
 			HLSLPROGRAM
 
-			
-
 			#define _NORMAL_DROPOFF_TS 1
-			#pragma shader_feature_local _RECEIVE_SHADOWS_OFF
 			#pragma multi_compile_instancing
 			#pragma instancing_options renderinglayer
-			#pragma multi_compile _ LOD_FADE_CROSSFADE
+			#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
 			#pragma multi_compile_fog
 			#define ASE_FOG 1
 			#define _SPECULAR_SETUP 1
+			#pragma shader_feature_local_fragment _SPECULAR_SETUP
+			#define _NORMALMAP 1
+			#define ASE_SRP_VERSION 140010
+
+
+			#pragma shader_feature_local _RECEIVE_SHADOWS_OFF
 			#pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
 			#pragma shader_feature_local_fragment _ENVIRONMENTREFLECTIONS_OFF
-			#define _NORMALMAP 1
-			#define ASE_SRP_VERSION 140011
-
-
-			
 
 			#pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
 			#pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
 			#pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
-
-			
-
-			
-			#pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
-           
-
+			#pragma multi_compile_fragment _ _SHADOWS_SOFT
 			#pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
-			#pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
 			#pragma multi_compile_fragment _ _RENDER_PASS_ENABLED
-      
-			
 
 			#pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
-			#pragma multi_compile _ _MIXED_LIGHTING_SUBTRACTIVE
 			#pragma multi_compile _ SHADOWS_SHADOWMASK
 			#pragma multi_compile _ DIRLIGHTMAP_COMBINED
 			#pragma multi_compile _ LIGHTMAP_ON
 			#pragma multi_compile _ DYNAMICLIGHTMAP_ON
-			#pragma multi_compile_fragment _ DEBUG_DISPLAY
+			#pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
+			#pragma multi_compile_fragment _ _WRITE_RENDERING_LAYERS
 
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
-				#define _SPECULAR_COLOR 1
-			#endif
-
 			#define SHADERPASS SHADERPASS_GBUFFER
-
-			
-            #if ASE_SRP_VERSION >=140007
-			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-			#endif
-		
-
-			
-			#if ASE_SRP_VERSION >=140007
-			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
-			#endif
-		
 
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
@@ -2502,17 +2412,6 @@ Shader "AmplifyShaderPack/Texture Array"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DBuffer.hlsl"
@@ -2538,9 +2437,9 @@ Shader "AmplifyShaderPack/Texture Array"
 
 			struct VertexInput
 			{
-				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
-				float4 tangentOS : TANGENT;
+				float4 vertex : POSITION;
+				float3 ase_normal : NORMAL;
+				float4 ase_tangent : TANGENT;
 				float4 texcoord : TEXCOORD0;
 				float4 texcoord1 : TEXCOORD1;
 				float4 texcoord2 : TEXCOORD2;
@@ -2550,7 +2449,7 @@ Shader "AmplifyShaderPack/Texture Array"
 
 			struct VertexOutput
 			{
-				ASE_SV_POSITION_QUALIFIERS float4 positionCS : SV_POSITION;
+				ASE_SV_POSITION_QUALIFIERS float4 clipPos : SV_POSITION;
 				float4 clipPosV : TEXCOORD0;
 				float4 lightmapUVOrVertexSH : TEXCOORD1;
 				half4 fogFactorAndVertexLight : TEXCOORD2;
@@ -2571,8 +2470,12 @@ Shader "AmplifyShaderPack/Texture Array"
 			CBUFFER_START(UnityPerMaterial)
 			float4 _TextureArrayAlbedo_ST;
 			float4 _TextureArrayNormal_ST;
+			float _AlbedoIndex;
+			float _NormalIndex;
 			float _NormalScale;
+			float _RoughnessIndex;
 			float _RoughScale;
+			float _OcclusionIndex;
 			#ifdef ASE_TRANSMISSION
 				float _TransmissionShadow;
 			#endif
@@ -2594,10 +2497,12 @@ Shader "AmplifyShaderPack/Texture Array"
 			#endif
 			CBUFFER_END
 
+			// Property used by ScenePickingPass
 			#ifdef SCENEPICKINGPASS
 				float4 _SelectionID;
 			#endif
 
+			// Properties used by SceneSelectionPass
 			#ifdef SCENESELECTIONPASS
 				int _ObjectId;
 				int _PassValue;
@@ -2609,7 +2514,9 @@ Shader "AmplifyShaderPack/Texture Array"
 			SAMPLER(sampler_TextureArrayNormal);
 
 
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/Varyings.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl"
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/PBRGBufferPass.hlsl"
 
 			
 			VertexOutput VertexFunction( VertexInput v  )
@@ -2624,7 +2531,7 @@ Shader "AmplifyShaderPack/Texture Array"
 				//setting value to unused interpolator channels and avoid initialization warnings
 				o.ase_texcoord8.zw = 0;
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					float3 defaultVertexValue = v.positionOS.xyz;
+					float3 defaultVertexValue = v.vertex.xyz;
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
@@ -2632,20 +2539,22 @@ Shader "AmplifyShaderPack/Texture Array"
 				float3 vertexValue = defaultVertexValue;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					v.positionOS.xyz = vertexValue;
+					v.vertex.xyz = vertexValue;
 				#else
-					v.positionOS.xyz += vertexValue;
+					v.vertex.xyz += vertexValue;
 				#endif
 
-				v.normalOS = v.normalOS;
-				v.tangentOS = v.tangentOS;
+				v.ase_normal = v.ase_normal;
 
-				VertexPositionInputs vertexInput = GetVertexPositionInputs( v.positionOS.xyz );
-				VertexNormalInputs normalInput = GetVertexNormalInputs( v.normalOS, v.tangentOS );
+				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
+				float3 positionVS = TransformWorldToView( positionWS );
+				float4 positionCS = TransformWorldToHClip( positionWS );
 
-				o.tSpace0 = float4( normalInput.normalWS, vertexInput.positionWS.x);
-				o.tSpace1 = float4( normalInput.tangentWS, vertexInput.positionWS.y);
-				o.tSpace2 = float4( normalInput.bitangentWS, vertexInput.positionWS.z);
+				VertexNormalInputs normalInput = GetVertexNormalInputs( v.ase_normal, v.ase_tangent );
+
+				o.tSpace0 = float4( normalInput.normalWS, positionWS.x);
+				o.tSpace1 = float4( normalInput.tangentWS, positionWS.y);
+				o.tSpace2 = float4( normalInput.bitangentWS, positionWS.z);
 
 				#if defined(LIGHTMAP_ON)
 					OUTPUT_LIGHTMAP_UV(v.texcoord1, unity_LightmapST, o.lightmapUVOrVertexSH.xy);
@@ -2664,16 +2573,19 @@ Shader "AmplifyShaderPack/Texture Array"
 					o.lightmapUVOrVertexSH.xy = v.texcoord.xy * unity_LightmapST.xy + unity_LightmapST.zw;
 				#endif
 
-				half3 vertexLight = VertexLighting( vertexInput.positionWS, normalInput.normalWS );
+				half3 vertexLight = VertexLighting( positionWS, normalInput.normalWS );
 
 				o.fogFactorAndVertexLight = half4(0, vertexLight);
 
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
+					VertexPositionInputs vertexInput = (VertexPositionInputs)0;
+					vertexInput.positionWS = positionWS;
+					vertexInput.positionCS = positionCS;
 					o.shadowCoord = GetShadowCoord( vertexInput );
 				#endif
 
-				o.positionCS = vertexInput.positionCS;
-				o.clipPosV = vertexInput.positionCS;
+				o.clipPos = positionCS;
+				o.clipPosV = positionCS;
 				return o;
 			}
 
@@ -2681,8 +2593,8 @@ Shader "AmplifyShaderPack/Texture Array"
 			struct VertexControl
 			{
 				float4 vertex : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
-				float4 tangentOS : TANGENT;
+				float3 ase_normal : NORMAL;
+				float4 ase_tangent : TANGENT;
 				float4 texcoord : TEXCOORD0;
 				float4 texcoord1 : TEXCOORD1;
 				float4 texcoord2 : TEXCOORD2;
@@ -2701,9 +2613,9 @@ Shader "AmplifyShaderPack/Texture Array"
 				VertexControl o;
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
-				o.vertex = v.positionOS;
-				o.normalOS = v.normalOS;
-				o.tangentOS = v.tangentOS;
+				o.vertex = v.vertex;
+				o.ase_normal = v.ase_normal;
+				o.ase_tangent = v.ase_tangent;
 				o.texcoord = v.texcoord;
 				o.texcoord1 = v.texcoord1;
 				o.texcoord2 = v.texcoord2;
@@ -2744,9 +2656,9 @@ Shader "AmplifyShaderPack/Texture Array"
 			VertexOutput DomainFunction(TessellationFactors factors, OutputPatch<VertexControl, 3> patch, float3 bary : SV_DomainLocation)
 			{
 				VertexInput o = (VertexInput) 0;
-				o.positionOS = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
-				o.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
-				o.tangentOS = patch[0].tangentOS * bary.x + patch[1].tangentOS * bary.y + patch[2].tangentOS * bary.z;
+				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
+				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
+				o.ase_tangent = patch[0].ase_tangent * bary.x + patch[1].ase_tangent * bary.y + patch[2].ase_tangent * bary.z;
 				o.texcoord = patch[0].texcoord * bary.x + patch[1].texcoord * bary.y + patch[2].texcoord * bary.z;
 				o.texcoord1 = patch[0].texcoord1 * bary.x + patch[1].texcoord1 * bary.y + patch[2].texcoord1 * bary.z;
 				o.texcoord2 = patch[0].texcoord2 * bary.x + patch[1].texcoord2 * bary.y + patch[2].texcoord2 * bary.z;
@@ -2754,9 +2666,9 @@ Shader "AmplifyShaderPack/Texture Array"
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
-					pp[i] = o.positionOS.xyz - patch[i].normalOS * (dot(o.positionOS.xyz, patch[i].normalOS) - dot(patch[i].vertex.xyz, patch[i].normalOS));
+					pp[i] = o.vertex.xyz - patch[i].ase_normal * (dot(o.vertex.xyz, patch[i].ase_normal) - dot(patch[i].vertex.xyz, patch[i].ase_normal));
 				float phongStrength = _TessPhongStrength;
-				o.positionOS.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.positionOS.xyz;
+				o.vertex.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.vertex.xyz;
 				#endif
 				UNITY_TRANSFER_INSTANCE_ID(patch[0], o);
 				return VertexFunction(o);
@@ -2777,8 +2689,8 @@ Shader "AmplifyShaderPack/Texture Array"
 				UNITY_SETUP_INSTANCE_ID(IN);
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(IN);
 
-				#if defined(LOD_FADE_CROSSFADE)
-					LODFadeCrossFade( IN.positionCS );
+				#ifdef LOD_FADE_CROSSFADE
+					LODFadeCrossFade( IN.clipPos );
 				#endif
 
 				#if defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
@@ -2799,7 +2711,7 @@ Shader "AmplifyShaderPack/Texture Array"
 				float4 ClipPos = IN.clipPosV;
 				float4 ScreenPos = ComputeScreenPos( IN.clipPosV );
 
-				float2 NormalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(IN.positionCS);
+				float2 NormalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(IN.clipPos);
 
 				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
 					ShadowCoords = IN.shadowCoord;
@@ -2814,17 +2726,17 @@ Shader "AmplifyShaderPack/Texture Array"
 				float2 uv_TextureArrayAlbedo = IN.ase_texcoord8.xy;
 				
 				float2 uv_TextureArrayNormal = IN.ase_texcoord8.xy;
-				float3 unpack103 = UnpackNormalScale( SAMPLE_TEXTURE2D_ARRAY( _TextureArrayNormal, sampler_TextureArrayNormal, uv_TextureArrayNormal,0.0 ), _NormalScale );
+				float3 unpack103 = UnpackNormalScale( SAMPLE_TEXTURE2D_ARRAY( _TextureArrayNormal, sampler_TextureArrayNormal, uv_TextureArrayNormal,_NormalIndex ), _NormalScale );
 				unpack103.z = lerp( 1, unpack103.z, saturate(_NormalScale) );
 				
 
-				float3 BaseColor = SAMPLE_TEXTURE2D_ARRAY( _TextureArrayAlbedo, sampler_TextureArrayAlbedo, uv_TextureArrayAlbedo,3.0 ).rgb;
+				float3 BaseColor = SAMPLE_TEXTURE2D_ARRAY( _TextureArrayAlbedo, sampler_TextureArrayAlbedo, uv_TextureArrayAlbedo,_AlbedoIndex ).rgb;
 				float3 Normal = unpack103;
 				float3 Emission = 0;
 				float3 Specular = 0.5;
 				float Metallic = 0;
-				float Smoothness = ( SAMPLE_TEXTURE2D_ARRAY( _TextureArrayAlbedo, sampler_TextureArrayAlbedo, uv_TextureArrayAlbedo,0.0 ).r * _RoughScale );
-				float Occlusion = SAMPLE_TEXTURE2D_ARRAY( _TextureArrayAlbedo, sampler_TextureArrayAlbedo, uv_TextureArrayAlbedo,1.0 ).r;
+				float Smoothness = ( SAMPLE_TEXTURE2D_ARRAY( _TextureArrayAlbedo, sampler_TextureArrayAlbedo, uv_TextureArrayAlbedo,_RoughnessIndex ).r * _RoughScale );
+				float Occlusion = SAMPLE_TEXTURE2D_ARRAY( _TextureArrayAlbedo, sampler_TextureArrayAlbedo, uv_TextureArrayAlbedo,_OcclusionIndex ).r;
 				float Alpha = 1;
 				float AlphaClipThreshold = 0.5;
 				float AlphaClipThresholdShadow = 0.5;
@@ -2835,7 +2747,7 @@ Shader "AmplifyShaderPack/Texture Array"
 				float3 Translucency = 1;
 
 				#ifdef ASE_DEPTH_WRITE_ON
-					float DepthValue = IN.positionCS.z;
+					float DepthValue = IN.clipPos.z;
 				#endif
 
 				#ifdef _ALPHATEST_ON
@@ -2844,7 +2756,7 @@ Shader "AmplifyShaderPack/Texture Array"
 
 				InputData inputData = (InputData)0;
 				inputData.positionWS = WorldPosition;
-				inputData.positionCS = IN.positionCS;
+				inputData.positionCS = IN.clipPos;
 				inputData.shadowCoord = ShadowCoords;
 
 				#ifdef _NORMALMAP
@@ -2895,7 +2807,7 @@ Shader "AmplifyShaderPack/Texture Array"
 				#endif
 
 				#ifdef _DBUFFER
-					ApplyDecal(IN.positionCS,
+					ApplyDecal(IN.clipPos,
 						BaseColor,
 						Specular,
 						inputData.normalWS,
@@ -2936,27 +2848,18 @@ Shader "AmplifyShaderPack/Texture Array"
 			Tags { "LightMode"="SceneSelectionPass" }
 
 			Cull Off
-			AlphaToMask Off
 
 			HLSLPROGRAM
-
-			
 
 			#define _NORMAL_DROPOFF_TS 1
 			#define ASE_FOG 1
 			#define _SPECULAR_SETUP 1
 			#define _NORMALMAP 1
-			#define ASE_SRP_VERSION 140011
+			#define ASE_SRP_VERSION 140010
 
-
-			
 
 			#pragma vertex vert
 			#pragma fragment frag
-
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
-				#define _SPECULAR_COLOR 1
-			#endif
 
 			#define SCENESELECTIONPASS 1
 
@@ -2970,40 +2873,22 @@ Shader "AmplifyShaderPack/Texture Array"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
-
-			
-            #if ASE_SRP_VERSION >=140007
-			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-			#endif
-		
-
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 
 			
 
 			struct VertexInput
 			{
-				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
+				float4 vertex : POSITION;
+				float3 ase_normal : NORMAL;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
 			struct VertexOutput
 			{
-				float4 positionCS : SV_POSITION;
+				float4 clipPos : SV_POSITION;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
@@ -3012,8 +2897,12 @@ Shader "AmplifyShaderPack/Texture Array"
 			CBUFFER_START(UnityPerMaterial)
 			float4 _TextureArrayAlbedo_ST;
 			float4 _TextureArrayNormal_ST;
+			float _AlbedoIndex;
+			float _NormalIndex;
 			float _NormalScale;
+			float _RoughnessIndex;
 			float _RoughScale;
+			float _OcclusionIndex;
 			#ifdef ASE_TRANSMISSION
 				float _TransmissionShadow;
 			#endif
@@ -3035,16 +2924,25 @@ Shader "AmplifyShaderPack/Texture Array"
 			#endif
 			CBUFFER_END
 
+			// Property used by ScenePickingPass
 			#ifdef SCENEPICKINGPASS
 				float4 _SelectionID;
 			#endif
 
+			// Properties used by SceneSelectionPass
 			#ifdef SCENESELECTIONPASS
 				int _ObjectId;
 				int _PassValue;
 			#endif
 
 			
+
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/Varyings.hlsl"
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/SelectionPickingPass.hlsl"
+
+			//#ifdef HAVE_VFX_MODIFICATION
+			//#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/VisualEffectVertex.hlsl"
+			//#endif
 
 			
 			struct SurfaceDescription
@@ -3065,7 +2963,7 @@ Shader "AmplifyShaderPack/Texture Array"
 				
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					float3 defaultVertexValue = v.positionOS.xyz;
+					float3 defaultVertexValue = v.vertex.xyz;
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
@@ -3073,16 +2971,16 @@ Shader "AmplifyShaderPack/Texture Array"
 				float3 vertexValue = defaultVertexValue;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					v.positionOS.xyz = vertexValue;
+					v.vertex.xyz = vertexValue;
 				#else
-					v.positionOS.xyz += vertexValue;
+					v.vertex.xyz += vertexValue;
 				#endif
 
-				v.normalOS = v.normalOS;
+				v.ase_normal = v.ase_normal;
 
-				float3 positionWS = TransformObjectToWorld( v.positionOS.xyz );
+				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
 
-				o.positionCS = TransformWorldToHClip(positionWS);
+				o.clipPos = TransformWorldToHClip(positionWS);
 
 				return o;
 			}
@@ -3091,7 +2989,7 @@ Shader "AmplifyShaderPack/Texture Array"
 			struct VertexControl
 			{
 				float4 vertex : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
+				float3 ase_normal : NORMAL;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -3107,8 +3005,8 @@ Shader "AmplifyShaderPack/Texture Array"
 				VertexControl o;
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
-				o.vertex = v.positionOS;
-				o.normalOS = v.normalOS;
+				o.vertex = v.vertex;
+				o.ase_normal = v.ase_normal;
 				
 				return o;
 			}
@@ -3146,15 +3044,15 @@ Shader "AmplifyShaderPack/Texture Array"
 			VertexOutput DomainFunction(TessellationFactors factors, OutputPatch<VertexControl, 3> patch, float3 bary : SV_DomainLocation)
 			{
 				VertexInput o = (VertexInput) 0;
-				o.positionOS = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
-				o.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
+				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
+				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
 				
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
-					pp[i] = o.positionOS.xyz - patch[i].normalOS * (dot(o.positionOS.xyz, patch[i].normalOS) - dot(patch[i].vertex.xyz, patch[i].normalOS));
+					pp[i] = o.vertex.xyz - patch[i].ase_normal * (dot(o.vertex.xyz, patch[i].ase_normal) - dot(patch[i].vertex.xyz, patch[i].ase_normal));
 				float phongStrength = _TessPhongStrength;
-				o.positionOS.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.positionOS.xyz;
+				o.vertex.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.vertex.xyz;
 				#endif
 				UNITY_TRANSFER_INSTANCE_ID(patch[0], o);
 				return VertexFunction(o);
@@ -3204,27 +3102,17 @@ Shader "AmplifyShaderPack/Texture Array"
 			Name "ScenePickingPass"
 			Tags { "LightMode"="Picking" }
 
-			AlphaToMask Off
-
 			HLSLPROGRAM
-
-			
 
 			#define _NORMAL_DROPOFF_TS 1
 			#define ASE_FOG 1
 			#define _SPECULAR_SETUP 1
 			#define _NORMALMAP 1
-			#define ASE_SRP_VERSION 140011
+			#define ASE_SRP_VERSION 140010
 
-
-			
 
 			#pragma vertex vert
 			#pragma fragment frag
-
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
-				#define _SPECULAR_COLOR 1
-			#endif
 
 		    #define SCENEPICKINGPASS 1
 
@@ -3238,40 +3126,22 @@ Shader "AmplifyShaderPack/Texture Array"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
-
-			
-            #if ASE_SRP_VERSION >=140007
-			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-			#endif
-		
-
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 
 			
 
 			struct VertexInput
 			{
-				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
+				float4 vertex : POSITION;
+				float3 ase_normal : NORMAL;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
 			struct VertexOutput
 			{
-				float4 positionCS : SV_POSITION;
+				float4 clipPos : SV_POSITION;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
@@ -3280,8 +3150,12 @@ Shader "AmplifyShaderPack/Texture Array"
 			CBUFFER_START(UnityPerMaterial)
 			float4 _TextureArrayAlbedo_ST;
 			float4 _TextureArrayNormal_ST;
+			float _AlbedoIndex;
+			float _NormalIndex;
 			float _NormalScale;
+			float _RoughnessIndex;
 			float _RoughScale;
+			float _OcclusionIndex;
 			#ifdef ASE_TRANSMISSION
 				float _TransmissionShadow;
 			#endif
@@ -3303,16 +3177,25 @@ Shader "AmplifyShaderPack/Texture Array"
 			#endif
 			CBUFFER_END
 
+			// Property used by ScenePickingPass
 			#ifdef SCENEPICKINGPASS
 				float4 _SelectionID;
 			#endif
 
+			// Properties used by SceneSelectionPass
 			#ifdef SCENESELECTIONPASS
 				int _ObjectId;
 				int _PassValue;
 			#endif
 
 			
+
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/Varyings.hlsl"
+			//#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/SelectionPickingPass.hlsl"
+
+			//#ifdef HAVE_VFX_MODIFICATION
+			//#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/VisualEffectVertex.hlsl"
+			//#endif
 
 			
 			struct SurfaceDescription
@@ -3333,7 +3216,7 @@ Shader "AmplifyShaderPack/Texture Array"
 				
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					float3 defaultVertexValue = v.positionOS.xyz;
+					float3 defaultVertexValue = v.vertex.xyz;
 				#else
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
@@ -3341,15 +3224,15 @@ Shader "AmplifyShaderPack/Texture Array"
 				float3 vertexValue = defaultVertexValue;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
-					v.positionOS.xyz = vertexValue;
+					v.vertex.xyz = vertexValue;
 				#else
-					v.positionOS.xyz += vertexValue;
+					v.vertex.xyz += vertexValue;
 				#endif
 
-				v.normalOS = v.normalOS;
+				v.ase_normal = v.ase_normal;
 
-				float3 positionWS = TransformObjectToWorld( v.positionOS.xyz );
-				o.positionCS = TransformWorldToHClip(positionWS);
+				float3 positionWS = TransformObjectToWorld( v.vertex.xyz );
+				o.clipPos = TransformWorldToHClip(positionWS);
 
 				return o;
 			}
@@ -3358,7 +3241,7 @@ Shader "AmplifyShaderPack/Texture Array"
 			struct VertexControl
 			{
 				float4 vertex : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
+				float3 ase_normal : NORMAL;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -3374,8 +3257,8 @@ Shader "AmplifyShaderPack/Texture Array"
 				VertexControl o;
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
-				o.vertex = v.positionOS;
-				o.normalOS = v.normalOS;
+				o.vertex = v.vertex;
+				o.ase_normal = v.ase_normal;
 				
 				return o;
 			}
@@ -3413,15 +3296,15 @@ Shader "AmplifyShaderPack/Texture Array"
 			VertexOutput DomainFunction(TessellationFactors factors, OutputPatch<VertexControl, 3> patch, float3 bary : SV_DomainLocation)
 			{
 				VertexInput o = (VertexInput) 0;
-				o.positionOS = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
-				o.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
+				o.vertex = patch[0].vertex * bary.x + patch[1].vertex * bary.y + patch[2].vertex * bary.z;
+				o.ase_normal = patch[0].ase_normal * bary.x + patch[1].ase_normal * bary.y + patch[2].ase_normal * bary.z;
 				
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
-					pp[i] = o.positionOS.xyz - patch[i].normalOS * (dot(o.positionOS.xyz, patch[i].normalOS) - dot(patch[i].vertex.xyz, patch[i].normalOS));
+					pp[i] = o.vertex.xyz - patch[i].ase_normal * (dot(o.vertex.xyz, patch[i].ase_normal) - dot(patch[i].vertex.xyz, patch[i].ase_normal));
 				float phongStrength = _TessPhongStrength;
-				o.positionOS.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.positionOS.xyz;
+				o.vertex.xyz = phongStrength * (pp[0]*bary.x + pp[1]*bary.y + pp[2]*bary.z) + (1.0f-phongStrength) * o.vertex.xyz;
 				#endif
 				UNITY_TRANSFER_INSTANCE_ID(patch[0], o);
 				return VertexFunction(o);
@@ -3472,28 +3355,28 @@ Shader "AmplifyShaderPack/Texture Array"
 	Fallback Off
 }
 /*ASEBEGIN
-Version=19602
-Node;AmplifyShaderEditor.RangedFloatNode;109;-560,64;Float;False;Constant;_RoughnessIndex;Roughness Index;1;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.SamplerNode;105;-310.502,63.60038;Inherit;True;Property;_TextureArray2;Texture Array 2;0;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;False;Instance;108;Auto;Texture2DArray;8;0;SAMPLER2DARRAY;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.RangedFloatNode;113;-553.9034,-373.3005;Float;False;Constant;_AlbedoIndex;Albedo Index;1;0;Create;True;0;0;0;False;0;False;3;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;110;-544,320;Float;False;Constant;_OcclusionIndex;Occlusion Index;1;0;Create;True;0;0;0;False;0;False;1;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;111;-560,-176;Float;False;Constant;_NormalIndex;Normal Index;1;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;123;-560,-80;Float;False;Property;_NormalScale;Normal Scale;2;0;Create;True;0;0;0;False;0;False;1;1;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;118;-304,240;Float;False;Property;_RoughScale;Rough Scale;3;0;Create;True;0;0;0;False;0;False;0.1;0.1;0;1;0;1;FLOAT;0
+Version=19108
+Node;AmplifyShaderEditor.SamplerNode;105;-310.502,63.60038;Inherit;True;Property;_TextureArray2;Texture Array 2;0;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;False;Instance;108;Auto;Texture2DArray;8;0;SAMPLER2DARRAY;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.RangedFloatNode;123;-560,-80;Float;False;Property;_NormalScale;Normal Scale;6;0;Create;True;0;0;0;False;0;False;1;1;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;118;-304,240;Float;False;Property;_RoughScale;Rough Scale;7;0;Create;True;0;0;0;False;0;False;0.1;0.1;0;1;0;1;FLOAT;0
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;117;99.54906,25.52966;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.SamplerNode;103;-304,-192;Inherit;True;Property;_TextureArrayNormal;Texture Array Normal;1;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;True;Object;-1;Auto;Texture2DArray;8;0;SAMPLER2DARRAY;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.SamplerNode;108;-306.7961,-432.2489;Inherit;True;Property;_TextureArrayAlbedo;Texture Array Albedo;0;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2DArray;8;0;SAMPLER2DARRAY;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.SamplerNode;104;-320,320;Inherit;True;Property;_TextureArray3;Texture Array 3;0;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;False;Instance;108;Auto;Texture2DArray;8;0;SAMPLER2DARRAY;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.SamplerNode;103;-304,-192;Inherit;True;Property;_TextureArrayNormal;Texture Array Normal;1;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;True;Object;-1;Auto;Texture2DArray;8;0;SAMPLER2DARRAY;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.SamplerNode;108;-306.7961,-432.2489;Inherit;True;Property;_TextureArrayAlbedo;Texture Array Albedo;0;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2DArray;8;0;SAMPLER2DARRAY;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.SamplerNode;104;-320,320;Inherit;True;Property;_TextureArray3;Texture Array 3;0;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;False;Instance;108;Auto;Texture2DArray;8;0;SAMPLER2DARRAY;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;124;407.6068,-183.0747;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ExtraPrePass;0;0;ExtraPrePass;5;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;0;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;125;407.6068,-183.0747;Float;False;True;-1;2;UnityEditor.ShaderGraphLitGUI;0;12;AmplifyShaderPack/Texture Array;94348b07e5e8bab40bd6c8a1e3df54cd;True;Forward;0;1;Forward;21;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;1;LightMode=UniversalForward;False;False;0;;0;0;Standard;42;Lighting Model;0;0;Workflow;0;638162476669402127;Surface;0;0;  Refraction Model;0;0;  Blend;0;0;Two Sided;1;0;Fragment Normal Space,InvertActionOnDeselection;0;0;Forward Only;0;0;Transmission;0;0;  Transmission Shadow;0.5,False,;0;Translucency;0;0;  Translucency Strength;1,False,;0;  Normal Distortion;0.5,False,;0;  Scattering;2,False,;0;  Direct;0.9,False,;0;  Ambient;0.1,False,;0;  Shadow;0.5,False,;0;Cast Shadows;1;0;  Use Shadow Threshold;0;0;Receive Shadows;1;0;Receive SSAO;1;0;GPU Instancing;1;0;LOD CrossFade;1;0;Built-in Fog;1;0;_FinalColorxAlpha;0;0;Meta Pass;1;0;Override Baked GI;0;0;Extra Pre Pass;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,False,;0;  Type;0;0;  Tess;16,False,;0;  Min;10,False,;0;  Max;25,False,;0;  Edge Length;16,False,;0;  Max Displacement;25,False,;0;Write Depth;0;0;  Early Z;0;0;Vertex Position,InvertActionOnDeselection;1;0;Debug Display;0;0;Clear Coat;0;0;0;10;False;True;True;True;True;True;True;True;True;True;False;;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;125;407.6068,-183.0747;Float;False;True;-1;2;UnityEditor.ShaderGraphLitGUI;0;12;AmplifyShaderPack/Texture Array;94348b07e5e8bab40bd6c8a1e3df54cd;True;Forward;0;1;Forward;20;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;1;LightMode=UniversalForward;False;False;0;;0;0;Standard;41;Workflow;0;638162476669402127;Surface;0;0;  Refraction Model;0;0;  Blend;0;0;Two Sided;1;0;Fragment Normal Space,InvertActionOnDeselection;0;0;Forward Only;0;0;Transmission;0;0;  Transmission Shadow;0.5,False,;0;Translucency;0;0;  Translucency Strength;1,False,;0;  Normal Distortion;0.5,False,;0;  Scattering;2,False,;0;  Direct;0.9,False,;0;  Ambient;0.1,False,;0;  Shadow;0.5,False,;0;Cast Shadows;1;0;  Use Shadow Threshold;0;0;Receive Shadows;1;0;GPU Instancing;1;0;LOD CrossFade;1;0;Built-in Fog;1;0;_FinalColorxAlpha;0;0;Meta Pass;1;0;Override Baked GI;0;0;Extra Pre Pass;0;0;DOTS Instancing;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,False,;0;  Type;0;0;  Tess;16,False,;0;  Min;10,False,;0;  Max;25,False,;0;  Edge Length;16,False,;0;  Max Displacement;25,False,;0;Write Depth;0;0;  Early Z;0;0;Vertex Position,InvertActionOnDeselection;1;0;Debug Display;0;0;Clear Coat;0;0;0;10;False;True;True;True;True;True;True;True;True;True;False;;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;126;407.6068,-183.0747;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ShadowCaster;0;2;ShadowCaster;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;True;False;False;False;False;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;False;True;1;LightMode=ShadowCaster;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;127;407.6068,-183.0747;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;DepthOnly;0;3;DepthOnly;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;True;False;False;False;False;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;False;False;True;1;LightMode=DepthOnly;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;128;407.6068,-183.0747;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;Meta;0;4;Meta;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Meta;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;129;407.6068,-183.0747;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;Universal2D;0;5;Universal2D;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;1;LightMode=Universal2D;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;130;407.6068,-183.0747;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;DepthNormals;0;6;DepthNormals;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;False;True;1;LightMode=DepthNormals;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;131;407.6068,-183.0747;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;GBuffer;0;7;GBuffer;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;1;LightMode=UniversalGBuffer;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;132;407.6068,-103.0747;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;SceneSelectionPass;0;8;SceneSelectionPass;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;2;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=SceneSelectionPass;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;133;407.6068,-103.0747;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ScenePickingPass;0;9;ScenePickingPass;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Picking;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;132;407.6068,-103.0747;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;SceneSelectionPass;0;8;SceneSelectionPass;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=SceneSelectionPass;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;133;407.6068,-103.0747;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ScenePickingPass;0;9;ScenePickingPass;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Picking;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.RangedFloatNode;113;-553.9034,-373.3005;Float;False;Property;_AlbedoIndex;Albedo Index;4;0;Create;True;0;0;0;False;0;False;1;1;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;111;-560,-176;Float;False;Property;_NormalIndex;Normal Index;5;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;109;-560,64;Float;False;Property;_RoughnessIndex;Roughness Index;2;0;Create;True;0;0;0;False;0;False;2;2;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;110;-544,320;Float;False;Property;_OcclusionIndex;Occlusion Index;3;0;Create;True;0;0;0;False;0;False;1;1;0;0;0;1;FLOAT;0
 WireConnection;105;6;109;0
 WireConnection;117;0;105;1
 WireConnection;117;1;118;0
@@ -3506,4 +3389,4 @@ WireConnection;125;1;103;0
 WireConnection;125;4;117;0
 WireConnection;125;5;104;0
 ASEEND*/
-//CHKSM=785A6E095BBFE9E803BD3625F12BCF6C564CE18C
+//CHKSM=924F4C5D4D16AA970129DD7AE7B61323F175B31A

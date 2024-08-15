@@ -9,6 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Smear
   m_Shader: {fileID: 4800000, guid: 2f52ee24113e4da2a9ee0e0e1cd9c088, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 5
@@ -17,6 +19,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -50,15 +53,15 @@ Material:
     - _EffectScale: 2
     - _EnvironmentReflections: 1
     - _Float4: 1
-    - _Metallic: 0.538
-    - _NoiseHeightScale: 0.247
-    - _NoiseInfluence: 0.426
+    - _Metallic: 1
+    - _NoiseHeightScale: 0.552
+    - _NoiseInfluence: 0.503
     - _NoiseScale: 0.5
     - _NoiseTilling: 5.5
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _Smoothness: 0.408
+    - _Smoothness: 0.725
     - _SpecularHighlights: 1
     - _TessMax: 20
     - _TessMin: 10
