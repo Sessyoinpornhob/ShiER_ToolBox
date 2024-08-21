@@ -813,7 +813,7 @@ PlayerSettings:
   webGLMemoryGeometricGrowthCap: 96
   webGLPowerPreference: 2
   scriptingDefineSymbols:
-    Standalone: AMPLIFY_SHADER_EDITOR
+    Standalone: AMPLIFY_SHADER_EDITOR;VLB_URP
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}
