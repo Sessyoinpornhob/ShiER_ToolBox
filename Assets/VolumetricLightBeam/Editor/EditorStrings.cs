@@ -201,7 +201,7 @@ namespace VLB
                 "The beam can only be occluded by objects located on the layers matching this mask.\nIt's very important to set it as restrictive as possible (checking only the layers which are necessary) to perform a more efficient process in order to increase the performance.");
             public static readonly GUIContent ConsiderTriggers = new GUIContent("Consider Triggers",
                 "Should this beam be occluded by triggers or not?");
-            public const string ConsiderTriggersNoPossible = "In order to be able to consider triggers as 2D occluders, you should tick the 'Queries Hit Triggers' checkbox under the 'Physics 2D' settings menu.";
+            public const string ConsiderTriggersNoPossible = "In order to be able to consider triggers as 2D occluders, you should tick the 'Queries Hit Triggers' checkbox under the 'Physics 2D' refSettings menu.";
             public static readonly GUIContent MinOccluderArea = new GUIContent("Min Occluder Area",
                 "Minimum 'area' of the collider to become an occluder.\nColliders smaller than this value will not block the beam.");
             public static readonly GUIContent UpdateRate = new GUIContent("Update Rate", "How often will the occlusion be processed?\nTry to update the occlusion as rarely as possible to keep good performance.");

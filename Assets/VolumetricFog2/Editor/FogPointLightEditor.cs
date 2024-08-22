@@ -17,7 +17,7 @@ namespace VolumetricFogAndMist2 {
 
         public override void OnInspectorGUI() {
 
-            EditorGUILayout.HelpBox("Custom multipliers for this point light only. Manage global settings using the Point Light Manager.", MessageType.Info);
+            EditorGUILayout.HelpBox("Custom multipliers for this point light only. Manage global refSettings using the Point Light Manager.", MessageType.Info);
             if (GUILayout.Button("Open Point Light Manager")) {
                 Selection.activeGameObject = VolumetricFogManager.pointLightManager.gameObject;
                 GUIUtility.ExitGUI();
