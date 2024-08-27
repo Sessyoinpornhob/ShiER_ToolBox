@@ -118,10 +118,13 @@ public class BoidsTest : MonoBehaviour
     
     // 找到避让的方向
     Vector3 ObstacleRays () {
-        Vector3[] rayDirections = _testSettings.presetDirections; // 预定义的多个射线方向
+        
+        // Vector3[] rayDirections = _testSettings.presetDirections; // 预定义的多个射线方向
+        List<Vector2> rayDirections = CirclePointsGenerator.GetPointsOnUnitCircle(180, 1f);
+        
         // Debug.Log("ObstacleRays is working");
         // 检测各个方向是否安全
-        for (int i = 0; i < rayDirections.Length; i++) {
+        for (int i = 0; i < rayDirections.Count; i++) {
             Vector3 dir = cachedTransform.TransformDirection(rayDirections[i]);
             Ray ray = new Ray(position, dir);
             if (!Physics.SphereCast(ray, _testSettings.boundsRadius, 
