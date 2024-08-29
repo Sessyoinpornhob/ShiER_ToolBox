@@ -71,7 +71,7 @@ public class BoidsTest : MonoBehaviour
         
         // 如果有碰撞风险，计算避让的加速度
         if (IsHeadingForCollision ()) {
-            Vector3 collisionAvoidDir = ObstacleRays().normalized; // 找到避让方向
+            Vector3 collisionAvoidDir = ObstacleRays();//.normalized; // 找到避让方向
             Vector3 collisionAvoidForce = SteerTowards(collisionAvoidDir) * _testSettings.avoidCollisionWeight; // 根据避让权重调整加速度
             acceleration += collisionAvoidForce;
         }
@@ -120,7 +120,7 @@ public class BoidsTest : MonoBehaviour
     Vector3 ObstacleRays () {
         
         // Vector3[] rayDirections = _testSettings.presetDirections; // 预定义的多个射线方向
-        List<Vector2> rayDirections = CirclePointsGenerator.GetPointsOnUnitCircle(180, 1f);
+        List<Vector3> rayDirections = CirclePointsGenerator.GetPointsOnUnitCircle(360, 1f);
         
         // Debug.Log("ObstacleRays is working");
         // 检测各个方向是否安全

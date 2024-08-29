@@ -35,19 +35,20 @@ public class BoidsTestManager : MonoBehaviour
 
             
         // 需要计算：群体中心 对齐 聚合 分离
-        // numFlockmates
+        // 很合理，对于每一个单位而言，计算与其他单位的相关参数
         for (int i = 0; i < boidsTests.Length; i++) {
             for (int j = 0; j < boidsTests.Length; j++) {
+                if (i == j)
+                    break;
                 
                 Vector3 offset = boidsTests[i].position - boidsTests[j].position;
                 float sqrDst = offset.x * offset.x + offset.y * offset.y + offset.z * offset.z;
                 // 如果找到范围内部的boids
-                if (sqrDst < boidsTestSettings.viewRadius * boidsTestSettings.viewRadius) {
+                if (0 < sqrDst && sqrDst < boidsTestSettings.viewRadius * boidsTestSettings.viewRadius) {
                     boidsTests[i].numPerceivedFlockmates += 1;                      // 范围内鸟群数量
                     boidsTests[i].avgFlockHeading += boidsTests[j].forward;         // 群体平均方向
                     boidsTests[i].centreOfFlockmates += boidsTests[j].position;     // 群体中心
-
-                    if (sqrDst < boidsTestSettings.avoidRadius * boidsTestSettings.avoidRadius) {
+                    if (0 < sqrDst && sqrDst < boidsTestSettings.avoidRadius * boidsTestSettings.avoidRadius) {
                         boidsTests[i].avgAvoidanceHeading -= offset / sqrDst;       // 群体离开方向
                     }
                 }

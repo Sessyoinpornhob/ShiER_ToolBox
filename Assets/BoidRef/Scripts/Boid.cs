@@ -107,6 +107,7 @@ public class Boid : MonoBehaviour {
         RaycastHit hit;
         // 使用球形射线检测前方是否有障碍物
         if (Physics.SphereCast(position, _refSettings.boundsRadius, forward, out hit, _refSettings.collisionAvoidDst, _refSettings.obstacleMask)) {
+            Debug.Log(hit.collider.transform.name);
             return true;
         } else {
             return false;
