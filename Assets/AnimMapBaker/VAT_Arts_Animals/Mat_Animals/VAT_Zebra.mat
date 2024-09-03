@@ -89,7 +89,7 @@ Material:
     - _OutMin: 0
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _Speed: 2
+    - _Speed: 1.33
     - _TexSize_X: 4096
     - _TexSize_Y: 288
     - _UVTimes: 0
