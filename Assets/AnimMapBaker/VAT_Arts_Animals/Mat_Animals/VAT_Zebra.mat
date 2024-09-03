@@ -39,7 +39,15 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 6d9354f0f10ed4d49a4cffe7a1c18471, type: 3}
+        m_Texture: {fileID: 2800000, guid: 84752f1dd3ef54324aa931d213ba44ac, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_778d6b2f0508463eabe903ea68092ae3_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 7e0cddacf0a0fa448a9241be558e17f2, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_d594c19baf33491bb6a0e64912fac626_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: b3e9e242748e990419610f0ab724c08c, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _UV_Animation:
@@ -81,7 +89,7 @@ Material:
     - _OutMin: 0
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _Speed: 1
+    - _Speed: 2
     - _TexSize_X: 4096
     - _TexSize_Y: 288
     - _UVTimes: 0
@@ -90,4 +98,3 @@ Material:
     m_Colors:
     - _OutMinMax: {r: 0, g: 32, b: 0, a: 0}
   m_BuildTextureStacks: []
-  m_AllowLocking: 1
