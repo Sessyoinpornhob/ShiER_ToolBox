@@ -11,6 +11,12 @@ public class GradientGUIM : ShaderGUI
     List<string> HideInspectorList = new List<string>();
     GUIContent Label = new GUIContent();
     GUILayoutOption[] options;
+
+    #region MaterialProperties
+
+    MaterialProperty useNoiseA = null;
+
+    #endregion
     
     #region Utilities
 
@@ -56,6 +62,7 @@ public class GradientGUIM : ShaderGUI
         HideInspectorList.Add("unity_ShadowMasks");
 
         GradientEditor(materialEditor, properties);
+        OtherPropEditor(materialEditor, properties);
         
         // 把 render queue 写进去了 这个想办法避免一下
         EditorGUILayout.Space(10);
@@ -71,6 +78,8 @@ public class GradientGUIM : ShaderGUI
     /// <param name="properties"></param>
     public void GradientEditor(MaterialEditor materialEditor, MaterialProperty[] properties)
     {
+        EditorGUILayout.BeginVertical(BoxScopeStyle);
+        EditorGUILayout.Space(2);
         GUILayout.Label("Gradient",ToonLabelStyle);
         
         //Gradient = EditorGUILayout.GradientField(ShaderGUI.FindProperty("Color0", properties).displayName, Gradient);
@@ -145,7 +154,17 @@ public class GradientGUIM : ShaderGUI
             HideInspectorList.Add("Color" + i.ToString());
             HideInspectorList.Add("Alpha" + i.ToString());
         }
-
+        
+        EditorGUILayout.Space(2);
+        EditorGUILayout.EndVertical();
+    }
+    private void OtherPropEditor(MaterialEditor materialEditor, MaterialProperty[] properties)
+    {
+        EditorGUILayout.BeginVertical(BoxScopeStyle);
+        EditorGUILayout.Space(2);
+        GUILayout.Label("Noise",ToonLabelStyle);
+        
+        // TODO 绘制其他属性
         foreach (MaterialProperty property in properties)
         {
             bool HideTarget = false;
@@ -159,9 +178,13 @@ public class GradientGUIM : ShaderGUI
             }
             if(!HideTarget)
             {
+                // 绘制属性 这个还是太粗暴了
                 materialEditor.ShaderProperty(property, property.displayName);
             }
         }
+        
+        EditorGUILayout.Space(2);
+        EditorGUILayout.EndVertical();
     }
     
 }
