@@ -1,4 +1,4 @@
-Shader "USB/BaseURPShader"
+Shader "USB/BaseURPShaderBackUp"
 {
 	Properties
 	{
@@ -73,7 +73,7 @@ Shader "USB/BaseURPShader"
 			{
 				float4 clipPos : SV_POSITION;
 				float3 normalWS : TEXCOORD0;
-				float3 position : TEXCOORD1;
+				float3 positionWS : TEXCOORD1;
 			};
 
 			CBUFFER_START(UnityPerMaterial)
@@ -85,7 +85,7 @@ Shader "USB/BaseURPShader"
 				VertexOutput o = (VertexOutput)0;
 				o.normalWS = TransformObjectToWorldNormal(v.ase_normal);
 				o.clipPos = TransformObjectToHClip( v.vertex.xyz );
-				o.position = TransformObjectToWorld(v.vertex.xyz);
+				o.positionWS = TransformObjectToWorld(v.vertex.xyz);
 
 				return o;
 			}
@@ -106,7 +106,7 @@ Shader "USB/BaseURPShader"
 	
 	}
 	
-	CustomEditor "UnityEditor.ShaderGraphUnlitGUI"
+	// CustomEditor "UnityEditor.ShaderGraphUnlitGUI"
 	FallBack "Hidden/Shader Graph/FallbackError"
 	
 	Fallback Off
