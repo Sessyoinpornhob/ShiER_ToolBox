@@ -25,8 +25,8 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _Position: 0.374
-    - _Smooth: 0.0046
-    - _k: 0.202
+    - _Position: 0.34
+    - _Smooth: 0.0007
+    - _k: 0.5
     m_Colors: []
   m_BuildTextureStacks: []
