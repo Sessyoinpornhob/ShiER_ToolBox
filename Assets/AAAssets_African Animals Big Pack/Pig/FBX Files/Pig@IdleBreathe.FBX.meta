@@ -1,0 +1,448 @@
+fileFormatVersion: 2
+guid: 9aef041142ddb704cbebe5a4b3738371
+ModelImporter:
+  serializedVersion: 22200
+  internalIDToNameTable:
+  - first:
+      1: 100000
+    second: //RootNode
+  - first:
+      1: 100002
+    second: PIG_
+  - first:
+      1: 100004
+    second: PIG_ Head
+  - first:
+      1: 100006
+    second: PIG_ L Calf
+  - first:
+      1: 100008
+    second: PIG_ L Clavicle
+  - first:
+      1: 100010
+    second: PIG_ L Finger0
+  - first:
+      1: 100012
+    second: PIG_ L Foot
+  - first:
+      1: 100014
+    second: PIG_ L Forearm
+  - first:
+      1: 100016
+    second: PIG_ L Hand
+  - first:
+      1: 100018
+    second: PIG_ L HorseLink
+  - first:
+      1: 100020
+    second: PIG_ L Thigh
+  - first:
+      1: 100022
+    second: PIG_ L UpperArm
+  - first:
+      1: 100024
+    second: PIG_ Neck
+  - first:
+      1: 100026
+    second: PIG_ Neck1
+  - first:
+      1: 100028
+    second: PIG_ Pelvis
+  - first:
+      1: 100030
+    second: PIG_ Queue de cheval 1
+  - first:
+      1: 100032
+    second: PIG_ R Calf
+  - first:
+      1: 100034
+    second: PIG_ R Clavicle
+  - first:
+      1: 100036
+    second: PIG_ R Finger0
+  - first:
+      1: 100038
+    second: PIG_ R Foot
+  - first:
+      1: 100040
+    second: PIG_ R Forearm
+  - first:
+      1: 100042
+    second: PIG_ R Hand
+  - first:
+      1: 100044
+    second: PIG_ R HorseLink
+  - first:
+      1: 100046
+    second: PIG_ R Thigh
+  - first:
+      1: 100048
+    second: PIG_ R UpperArm
+  - first:
+      1: 100050
+    second: PIG_ Spine
+  - first:
+      1: 100052
+    second: PIG_ Spine1
+  - first:
+      1: 100054
+    second: PIG_ Tail
+  - first:
+      1: 100056
+    second: PIG_ Tail1
+  - first:
+      1: 100058
+    second: PIG_ Tail2
+  - first:
+      1: 100060
+    second: PIG_ Tail3
+  - first:
+      1: 100062
+    second: PIG_ Tail4
+  - first:
+      1: 100064
+    second: PIG_ Tail5
+  - first:
+      1: 100066
+    second: PIG_ Tail6
+  - first:
+      1: 100068
+    second: Pig_Nose
+  - first:
+      1: 100070
+    second: root
+  - first:
+      4: 400000
+    second: //RootNode
+  - first:
+      4: 400002
+    second: PIG_
+  - first:
+      4: 400004
+    second: PIG_ Head
+  - first:
+      4: 400006
+    second: PIG_ L Calf
+  - first:
+      4: 400008
+    second: PIG_ L Clavicle
+  - first:
+      4: 400010
+    second: PIG_ L Finger0
+  - first:
+      4: 400012
+    second: PIG_ L Foot
+  - first:
+      4: 400014
+    second: PIG_ L Forearm
+  - first:
+      4: 400016
+    second: PIG_ L Hand
+  - first:
+      4: 400018
+    second: PIG_ L HorseLink
+  - first:
+      4: 400020
+    second: PIG_ L Thigh
+  - first:
+      4: 400022
+    second: PIG_ L UpperArm
+  - first:
+      4: 400024
+    second: PIG_ Neck
+  - first:
+      4: 400026
+    second: PIG_ Neck1
+  - first:
+      4: 400028
+    second: PIG_ Pelvis
+  - first:
+      4: 400030
+    second: PIG_ Queue de cheval 1
+  - first:
+      4: 400032
+    second: PIG_ R Calf
+  - first:
+      4: 400034
+    second: PIG_ R Clavicle
+  - first:
+      4: 400036
+    second: PIG_ R Finger0
+  - first:
+      4: 400038
+    second: PIG_ R Foot
+  - first:
+      4: 400040
+    second: PIG_ R Forearm
+  - first:
+      4: 400042
+    second: PIG_ R Hand
+  - first:
+      4: 400044
+    second: PIG_ R HorseLink
+  - first:
+      4: 400046
+    second: PIG_ R Thigh
+  - first:
+      4: 400048
+    second: PIG_ R UpperArm
+  - first:
+      4: 400050
+    second: PIG_ Spine
+  - first:
+      4: 400052
+    second: PIG_ Spine1
+  - first:
+      4: 400054
+    second: PIG_ Tail
+  - first:
+      4: 400056
+    second: PIG_ Tail1
+  - first:
+      4: 400058
+    second: PIG_ Tail2
+  - first:
+      4: 400060
+    second: PIG_ Tail3
+  - first:
+      4: 400062
+    second: PIG_ Tail4
+  - first:
+      4: 400064
+    second: PIG_ Tail5
+  - first:
+      4: 400066
+    second: PIG_ Tail6
+  - first:
+      4: 400068
+    second: Pig_Nose
+  - first:
+      4: 400070
+    second: root
+  - first:
+      74: 7400000
+    second: IdleBreathe
+  - first:
+      95: 9500000
+    second: //RootNode
+  externalObjects: {}
+  materials:
+    materialImportMode: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 0
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: IdleBreathe
+      takeName: Take 001
+      internalID: 0
+      firstFrame: 0
+      lastFrame: 60
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: root
+        weight: 1
+      - path: root/PIG_
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ L Thigh
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ L Thigh/PIG_ L Calf
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ L Thigh/PIG_ L Calf/PIG_ L HorseLink
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ L Thigh/PIG_ L Calf/PIG_ L HorseLink/PIG_
+          L Foot
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ R Thigh
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ R Thigh/PIG_ R Calf
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ R Thigh/PIG_ R Calf/PIG_ R HorseLink
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ R Thigh/PIG_ R Calf/PIG_ R HorseLink/PIG_
+          R Foot
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ Spine1
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ Spine1/PIG_ L Clavicle
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ Spine1/PIG_ L Clavicle/PIG_ L
+          UpperArm
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ Spine1/PIG_ L Clavicle/PIG_ L
+          UpperArm/PIG_ L Forearm
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ Spine1/PIG_ L Clavicle/PIG_ L
+          UpperArm/PIG_ L Forearm/PIG_ L Hand
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ Spine1/PIG_ L Clavicle/PIG_ L
+          UpperArm/PIG_ L Forearm/PIG_ L Hand/PIG_ L Finger0
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ Spine1/PIG_ Neck
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ Spine1/PIG_ Neck/PIG_ Neck1
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ Spine1/PIG_ Neck/PIG_ Neck1/PIG_
+          Head
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ Spine1/PIG_ Neck/PIG_ Neck1/PIG_
+          Head/PIG_ Queue de cheval 1
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ Spine1/PIG_ Neck/PIG_ Neck1/PIG_
+          Head/Pig_Nose
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ Spine1/PIG_ R Clavicle
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ Spine1/PIG_ R Clavicle/PIG_ R
+          UpperArm
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ Spine1/PIG_ R Clavicle/PIG_ R
+          UpperArm/PIG_ R Forearm
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ Spine1/PIG_ R Clavicle/PIG_ R
+          UpperArm/PIG_ R Forearm/PIG_ R Hand
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Spine/PIG_ Spine1/PIG_ R Clavicle/PIG_ R
+          UpperArm/PIG_ R Forearm/PIG_ R Hand/PIG_ R Finger0
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Tail
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Tail/PIG_ Tail1
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Tail/PIG_ Tail1/PIG_ Tail2
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Tail/PIG_ Tail1/PIG_ Tail2/PIG_ Tail3
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Tail/PIG_ Tail1/PIG_ Tail2/PIG_ Tail3/PIG_
+          Tail4
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Tail/PIG_ Tail1/PIG_ Tail2/PIG_ Tail3/PIG_
+          Tail4/PIG_ Tail5
+        weight: 1
+      - path: root/PIG_/PIG_ Pelvis/PIG_ Tail/PIG_ Tail1/PIG_ Tail2/PIG_ Tail3/PIG_
+          Tail4/PIG_ Tail5/PIG_ Tail6
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 1
+    importVisibility: 0
+    importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
+    nodeNameCollisionStrategy: 0
+    fileIdsGeneration: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    meshOptimizationFlags: -1
+    indexFormat: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 0
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    strictVertexDataChecks: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 4
+    normalCalculationMode: 0
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 1
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: root
+    hasTranslationDoF: 0
+    hasExtraRoot: 1
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 1
+  humanoidOversampling: 1
+  avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 0
+  importBlendShapeDeformPercent: 0
+  remapMaterialsIfMaterialImportModeIsNone: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

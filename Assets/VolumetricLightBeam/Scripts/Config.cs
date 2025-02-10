@@ -870,7 +870,7 @@ namespace VLB
             + "\nGraphics API: " + SystemInfo.graphicsDeviceType
             + "\nUses Reversed ZBuffer: " + SystemInfo.usesReversedZBuffer
             + "\nScripting Define Symbols: " + scriptingDefineSymbols
-            + "\nRender Pipeline Asset: " + (UnityEngine.Rendering.GraphicsSettings.renderPipelineAsset != null ? UnityEngine.Rendering.GraphicsSettings.renderPipelineAsset.ToString() : "none")
+            + "\nRender Pipeline Asset: " + (UnityEngine.Rendering.GraphicsSettings.defaultRenderPipeline != null ? UnityEngine.Rendering.GraphicsSettings.defaultRenderPipeline.ToString() : "none")
             + "\nRender Pipeline Enum: " + SRPHelper.projectRenderPipeline
             + "\nRender Pipeline Selected: " + renderPipeline
             + "\nRender Pipeline Symbol: " + SRPHelper.renderPipelineScriptingDefineSymbolAsString
