@@ -147,8 +147,8 @@ Transform:
   m_GameObject: {fileID: 123099685}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.196, z: 0.62}
-  m_LocalScale: {x: 4.5835, y: 2.9601755, z: 0.21209681}
+  m_LocalPosition: {x: 0.506, y: 0.196, z: 0.78}
+  m_LocalScale: {x: 6.4183564, y: 2.9601755, z: 0.21209681}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1609664150}
@@ -227,6 +227,74 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 123099685}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1001 &263777683
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 6270430403956343705, guid: 82f9f7876dc942bda343764c0823128f,
+        type: 3}
+      propertyPath: m_Name
+      value: Crystal_Mineral_01
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651495138743867683, guid: 82f9f7876dc942bda343764c0823128f,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 2.662
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651495138743867683, guid: 82f9f7876dc942bda343764c0823128f,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.368
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651495138743867683, guid: 82f9f7876dc942bda343764c0823128f,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.14
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651495138743867683, guid: 82f9f7876dc942bda343764c0823128f,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.95812714
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651495138743867683, guid: 82f9f7876dc942bda343764c0823128f,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.28634316
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651495138743867683, guid: 82f9f7876dc942bda343764c0823128f,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651495138743867683, guid: 82f9f7876dc942bda343764c0823128f,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651495138743867683, guid: 82f9f7876dc942bda343764c0823128f,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -33.278
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651495138743867683, guid: 82f9f7876dc942bda343764c0823128f,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651495138743867683, guid: 82f9f7876dc942bda343764c0823128f,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 82f9f7876dc942bda343764c0823128f, type: 3}
 --- !u!1001 &291889449
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -443,12 +511,12 @@ PrefabInstance:
     - target: {fileID: 4607891921714303671, guid: f1a643d9fb604600bda028112e77dd21,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.03
+      value: 1.068
       objectReference: {fileID: 0}
     - target: {fileID: 4607891921714303671, guid: f1a643d9fb604600bda028112e77dd21,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.5
+      value: 0.522
       objectReference: {fileID: 0}
     - target: {fileID: 4607891921714303671, guid: f1a643d9fb604600bda028112e77dd21,
         type: 3}
@@ -571,7 +639,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -634,3 +702,4 @@ SceneRoots:
   - {fileID: 2069607222}
   - {fileID: 817458482}
   - {fileID: 1609664150}
+  - {fileID: 263777683}

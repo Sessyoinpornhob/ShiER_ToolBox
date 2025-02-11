@@ -26,9 +26,9 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
-  - BOOLEAN_538A3E7D78FA488EB92B70D343DB8715_ON
   - BOOLEAN_DA86705C04FD4AC4BCD8E981DF6EF480_ON
   m_InvalidKeywords:
+  - BOOLEAN_538A3E7D78FA488EB92B70D343DB8715_ON
   - BOOLEAN_6B06004A092249CA8354A870BEE0B77D_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -182,7 +182,7 @@ Material:
     - Boolean_47b39a1be1a34f1aaac37e31e87e8974: 0
     - Boolean_91260987e0c147b79b1a75a7720e7e32: 1
     - Boolean_bdac3b5b68634e478668c8eab270e820: 0
-    - Boolean_ce96ad646aa44bb7aee82f3bfd417dae: 0
+    - Boolean_ce96ad646aa44bb7aee82f3bfd417dae: 1
     - Boolean_d990bad5ee0a4c6d84006aefd8e391b2: 0
     - Vector1_0bc4214c7b4a4878bcb91d16f0228f16: 0.5
     - Vector1_0be5b9e39eef4be2a950e1a576c6e2a4: 10
@@ -203,14 +203,14 @@ Material:
     - Vector1_5dc63f05254d4e3ba5c61adcff975f21: 1
     - Vector1_60abdb0568964928a1089121885cadf5: 1
     - Vector1_7083ab7005b04de09f15ff15f544b30b: 0.125
-    - Vector1_7201ad468b204e8ebd6e136d56519f03: 1
+    - Vector1_7201ad468b204e8ebd6e136d56519f03: 0.753
     - Vector1_738a4903bd8d49019f454b5a9429e60c: 1
     - Vector1_746d020fdf284832ac1caf098b8726b1: 1
     - Vector1_7ad35afe9db04644a9275ed395a8b1ca: 5
     - Vector1_7d25e8f8bd704a12b870e5c8e9921e81: 1
     - Vector1_7f1b73970ab746b1a69f3bfc8ec1492a: 0.72
     - Vector1_83f6385fa2a04ddb901e933ae3f8da84: 1
-    - Vector1_8553fcc6dd894aa58ad41a33f56b47ba: 0
+    - Vector1_8553fcc6dd894aa58ad41a33f56b47ba: 0.477
     - Vector1_8c3ce9e47a6d4c78a2b0bd5e4de82474: 0
     - Vector1_91e4019c09794d1a9b77085b221abd41: 0
     - Vector1_9f1189b5f65d46eeaabb899d390ea6cf: 0
@@ -239,13 +239,13 @@ Material:
     - Vector1_ef3954301eab4411a497f7dffb194da0: 1
     - Vector1_f1a8ad08c44b488b8e9d37fa69b2fade: 2
     - Vector1_f46cc416012c47568143ccc76d28553f: 0
-    - Vector1_f9d59b2bae324e1a86e8cba6969f01d7: 0.75
+    - Vector1_f9d59b2bae324e1a86e8cba6969f01d7: 0.653
     - Vector1_fe56c97684ff456fa23df48b30b4ecf3: 1
     - Vector1_fe6a3144604f4341bd8d0d1a3d5b8e79: 0.75
-    - _Desaturate_Amount: 0.25
-    - _Desaturate_Fresnel_Exp: 1
-    - _Desaturate_Fresnel_Exp_2: 2
-    - _Desaturate_Lighten: 1
+    - _Desaturate_Amount: 0.093
+    - _Desaturate_Fresnel_Exp: 4.25
+    - _Desaturate_Fresnel_Exp_2: 4.79
+    - _Desaturate_Lighten: 1.116
     - _FP1: 1
     - _FP2: 2
     - _Fadd: 1
@@ -257,7 +257,7 @@ Material:
     - _Mask_Emission_Darken: 0
     - _Metallic: 0
     - _New_Parallax: 0.02
-    - _NoisePow: 0.6
+    - _NoisePow: 0.55
     - _NoiseS: 1
     - _Noise_Mask_Enabled: 0
     - _Normal_Smooth_Original: 0
@@ -278,8 +278,8 @@ Material:
     - _TestP1: 1
     - _TestP2: 0.125
     - _TestP3: 2
-    - _TestP4: 0.5
-    - _TestP5: 0.25
+    - _TestP4: 0.4
+    - _TestP5: 0.54
     - _TestP6: 0.2
     - _TestP7: 0.4
     - _TestP8: 0

@@ -24,6 +24,8 @@
 		float final2 = 0.0;
 		float3 sampledPosition;
 
+		CustomVolumeNoiseSampler;
+
 		for (int i = 0; i < 8; i++)
 			{
 				sampledPosition = Position + refract(normalize(ViewDirection), NormalVector, saturate(1-(1.0/Refraction * RefractionSurfaceNoise))) * step;

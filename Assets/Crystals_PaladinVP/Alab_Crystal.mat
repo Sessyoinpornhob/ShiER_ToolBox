@@ -24,15 +24,43 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: 5b66851320b5441da688bbb753e0683f, type: 3}
+        m_Texture: {fileID: 2800000, guid: 149c64ba9f994c978549249f8337eb6c, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _HeightMap:
-        m_Texture: {fileID: 2800000, guid: 811acfdce8944cb9986966700a6ccfc8, type: 3}
+        m_Texture: {fileID: 2800000, guid: 149c64ba9f994c978549249f8337eb6c, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Normal:
-        m_Texture: {fileID: 2800000, guid: 12bd3f9a0d834f9f95d1fe71d0b00a9f, type: 3}
+        m_Texture: {fileID: 2800000, guid: 83218c6d0b3f4d2b9480b5c2d8df43a8, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RSNBaseMap:
+        m_Texture: {fileID: 2800000, guid: ccf23d94ac25416aaf2fdf6af07afa43, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RSNHeightMap:
+        m_Texture: {fileID: 2800000, guid: ccf23d94ac25416aaf2fdf6af07afa43, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RSN_BaseMap:
+        m_Texture: {fileID: 2800000, guid: 149c64ba9f994c978549249f8337eb6c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RSN_HeightMap:
+        m_Texture: {fileID: 2800000, guid: 149c64ba9f994c978549249f8337eb6c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SurfaceMetallicSmoothness:
+        m_Texture: {fileID: 2800000, guid: 73938d1ce8e14666a0660a75b1c56c61, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SurfaceNormal:
+        m_Texture: {fileID: 2800000, guid: 553811ddfa354f4694a0f5fc303c733c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _texcoord:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -53,13 +81,25 @@ Material:
     - _AlphaCutoff: 0.5
     - _CurvFix: 1
     - _EnvironmentReflections: 1
+    - _Float0: 1
     - _QueueControl: 0
     - _QueueOffset: 0
+    - _RSNNegate: 0
+    - _RSNScale: 0.1014
+    - _RSN_Negate: 0
+    - _RSN_Scale: 0.2
     - _ReceiveShadows: 1
-    - _Scale: 0.413
+    - _Scale: 0.25
     - _SpecularHighlights: 1
+    - _SurfaceMetallic: 0
+    - _SurfaceNormalStrength: 1
+    - _SurfaceSmoothness: 0.714
     m_Colors:
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Tiling_Offset: {r: 2, g: 2, b: 0, a: 0}
+    - _RSNTiling_Offset: {r: 1, g: 1, b: 0, a: 0}
+    - _RSN_Tiling_Offset: {r: 3, g: 3, b: 0, a: 0}
+    - _SuraceTilingOffset: {r: 1, g: 1, b: 1, a: 1}
+    - _SurfaceTilingOffset: {r: 1, g: 1, b: 0, a: 0}
+    - _Tiling_Offset: {r: 2, g: 2, b: 0.1, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
