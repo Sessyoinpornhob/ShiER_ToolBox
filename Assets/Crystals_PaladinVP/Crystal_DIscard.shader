@@ -1,27 +1,23 @@
 // Made with Amplify Shader Editor v1.9.8.1
 // Available at the Unity Asset Store - http://u3d.as/y3X 
-Shader "Alab/Crystal"
+Shader "Alab/Crystal_DIscard"
 {
 	Properties
 	{
-		[HideInInspector] _EmissionColor("Emission Color", Color) = (1,1,1,1)
 		[HideInInspector] _AlphaCutoff("Alpha Cutoff ", Range(0, 1)) = 0.5
+		[HideInInspector] _EmissionColor("Emission Color", Color) = (1,1,1,1)
 		[Header(Refraction Surface Noise)][SingleLineTexture][Space(10)]_RSNHeightMap("RSN HeightMap", 2D) = "white" {}
 		[SingleLineTexture]_RSNBaseMap("RSN BaseMap", 2D) = "white" {}
 		_RSNTiling_Offset("RSN Tiling_Offset", Vector) = (0,0,0,0)
 		_RSNScale("RSN Scale", Range( 0 , 0.2)) = 0
 		_RSNNegate("RSN Negate", Range( -1 , 0)) = 0
-		[Header(Surface)][SingleLineTexture][Space(10)]_SurfaceNormal("Surface Normal", 2D) = "bump" {}
+		[Header(Surface)][SingleLineTexture][Space(10)]_SurfaceNormal("Surface Normal", 2D) = "white" {}
 		[SingleLineTexture]_SurfaceMetallicSmoothness("Surface MetallicSmoothness", 2D) = "white" {}
 		_SurfaceTilingOffset("Surface Tiling Offset", Vector) = (1,1,0,0)
-		_SurfaceNormalStrength("Surface Normal Strength", Range( 0.1 , 1)) = 0.1
+		_SurfaceNormalStrength("Surface Normal Strength", Range( 0.1 , 2)) = 0.1
 		_SurfaceMetallic("Surface Metallic", Range( 0 , 1)) = 0
 		_SurfaceSmoothness("Surface Smoothness", Range( 0 , 1)) = 0
-		_VolumeNoise2Intersect("Volume Noise 2 Intersect", Range( 0 , 1)) = 0
-		_ThicknessFrsnel("Thickness Frsnel", Range( 0 , 5)) = 0
-		_ThicknessNegateFresnel("Thickness Negate Fresnel", Range( 0 , 1)) = 0
-		_FresnelPow("Fresnel Pow", Range( 0 , 5)) = 0
-		[Header(End)][Space(10)]_MainLight("MainLight", Range( 0 , 1)) = 0
+		_VolumeNoise2Intersect("Volume Noise 2 Intersect", Range( 0 , 2)) = 0
 
 
 		//_TransmissionShadow( "Transmission Shadow", Range( 0, 1 ) ) = 0.5
@@ -196,11 +192,10 @@ Shader "Alab/Crystal"
 
 			HLSLPROGRAM
 
+			#define _NORMAL_DROPOFF_TS 1
 			#pragma multi_compile_instancing
 			#pragma instancing_options renderinglayer
 			#pragma shader_feature_local _RECEIVE_SHADOWS_OFF
-			#define _NORMAL_DROPOFF_TS 1
-			#define ASE_ABSOLUTE_VERTEX_POS 1
 			#define _EMISSION
 			#define _NORMALMAP 1
 			#define ASE_VERSION 19801
@@ -261,11 +256,11 @@ Shader "Alab/Crystal"
 				#define ENABLE_TERRAIN_PERPIXEL_NORMAL
 			#endif
 
-			#define ASE_NEEDS_FRAG_WORLD_VIEW_DIR
-			#define ASE_NEEDS_FRAG_WORLD_NORMAL
 			#define ASE_NEEDS_FRAG_WORLD_POSITION
 			#define ASE_NEEDS_FRAG_WORLD_TANGENT
+			#define ASE_NEEDS_FRAG_WORLD_NORMAL
 			#define ASE_NEEDS_FRAG_WORLD_BITANGENT
+			#define ASE_NEEDS_FRAG_WORLD_VIEW_DIR
 
 
 			#if defined(ASE_EARLY_Z_DEPTH_OPTIMIZE) && (SHADER_TARGET >= 45)
@@ -318,13 +313,9 @@ Shader "Alab/Crystal"
 			float4 _RSNTiling_Offset;
 			float4 _RSNHeightMap_ST;
 			float _SurfaceNormalStrength;
-			float _FresnelPow;
 			float _RSNScale;
 			float _RSNNegate;
-			float _ThicknessFrsnel;
-			float _ThicknessNegateFresnel;
 			float _VolumeNoise2Intersect;
-			float _MainLight;
 			float _SurfaceMetallic;
 			float _SurfaceSmoothness;
 			#ifdef ASE_TRANSMISSION
@@ -367,6 +358,32 @@ Shader "Alab/Crystal"
 			SAMPLER(sampler_SurfaceMetallicSmoothness);
 
 
+			float2 ALabCrystalRayM_8Samples( float3 ViewDirection, float3 Position, float Refraction, float3 NormalVector, float StepLength, TEXTURE2D(VolumeNoise), SamplerState samplerState, float VolumeNoiseScale, float NoiseStrength, float NoisePow, float RefractionSurfaceNoise, float VolumeNoise2Exp, float VolumeNoise2Multiply, float LinearMaskScale, float LinearMaskNegate, float LinearMaskOffset, float3 LinearMaskVector, float3 LinearMaskVectorWorldOffset )
+			{
+				float step = 0.0;
+				float final = 0.0;
+				float final2 = 0.0;
+				float3 sampledPosition;
+						
+				for (int i = 0; i < 8; i++)
+				{
+					sampledPosition = Position + refract(normalize(ViewDirection), NormalVector, saturate(1-(1.0/Refraction * RefractionSurfaceNoise))) * step;
+							
+					float2 sampledCustomNoise = SAMPLE_TEXTURE2D(VolumeNoise, samplerState, sampledPosition.xy * VolumeNoiseScale).rgb * SAMPLE_TEXTURE2D(VolumeNoise, samplerState, sampledPosition.zy * VolumeNoiseScale + float2(144.23, 5444.12)).rgb;
+							
+					sampledCustomNoise *= SAMPLE_TEXTURE2D(VolumeNoise, samplerState, sampledPosition.xz * VolumeNoiseScale + float2(3127.11, 1522.12));
+					float linearMask = saturate(saturate((dot(sampledPosition - LinearMaskVectorWorldOffset, LinearMaskVector) + LinearMaskOffset) * LinearMaskScale) + LinearMaskNegate);
+					final += pow(saturate((pow(sampledCustomNoise.x, NoisePow) * NoiseStrength * 1.45)), 1.25) * saturate(1.0-(i/20.0)) * linearMask;
+					final2 += pow(sampledCustomNoise.y, VolumeNoise2Exp * 0.95) * VolumeNoise2Multiply * 2.00 * linearMask;
+					step += (StepLength/8.0);
+				}
+				float2 outputpom;
+				outputpom.x = final;
+				outputpom.y = final2;
+				return outputpom;
+					
+			}
+			
 			inline float2 POM( TEXTURE2D(heightMap), SAMPLER(samplerheightMap), float2 uvs, float2 dx, float2 dy, float3 normalWorld, float3 viewWorld, float3 viewDirTan, int minSamples, int maxSamples, int sidewallSteps, float parallax, float refPlane, float2 tilling, float2 curv, int index )
 			{
 				float3 result = 0;
@@ -642,12 +659,10 @@ Shader "Alab/Crystal"
 				float2 appendResult63 = (float2(_SurfaceTilingOffset.z , _SurfaceTilingOffset.w));
 				float2 texCoord60 = input.ase_texcoord9.xy * appendResult62 + appendResult63;
 				float2 Surface_Tiling_Offset89 = texCoord60;
-				float3 lerpResult139 = lerp( float3(0,0,1) , UnpackNormalScale( SAMPLE_TEXTURE2D( _SurfaceNormal, sampler_SurfaceNormal, Surface_Tiling_Offset89 ), 1.0f ) , _SurfaceNormalStrength);
-				float3 Normal71 = lerpResult139;
+				float3 unpack58 = UnpackNormalScale( float4( SAMPLE_TEXTURE2D( _SurfaceNormal, sampler_SurfaceNormal, Surface_Tiling_Offset89 ).rgb , 0.0 ), _SurfaceNormalStrength );
+				unpack58.z = lerp( 1, unpack58.z, saturate(_SurfaceNormalStrength) );
+				float3 Normal71 = unpack58;
 				
-				float fresnelNdotV148 = dot( WorldNormal, WorldViewDirection );
-				float fresnelNode148 = ( 0.0 + 1.0 * pow( max( 1.0 - fresnelNdotV148 , 0.0001 ), _FresnelPow ) );
-				float clampResult160 = clamp( fresnelNode148 , 0.0 , 1.0 );
 				float2 appendResult28 = (float2(_RSNTiling_Offset.x , _RSNTiling_Offset.y));
 				float2 appendResult29 = (float2(_RSNTiling_Offset.z , _RSNTiling_Offset.w));
 				float2 texCoord16 = input.ase_texcoord9.xy * appendResult28 + appendResult29;
@@ -659,11 +674,8 @@ Shader "Alab/Crystal"
 				float2 OffsetPOM14 = POM( _RSNHeightMap, sampler_RSNHeightMap, texCoord16, ddx(texCoord16), ddy(texCoord16), WorldNormal, WorldViewDirection, ase_viewDirTS, 8, 64, 4, _RSNScale, 0, _RSNHeightMap_ST.xy, float2(0,0), 0 );
 				float clampResult55 = clamp( ( SAMPLE_TEXTURE2D( _RSNBaseMap, sampler_RSNBaseMap, OffsetPOM14 ).r + _RSNNegate ) , 0.0 , 1.0 );
 				float Refraction_Surface_Noise65 = clampResult55;
-				float fresnelNdotV152 = dot( WorldNormal, WorldViewDirection );
-				float fresnelNode152 = ( 0.0 + 1.0 * pow( max( 1.0 - fresnelNdotV152 , 0.0001 ), _ThicknessFrsnel ) );
-				float clampResult157 = clamp( ( ( 1.0 - fresnelNode152 ) * _ThicknessNegateFresnel ) , 0.0 , 0.85 );
-				float lerpResult136 = lerp( clampResult160 , ( Refraction_Surface_Noise65 * clampResult157 ) , _VolumeNoise2Intersect);
-				float3 temp_cast_0 = (( ( lerpResult136 + 0.0 ) * _MainLight )).xxx;
+				float clampResult119 = clamp( ( Refraction_Surface_Noise65 + ( 1.0 - _VolumeNoise2Intersect ) ) , 0.0 , 1.0 );
+				float3 temp_cast_1 = (( Refraction_Surface_Noise65 + ( 0.0 * clampResult119 ) )).xxx;
 				
 				float4 tex2DNode66 = SAMPLE_TEXTURE2D( _SurfaceMetallicSmoothness, sampler_SurfaceMetallicSmoothness, Surface_Tiling_Offset89 );
 				float Metallic72 = ( _SurfaceMetallic * tex2DNode66.r );
@@ -673,7 +685,7 @@ Shader "Alab/Crystal"
 
 				float3 BaseColor = float3(0.5, 0.5, 0.5);
 				float3 Normal = Normal71;
-				float3 Emission = temp_cast_0;
+				float3 Emission = temp_cast_1;
 				float3 Specular = 0.5;
 				float Metallic = Metallic72;
 				float Smoothness = Smoothness73;
@@ -941,9 +953,8 @@ Shader "Alab/Crystal"
 
 			HLSLPROGRAM
 
-			#pragma multi_compile_instancing
 			#define _NORMAL_DROPOFF_TS 1
-			#define ASE_ABSOLUTE_VERTEX_POS 1
+			#pragma multi_compile_instancing
 			#define _EMISSION
 			#define _NORMALMAP 1
 			#define ASE_VERSION 19801
@@ -1015,13 +1026,9 @@ Shader "Alab/Crystal"
 			float4 _RSNTiling_Offset;
 			float4 _RSNHeightMap_ST;
 			float _SurfaceNormalStrength;
-			float _FresnelPow;
 			float _RSNScale;
 			float _RSNNegate;
-			float _ThicknessFrsnel;
-			float _ThicknessNegateFresnel;
 			float _VolumeNoise2Intersect;
-			float _MainLight;
 			float _SurfaceMetallic;
 			float _SurfaceSmoothness;
 			#ifdef ASE_TRANSMISSION
@@ -1056,7 +1063,33 @@ Shader "Alab/Crystal"
 
 			
 
+			float2 ALabCrystalRayM_8Samples( float3 ViewDirection, float3 Position, float Refraction, float3 NormalVector, float StepLength, TEXTURE2D(VolumeNoise), SamplerState samplerState, float VolumeNoiseScale, float NoiseStrength, float NoisePow, float RefractionSurfaceNoise, float VolumeNoise2Exp, float VolumeNoise2Multiply, float LinearMaskScale, float LinearMaskNegate, float LinearMaskOffset, float3 LinearMaskVector, float3 LinearMaskVectorWorldOffset )
+			{
+				float step = 0.0;
+				float final = 0.0;
+				float final2 = 0.0;
+				float3 sampledPosition;
+						
+				for (int i = 0; i < 8; i++)
+				{
+					sampledPosition = Position + refract(normalize(ViewDirection), NormalVector, saturate(1-(1.0/Refraction * RefractionSurfaceNoise))) * step;
+							
+					float2 sampledCustomNoise = SAMPLE_TEXTURE2D(VolumeNoise, samplerState, sampledPosition.xy * VolumeNoiseScale).rgb * SAMPLE_TEXTURE2D(VolumeNoise, samplerState, sampledPosition.zy * VolumeNoiseScale + float2(144.23, 5444.12)).rgb;
+							
+					sampledCustomNoise *= SAMPLE_TEXTURE2D(VolumeNoise, samplerState, sampledPosition.xz * VolumeNoiseScale + float2(3127.11, 1522.12));
+					float linearMask = saturate(saturate((dot(sampledPosition - LinearMaskVectorWorldOffset, LinearMaskVector) + LinearMaskOffset) * LinearMaskScale) + LinearMaskNegate);
+					final += pow(saturate((pow(sampledCustomNoise.x, NoisePow) * NoiseStrength * 1.45)), 1.25) * saturate(1.0-(i/20.0)) * linearMask;
+					final2 += pow(sampledCustomNoise.y, VolumeNoise2Exp * 0.95) * VolumeNoise2Multiply * 2.00 * linearMask;
+					step += (StepLength/8.0);
+				}
+				float2 outputpom;
+				outputpom.x = final;
+				outputpom.y = final2;
+				return outputpom;
+					
+			}
 			
+
 			float3 _LightDirection;
 			float3 _LightPosition;
 
@@ -1256,9 +1289,8 @@ Shader "Alab/Crystal"
 
 			HLSLPROGRAM
 
-			#pragma multi_compile_instancing
 			#define _NORMAL_DROPOFF_TS 1
-			#define ASE_ABSOLUTE_VERTEX_POS 1
+			#pragma multi_compile_instancing
 			#define _EMISSION
 			#define _NORMALMAP 1
 			#define ASE_VERSION 19801
@@ -1327,13 +1359,9 @@ Shader "Alab/Crystal"
 			float4 _RSNTiling_Offset;
 			float4 _RSNHeightMap_ST;
 			float _SurfaceNormalStrength;
-			float _FresnelPow;
 			float _RSNScale;
 			float _RSNNegate;
-			float _ThicknessFrsnel;
-			float _ThicknessNegateFresnel;
 			float _VolumeNoise2Intersect;
-			float _MainLight;
 			float _SurfaceMetallic;
 			float _SurfaceSmoothness;
 			#ifdef ASE_TRANSMISSION
@@ -1368,7 +1396,33 @@ Shader "Alab/Crystal"
 
 			
 
+			float2 ALabCrystalRayM_8Samples( float3 ViewDirection, float3 Position, float Refraction, float3 NormalVector, float StepLength, TEXTURE2D(VolumeNoise), SamplerState samplerState, float VolumeNoiseScale, float NoiseStrength, float NoisePow, float RefractionSurfaceNoise, float VolumeNoise2Exp, float VolumeNoise2Multiply, float LinearMaskScale, float LinearMaskNegate, float LinearMaskOffset, float3 LinearMaskVector, float3 LinearMaskVectorWorldOffset )
+			{
+				float step = 0.0;
+				float final = 0.0;
+				float final2 = 0.0;
+				float3 sampledPosition;
+						
+				for (int i = 0; i < 8; i++)
+				{
+					sampledPosition = Position + refract(normalize(ViewDirection), NormalVector, saturate(1-(1.0/Refraction * RefractionSurfaceNoise))) * step;
+							
+					float2 sampledCustomNoise = SAMPLE_TEXTURE2D(VolumeNoise, samplerState, sampledPosition.xy * VolumeNoiseScale).rgb * SAMPLE_TEXTURE2D(VolumeNoise, samplerState, sampledPosition.zy * VolumeNoiseScale + float2(144.23, 5444.12)).rgb;
+							
+					sampledCustomNoise *= SAMPLE_TEXTURE2D(VolumeNoise, samplerState, sampledPosition.xz * VolumeNoiseScale + float2(3127.11, 1522.12));
+					float linearMask = saturate(saturate((dot(sampledPosition - LinearMaskVectorWorldOffset, LinearMaskVector) + LinearMaskOffset) * LinearMaskScale) + LinearMaskNegate);
+					final += pow(saturate((pow(sampledCustomNoise.x, NoisePow) * NoiseStrength * 1.45)), 1.25) * saturate(1.0-(i/20.0)) * linearMask;
+					final2 += pow(sampledCustomNoise.y, VolumeNoise2Exp * 0.95) * VolumeNoise2Multiply * 2.00 * linearMask;
+					step += (StepLength/8.0);
+				}
+				float2 outputpom;
+				outputpom.x = final;
+				outputpom.y = final2;
+				return outputpom;
+					
+			}
 			
+
 			PackedVaryings VertexFunction( Attributes input  )
 			{
 				PackedVaryings output = (PackedVaryings)0;
@@ -1549,11 +1603,10 @@ Shader "Alab/Crystal"
 
 			HLSLPROGRAM
 
+			#define _NORMAL_DROPOFF_TS 1
 			#pragma multi_compile_instancing
 			#pragma instancing_options renderinglayer
 			#pragma shader_feature_local _RECEIVE_SHADOWS_OFF
-			#define _NORMAL_DROPOFF_TS 1
-			#define ASE_ABSOLUTE_VERTEX_POS 1
 			#define _EMISSION
 			#define _NORMALMAP 1
 			#define ASE_VERSION 19801
@@ -1611,11 +1664,11 @@ Shader "Alab/Crystal"
 				#define ENABLE_TERRAIN_PERPIXEL_NORMAL
 			#endif
 
-			#define ASE_NEEDS_FRAG_WORLD_VIEW_DIR
-			#define ASE_NEEDS_FRAG_WORLD_NORMAL
 			#define ASE_NEEDS_FRAG_WORLD_POSITION
 			#define ASE_NEEDS_FRAG_WORLD_TANGENT
+			#define ASE_NEEDS_FRAG_WORLD_NORMAL
 			#define ASE_NEEDS_FRAG_WORLD_BITANGENT
+			#define ASE_NEEDS_FRAG_WORLD_VIEW_DIR
 
 
 			#if defined(ASE_EARLY_Z_DEPTH_OPTIMIZE) && (SHADER_TARGET >= 45)
@@ -1668,13 +1721,9 @@ Shader "Alab/Crystal"
 			float4 _RSNTiling_Offset;
 			float4 _RSNHeightMap_ST;
 			float _SurfaceNormalStrength;
-			float _FresnelPow;
 			float _RSNScale;
 			float _RSNNegate;
-			float _ThicknessFrsnel;
-			float _ThicknessNegateFresnel;
 			float _VolumeNoise2Intersect;
-			float _MainLight;
 			float _SurfaceMetallic;
 			float _SurfaceSmoothness;
 			#ifdef ASE_TRANSMISSION
@@ -1719,6 +1768,32 @@ Shader "Alab/Crystal"
 
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl"
 
+			float2 ALabCrystalRayM_8Samples( float3 ViewDirection, float3 Position, float Refraction, float3 NormalVector, float StepLength, TEXTURE2D(VolumeNoise), SamplerState samplerState, float VolumeNoiseScale, float NoiseStrength, float NoisePow, float RefractionSurfaceNoise, float VolumeNoise2Exp, float VolumeNoise2Multiply, float LinearMaskScale, float LinearMaskNegate, float LinearMaskOffset, float3 LinearMaskVector, float3 LinearMaskVectorWorldOffset )
+			{
+				float step = 0.0;
+				float final = 0.0;
+				float final2 = 0.0;
+				float3 sampledPosition;
+						
+				for (int i = 0; i < 8; i++)
+				{
+					sampledPosition = Position + refract(normalize(ViewDirection), NormalVector, saturate(1-(1.0/Refraction * RefractionSurfaceNoise))) * step;
+							
+					float2 sampledCustomNoise = SAMPLE_TEXTURE2D(VolumeNoise, samplerState, sampledPosition.xy * VolumeNoiseScale).rgb * SAMPLE_TEXTURE2D(VolumeNoise, samplerState, sampledPosition.zy * VolumeNoiseScale + float2(144.23, 5444.12)).rgb;
+							
+					sampledCustomNoise *= SAMPLE_TEXTURE2D(VolumeNoise, samplerState, sampledPosition.xz * VolumeNoiseScale + float2(3127.11, 1522.12));
+					float linearMask = saturate(saturate((dot(sampledPosition - LinearMaskVectorWorldOffset, LinearMaskVector) + LinearMaskOffset) * LinearMaskScale) + LinearMaskNegate);
+					final += pow(saturate((pow(sampledCustomNoise.x, NoisePow) * NoiseStrength * 1.45)), 1.25) * saturate(1.0-(i/20.0)) * linearMask;
+					final2 += pow(sampledCustomNoise.y, VolumeNoise2Exp * 0.95) * VolumeNoise2Multiply * 2.00 * linearMask;
+					step += (StepLength/8.0);
+				}
+				float2 outputpom;
+				outputpom.x = final;
+				outputpom.y = final2;
+				return outputpom;
+					
+			}
+			
 			inline float2 POM( TEXTURE2D(heightMap), SAMPLER(samplerheightMap), float2 uvs, float2 dx, float2 dy, float3 normalWorld, float3 viewWorld, float3 viewDirTan, int minSamples, int maxSamples, int sidewallSteps, float parallax, float refPlane, float2 tilling, float2 curv, int index )
 			{
 				float3 result = 0;
@@ -1992,12 +2067,10 @@ Shader "Alab/Crystal"
 				float2 appendResult63 = (float2(_SurfaceTilingOffset.z , _SurfaceTilingOffset.w));
 				float2 texCoord60 = input.ase_texcoord9.xy * appendResult62 + appendResult63;
 				float2 Surface_Tiling_Offset89 = texCoord60;
-				float3 lerpResult139 = lerp( float3(0,0,1) , UnpackNormalScale( SAMPLE_TEXTURE2D( _SurfaceNormal, sampler_SurfaceNormal, Surface_Tiling_Offset89 ), 1.0f ) , _SurfaceNormalStrength);
-				float3 Normal71 = lerpResult139;
+				float3 unpack58 = UnpackNormalScale( float4( SAMPLE_TEXTURE2D( _SurfaceNormal, sampler_SurfaceNormal, Surface_Tiling_Offset89 ).rgb , 0.0 ), _SurfaceNormalStrength );
+				unpack58.z = lerp( 1, unpack58.z, saturate(_SurfaceNormalStrength) );
+				float3 Normal71 = unpack58;
 				
-				float fresnelNdotV148 = dot( WorldNormal, WorldViewDirection );
-				float fresnelNode148 = ( 0.0 + 1.0 * pow( max( 1.0 - fresnelNdotV148 , 0.0001 ), _FresnelPow ) );
-				float clampResult160 = clamp( fresnelNode148 , 0.0 , 1.0 );
 				float2 appendResult28 = (float2(_RSNTiling_Offset.x , _RSNTiling_Offset.y));
 				float2 appendResult29 = (float2(_RSNTiling_Offset.z , _RSNTiling_Offset.w));
 				float2 texCoord16 = input.ase_texcoord9.xy * appendResult28 + appendResult29;
@@ -2009,11 +2082,8 @@ Shader "Alab/Crystal"
 				float2 OffsetPOM14 = POM( _RSNHeightMap, sampler_RSNHeightMap, texCoord16, ddx(texCoord16), ddy(texCoord16), WorldNormal, WorldViewDirection, ase_viewDirTS, 8, 64, 4, _RSNScale, 0, _RSNHeightMap_ST.xy, float2(0,0), 0 );
 				float clampResult55 = clamp( ( SAMPLE_TEXTURE2D( _RSNBaseMap, sampler_RSNBaseMap, OffsetPOM14 ).r + _RSNNegate ) , 0.0 , 1.0 );
 				float Refraction_Surface_Noise65 = clampResult55;
-				float fresnelNdotV152 = dot( WorldNormal, WorldViewDirection );
-				float fresnelNode152 = ( 0.0 + 1.0 * pow( max( 1.0 - fresnelNdotV152 , 0.0001 ), _ThicknessFrsnel ) );
-				float clampResult157 = clamp( ( ( 1.0 - fresnelNode152 ) * _ThicknessNegateFresnel ) , 0.0 , 0.85 );
-				float lerpResult136 = lerp( clampResult160 , ( Refraction_Surface_Noise65 * clampResult157 ) , _VolumeNoise2Intersect);
-				float3 temp_cast_0 = (( ( lerpResult136 + 0.0 ) * _MainLight )).xxx;
+				float clampResult119 = clamp( ( Refraction_Surface_Noise65 + ( 1.0 - _VolumeNoise2Intersect ) ) , 0.0 , 1.0 );
+				float3 temp_cast_1 = (( Refraction_Surface_Noise65 + ( 0.0 * clampResult119 ) )).xxx;
 				
 				float4 tex2DNode66 = SAMPLE_TEXTURE2D( _SurfaceMetallicSmoothness, sampler_SurfaceMetallicSmoothness, Surface_Tiling_Offset89 );
 				float Metallic72 = ( _SurfaceMetallic * tex2DNode66.r );
@@ -2023,7 +2093,7 @@ Shader "Alab/Crystal"
 
 				float3 BaseColor = float3(0.5, 0.5, 0.5);
 				float3 Normal = Normal71;
-				float3 Emission = temp_cast_0;
+				float3 Emission = temp_cast_1;
 				float3 Specular = 0.5;
 				float Metallic = Metallic72;
 				float Smoothness = Smoothness73;
@@ -2164,69 +2234,71 @@ Node;AmplifyShaderEditor.DynamicAppendNode;29;-2352,-2288;Inherit;False;FLOAT2;4
 Node;AmplifyShaderEditor.TextureCoordinatesNode;16;-2112,-2352;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;5,5;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.TexturePropertyNode;15;-2112,-2224;Inherit;True;Property;_RSNHeightMap;RSN HeightMap;0;2;[Header];[SingleLineTexture];Create;True;1;Refraction Surface Noise;0;0;False;1;Space(10);False;811acfdce8944cb9986966700a6ccfc8;811acfdce8944cb9986966700a6ccfc8;False;white;Auto;Texture2D;-1;0;2;SAMPLER2D;0;SAMPLERSTATE;1
 Node;AmplifyShaderEditor.RangedFloatNode;19;-1824,-2160;Inherit;False;Property;_RSNScale;RSN Scale;3;0;Create;True;0;0;0;False;0;False;0;0;0;0.2;0;1;FLOAT;0
-Node;AmplifyShaderEditor.CommentaryNode;93;-2656,-1776;Inherit;False;1028;282.8999;Comment;5;62;63;60;61;89;Main UV;1,1,1,1;0;0
 Node;AmplifyShaderEditor.ParallaxOcclusionMappingNode;14;-1536,-2320;Inherit;False;0;8;False;;64;False;;4;0.02;0;False;1,1;False;0,0;11;0;FLOAT2;0,0;False;1;SAMPLER2D;;False;7;SAMPLERSTATE;;False;2;FLOAT;0.02;False;3;FLOAT3;0,0,0;False;8;INT;0;False;9;INT;0;False;10;INT;0;False;4;FLOAT;0;False;5;FLOAT2;0,0;False;6;FLOAT;0;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.Vector4Node;61;-2592,-1712;Inherit;False;Property;_SurfaceTilingOffset;Surface Tiling Offset;7;0;Create;True;0;0;0;False;0;False;1,1,0,0;0,0,0,0;0;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.CommentaryNode;93;-2656,-1776;Inherit;False;1028;282.8999;Comment;5;62;63;60;61;89;Main UV;1,1,1,1;0;0
 Node;AmplifyShaderEditor.RangedFloatNode;53;-1280,-2128;Inherit;False;Property;_RSNNegate;RSN Negate;4;0;Create;True;0;0;0;False;0;False;0;0;-1;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.SamplerNode;21;-1280,-2320;Inherit;True;Property;_RSNBaseMap;RSN BaseMap;1;1;[SingleLineTexture];Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.RangedFloatNode;146;-4304,-32;Inherit;False;Property;_ThicknessFrsnel;Thickness Frsnel;12;0;Create;True;0;0;0;False;0;False;0;0;0;5;0;1;FLOAT;0
+Node;AmplifyShaderEditor.Vector4Node;61;-2592,-1712;Inherit;False;Property;_SurfaceTilingOffset;Surface Tiling Offset;7;0;Create;True;0;0;0;False;0;False;1,1,0,0;0,0,0,0;0;5;FLOAT4;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.SimpleAddOpNode;56;-992,-2288;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.DynamicAppendNode;62;-2304,-1728;Inherit;False;FLOAT2;4;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT2;0
 Node;AmplifyShaderEditor.DynamicAppendNode;63;-2304,-1632;Inherit;False;FLOAT2;4;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.SimpleAddOpNode;56;-992,-2288;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.FresnelNode;152;-3984,-128;Inherit;False;Standard;WorldNormal;ViewDir;True;True;5;0;FLOAT3;0,0,1;False;4;FLOAT3;0,0,0;False;1;FLOAT;0;False;2;FLOAT;1;False;3;FLOAT;5;False;1;FLOAT;0
-Node;AmplifyShaderEditor.TextureCoordinatesNode;60;-2128,-1680;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.ClampOpNode;55;-864,-2288;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.OneMinusNode;154;-3744,0;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;155;-3968,176;Inherit;False;Property;_ThicknessNegateFresnel;Thickness Negate Fresnel;13;0;Create;True;0;0;0;False;0;False;0;0;0;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.CommentaryNode;77;-1520,-1760;Inherit;False;1148.338;752.43;Comment;14;71;73;72;139;68;67;141;59;57;66;70;69;90;92;Surface;1,1,1,1;0;0
-Node;AmplifyShaderEditor.RegisterLocalVarNode;89;-1888,-1664;Inherit;False;Surface Tiling Offset;-1;True;1;0;FLOAT2;0,0;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.TextureCoordinatesNode;60;-2128,-1680;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.RegisterLocalVarNode;65;-656,-2224;Inherit;False;Refraction Surface Noise;-1;True;1;0;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.SimpleMultiplyOpNode;156;-3568,0;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;159;-3680,-368;Inherit;False;Property;_FresnelPow;Fresnel Pow;14;0;Create;True;0;0;0;False;0;False;0;0;0;5;0;1;FLOAT;0
-Node;AmplifyShaderEditor.GetLocalVarNode;92;-1440,-1312;Inherit;False;89;Surface Tiling Offset;1;0;OBJECT;;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.CommentaryNode;77;-1520,-1760;Inherit;False;1108.338;752.43;Comment;13;92;90;73;72;71;66;70;69;68;67;59;58;57;Surface;1,1,1,1;0;0
+Node;AmplifyShaderEditor.RegisterLocalVarNode;89;-1888,-1664;Inherit;False;Surface Tiling Offset;-1;True;1;0;FLOAT2;0,0;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.RangedFloatNode;117;-2016,64;Inherit;False;Property;_VolumeNoise2Intersect;Volume Noise 2 Intersect;24;0;Create;True;0;0;0;False;0;False;0;0;0;2;0;1;FLOAT;0
+Node;AmplifyShaderEditor.GetLocalVarNode;134;-2448,-128;Inherit;False;65;Refraction Surface Noise;1;0;OBJECT;;False;1;FLOAT;0
 Node;AmplifyShaderEditor.GetLocalVarNode;90;-1456,-1648;Inherit;False;89;Surface Tiling Offset;1;0;OBJECT;;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.GetLocalVarNode;134;-3440,-96;Inherit;False;65;Refraction Surface Noise;1;0;OBJECT;;False;1;FLOAT;0
-Node;AmplifyShaderEditor.ClampOpNode;157;-3408,0;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0.85;False;1;FLOAT;0
-Node;AmplifyShaderEditor.FresnelNode;148;-3376,-480;Inherit;False;Standard;WorldNormal;ViewDir;True;True;5;0;FLOAT3;0,0,1;False;4;FLOAT3;0,0,0;False;1;FLOAT;0;False;2;FLOAT;1;False;3;FLOAT;5;False;1;FLOAT;0
+Node;AmplifyShaderEditor.GetLocalVarNode;92;-1440,-1312;Inherit;False;89;Surface Tiling Offset;1;0;OBJECT;;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.BreakToComponentsNode;114;-2016,-128;Inherit;False;FLOAT;1;0;FLOAT;0;False;16;FLOAT;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT;5;FLOAT;6;FLOAT;7;FLOAT;8;FLOAT;9;FLOAT;10;FLOAT;11;FLOAT;12;FLOAT;13;FLOAT;14;FLOAT;15
+Node;AmplifyShaderEditor.OneMinusNode;118;-1920,128;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SamplerNode;57;-1184,-1664;Inherit;True;Property;_SurfaceNormal;Surface Normal;5;2;[Header];[SingleLineTexture];Create;True;1;Surface;0;0;False;1;Space(10);False;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.RangedFloatNode;59;-1152,-1472;Inherit;False;Property;_SurfaceNormalStrength;Surface Normal Strength;8;0;Create;True;0;0;0;False;0;False;0.1;0;0.1;2;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode;69;-1184,-1392;Inherit;False;Property;_SurfaceMetallic;Surface Metallic;9;0;Create;True;0;0;0;False;0;False;0;0;0;1;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode;70;-1184,-1120;Inherit;False;Property;_SurfaceSmoothness;Surface Smoothness;10;0;Create;True;0;0;0;False;0;False;0;0;0;1;0;1;FLOAT;0
 Node;AmplifyShaderEditor.SamplerNode;66;-1184,-1328;Inherit;True;Property;_SurfaceMetallicSmoothness;Surface MetallicSmoothness;6;1;[SingleLineTexture];Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.SamplerNode;57;-1184,-1664;Inherit;True;Property;_SurfaceNormal;Surface Normal;5;2;[Header];[SingleLineTexture];Create;True;1;Surface;0;0;False;1;Space(10);False;-1;None;None;True;0;False;bump;Auto;True;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.RangedFloatNode;59;-1152,-1472;Inherit;False;Property;_SurfaceNormalStrength;Surface Normal Strength;8;0;Create;True;0;0;0;False;0;False;0.1;0;0.1;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.Vector3Node;141;-896,-1600;Inherit;False;Constant;_Vector0;Vector 0;12;0;Create;True;0;0;0;False;0;False;0,0,1;0,0,0;0;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
-Node;AmplifyShaderEditor.RangedFloatNode;117;-3216,64;Inherit;False;Property;_VolumeNoise2Intersect;Volume Noise 2 Intersect;11;0;Create;True;0;0;0;False;0;False;0;0;0;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.SimpleMultiplyOpNode;153;-3152,-80;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.ClampOpNode;160;-3088,-432;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;1;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SimpleAddOpNode;116;-1760,32;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.UnpackScaleNormalNode;58;-880,-1616;Inherit;False;Tangent;2;0;FLOAT4;0,0,0,0;False;1;FLOAT;1;False;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;67;-880,-1328;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;68;-880,-1200;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.LerpOp;139;-672,-1552;Inherit;False;3;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;2;FLOAT;0;False;1;FLOAT3;0
-Node;AmplifyShaderEditor.LerpOp;136;-2896,-176;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.ClampOpNode;119;-1632,32;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;1;False;1;FLOAT;0
+Node;AmplifyShaderEditor.CommentaryNode;135;-1872,-4784;Inherit;False;1460;2154.8;Comment;27;86;85;107;109;110;82;84;94;81;102;103;104;105;87;106;111;112;83;101;95;88;96;98;99;100;126;78;Discard Raymarching;1,1,1,1;0;0
+Node;AmplifyShaderEditor.RegisterLocalVarNode;71;-640,-1616;Inherit;False;Normal;-1;True;1;0;FLOAT3;0,0,0;False;1;FLOAT3;0
 Node;AmplifyShaderEditor.RegisterLocalVarNode;72;-720,-1328;Inherit;False;Metallic;-1;True;1;0;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.RegisterLocalVarNode;73;-720,-1200;Inherit;False;Smoothness;-1;True;1;0;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.RegisterLocalVarNode;71;-608,-1664;Inherit;False;Normal;-1;True;1;0;FLOAT3;0,0,0;False;1;FLOAT3;0
-Node;AmplifyShaderEditor.SimpleAddOpNode;137;-736,-176;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;150;-848,-64;Inherit;False;Property;_MainLight;MainLight;15;1;[Header];Create;True;1;End;0;0;False;1;Space(10);False;0;0;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.SimpleMultiplyOpNode;120;-1472,-48;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.GetLocalVarNode;75;-256,-16;Inherit;False;72;Metallic;1;0;OBJECT;;False;1;FLOAT;0
 Node;AmplifyShaderEditor.GetLocalVarNode;74;-256,-192;Inherit;False;71;Normal;1;0;OBJECT;;False;1;FLOAT3;0
 Node;AmplifyShaderEditor.GetLocalVarNode;76;-256,128;Inherit;False;73;Smoothness;1;0;OBJECT;;False;1;FLOAT;0
-Node;AmplifyShaderEditor.SimpleMultiplyOpNode;149;-576,-112;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.ClampOpNode;173;-2720,496;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.OneMinusNode;174;-2560,496;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.PowerNode;175;-2368,496;Inherit;False;False;2;0;FLOAT;0;False;1;FLOAT;1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;176;-2752,624;Inherit;False;Property;_RemapExp;Remap Exp;19;0;Create;True;0;0;0;False;0;False;0;0;0;5;0;1;FLOAT;0
-Node;AmplifyShaderEditor.OneMinusNode;177;-2192,496;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.OneMinusNode;166;-2752,752;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.FresnelNode;164;-2976,752;Inherit;False;Standard;WorldNormal;ViewDir;False;False;5;0;FLOAT3;0,0,1;False;4;FLOAT3;0,0,0;False;1;FLOAT;0;False;2;FLOAT;1;False;3;FLOAT;5;False;1;FLOAT;0
-Node;AmplifyShaderEditor.PowerNode;167;-2560,752;Inherit;False;False;2;0;FLOAT;0;False;1;FLOAT;1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;165;-3200,848;Inherit;False;Property;_RampFresnelExp;Ramp Fresnel Exp;16;1;[Header];Create;True;1;Remap;0;0;False;1;Space(10);False;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;168;-2768,848;Inherit;False;Property;_RampFresnelExp2;Ramp Fresnel Exp2;17;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.SimpleAddOpNode;169;-2368,752;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;170;-2528,848;Inherit;False;Property;_RemapFresnelOffset;Remap Fresnel Offset;18;0;Create;True;0;0;0;False;0;False;0;0;0;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.ClampOpNode;171;-2208,752;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.SimpleMultiplyOpNode;178;-2000,496;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.ClampOpNode;180;-1792,496;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;1;False;1;FLOAT;0
-Node;AmplifyShaderEditor.DynamicAppendNode;183;-1616,496;Inherit;False;FLOAT2;4;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.SamplerNode;184;-1440,480;Inherit;True;Property;_Remap;Remap;20;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.SimpleAddOpNode;115;-1280,-128;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.Vector3Node;86;-1824,-3936;Inherit;False;Property;_VolumePositionOffset;Volume Position Offset;12;0;Create;True;0;0;0;False;0;False;0,0,0;0,0,0;0;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
+Node;AmplifyShaderEditor.PositionNode;85;-1360,-4496;Inherit;False;0;0;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
+Node;AmplifyShaderEditor.RangedFloatNode;107;-1424,-3200;Inherit;False;Property;_LinearMaskOffset;Linear Mask Offset;21;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.BreakToComponentsNode;109;-1328,-3136;Inherit;False;FLOAT3;1;0;FLOAT3;0,0,0;False;16;FLOAT;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT;5;FLOAT;6;FLOAT;7;FLOAT;8;FLOAT;9;FLOAT;10;FLOAT;11;FLOAT;12;FLOAT;13;FLOAT;14;FLOAT;15
+Node;AmplifyShaderEditor.Vector3Node;110;-1424,-2976;Inherit;False;Property;_LinearMaskVector;Linear Mask Vector;22;0;Create;True;0;0;0;False;0;False;0,0,0;0,0,0;0;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
+Node;AmplifyShaderEditor.ViewDirInputsCoordNode;82;-1392,-4736;Inherit;False;Object;False;0;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
+Node;AmplifyShaderEditor.RangedFloatNode;84;-1360,-4576;Inherit;False;Constant;_Float0;Float 0;12;0;Create;True;0;0;0;False;0;False;-1;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.GetLocalVarNode;94;-1440,-4240;Inherit;False;71;Normal;1;0;OBJECT;;False;1;FLOAT3;0
+Node;AmplifyShaderEditor.TexturePropertyNode;81;-1280,-4016;Inherit;True;Property;_VolumeNoise;VolumeNoise;11;2;[Header];[NoScaleOffset];Create;True;1;Volume Raymarching;0;0;False;0;False;None;None;False;white;LockedToTexture2D;Texture2D;-1;0;2;SAMPLER2D;0;SAMPLERSTATE;1
+Node;AmplifyShaderEditor.RangedFloatNode;102;-1248,-3520;Inherit;False;Property;_VolumeNoise2Exp;Volume Noise 2 Exp;17;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;103;-1280,-3440;Inherit;False;Property;_VolumeNoise2Multiply;Volume Noise 2 Multiply;18;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;104;-1248,-3360;Inherit;False;Property;_LinearMaskScale;Linear Mask Scale;19;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;105;-1248,-3280;Inherit;False;Property;_LinearMaskNegate;Linear Mask Negate;20;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.SimpleAddOpNode;87;-1168,-4560;Inherit;False;2;2;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;1;FLOAT3;0
+Node;AmplifyShaderEditor.SimpleSubtractOpNode;106;-1200,-3168;Inherit;False;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.NormalizeNode;111;-1200,-2976;Inherit;False;False;1;0;FLOAT3;0,0,0;False;1;FLOAT3;0
+Node;AmplifyShaderEditor.Vector3Node;112;-1360,-2816;Inherit;False;Property;_LinearMaskVectorWorldOffset;Linear Mask Vector World Offset;23;0;Create;True;0;0;0;False;0;False;0,0,0;0,0,0;0;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
+Node;AmplifyShaderEditor.SimpleMultiplyOpNode;83;-1200,-4672;Inherit;False;2;2;0;FLOAT3;0,0,0;False;1;FLOAT;0;False;1;FLOAT3;0
+Node;AmplifyShaderEditor.GetLocalVarNode;101;-1312,-3600;Inherit;False;65;Refraction Surface Noise;1;0;OBJECT;;False;1;FLOAT;0
+Node;AmplifyShaderEditor.TransformDirectionNode;95;-1264,-4240;Inherit;False;Tangent;Object;True;Fast;True;1;0;FLOAT3;0,0,0;False;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
+Node;AmplifyShaderEditor.RangedFloatNode;88;-1328,-4336;Inherit;False;Property;_Refraction;Refraction;13;0;Create;True;0;0;0;False;0;False;0;0;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;96;-1232,-4096;Inherit;False;Constant;_StepLength;StepLength;14;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;98;-1264,-3824;Inherit;False;Property;_VolumeNoiseScale;Volume Noise Scale;14;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;99;-1296,-3760;Inherit;False;Property;_VolumeNoiseMultiply;Volume Noise Multiply;15;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;100;-1264,-3680;Inherit;False;Property;_VolumeNoiseExp;Volume Noise Exp;16;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.SamplerStateNode;126;-1024,-3904;Inherit;False;0;0;0;1;-1;None;1;0;SAMPLER2D;;False;1;SAMPLERSTATE;0
+Node;AmplifyShaderEditor.CustomExpressionNode;78;-784,-4064;Inherit;False;float step = 0.0@$float final = 0.0@$float final2 = 0.0@$float3 sampledPosition@$		$$$for (int i = 0@ i < 8@ i++)${$	sampledPosition = Position + refract(normalize(ViewDirection), NormalVector, saturate(1-(1.0/Refraction * RefractionSurfaceNoise))) * step@$			$	float2 sampledCustomNoise = SAMPLE_TEXTURE2D(VolumeNoise, samplerState, sampledPosition.xy * VolumeNoiseScale).rgb * SAMPLE_TEXTURE2D(VolumeNoise, samplerState, sampledPosition.zy * VolumeNoiseScale + float2(144.23, 5444.12)).rgb@$			$	sampledCustomNoise *= SAMPLE_TEXTURE2D(VolumeNoise, samplerState, sampledPosition.xz * VolumeNoiseScale + float2(3127.11, 1522.12))@$$	float linearMask = saturate(saturate((dot(sampledPosition - LinearMaskVectorWorldOffset, LinearMaskVector) + LinearMaskOffset) * LinearMaskScale) + LinearMaskNegate)@$$	final += pow(saturate((pow(sampledCustomNoise.x, NoisePow) * NoiseStrength * 1.45)), 1.25) * saturate(1.0-(i/20.0)) * linearMask@$$	final2 += pow(sampledCustomNoise.y, VolumeNoise2Exp * 0.95) * VolumeNoise2Multiply * 2.00 * linearMask@$$	step += (StepLength/8.0)@$}$$float2 outputpom@$outputpom.x = final@$outputpom.y = final2@$return outputpom@$$	;2;Create;18;False;ViewDirection;FLOAT3;0,0,0;In;;Inherit;False;False;Position;FLOAT3;0,0,0;In;;Inherit;False;False;Refraction;FLOAT;0;In;;Inherit;False;False;NormalVector;FLOAT3;0,0,0;In;;Inherit;False;False;StepLength;FLOAT;0;In;;Inherit;False;False;VolumeNoise;SAMPLER2D;0;In;UnityTexture2D;Inherit;False;False;samplerState;SAMPLERSTATE;;In;;Inherit;False;False;VolumeNoiseScale;FLOAT;0;In;;Inherit;False;False;NoiseStrength;FLOAT;0;In;;Inherit;False;False;NoisePow;FLOAT;0;In;;Inherit;False;True;RefractionSurfaceNoise;FLOAT;0;In;;Inherit;False;False;VolumeNoise2Exp;FLOAT;0;In;;Inherit;False;False;VolumeNoise2Multiply;FLOAT;0;In;;Inherit;False;False;LinearMaskScale;FLOAT;0;In;;Inherit;False;False;LinearMaskNegate;FLOAT;0;In;;Inherit;False;False;LinearMaskOffset;FLOAT;0;In;;Inherit;False;False;LinearMaskVector;FLOAT3;0,0,0;In;;Inherit;False;True;LinearMaskVectorWorldOffset;FLOAT3;0,0,0;In;;Inherit;False;ALabCrystalRayM_8Samples;False;True;0;eaeae0aa6c02f4bbe8392147c427c90b;False;18;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;2;FLOAT;0;False;3;FLOAT3;0,0,0;False;4;FLOAT;0;False;5;SAMPLER2D;0;False;6;SAMPLERSTATE;;False;7;FLOAT;0;False;8;FLOAT;0;False;9;FLOAT;0;False;10;FLOAT;0;False;11;FLOAT;0;False;12;FLOAT;0;False;13;FLOAT;0;False;14;FLOAT;0;False;15;FLOAT;0;False;16;FLOAT3;0,0,0;False;17;FLOAT3;0,0,0;False;1;FLOAT2;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;41;-32,-128;Float;False;False;-1;3;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ExtraPrePass;0;0;ExtraPrePass;5;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;0;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;43;0,0;Float;False;False;-1;3;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ShadowCaster;0;2;ShadowCaster;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;True;False;False;False;False;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;False;True;1;LightMode=ShadowCaster;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;44;0,0;Float;False;False;-1;3;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;DepthOnly;0;3;DepthOnly;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;True;True;False;False;False;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;False;False;True;1;LightMode=DepthOnly;False;False;0;;0;0;Standard;0;False;0
@@ -2237,7 +2309,7 @@ Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;48;0,0;Float;False;False;-1
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;49;0,0;Float;False;False;-1;3;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;SceneSelectionPass;0;8;SceneSelectionPass;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;2;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=SceneSelectionPass;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;50;0,0;Float;False;False;-1;3;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ScenePickingPass;0;9;ScenePickingPass;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Picking;False;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;51;0,0;Float;False;False;-1;3;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;MotionVectors;0;10;MotionVectors;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;False;False;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=MotionVectors;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;42;0,-128;Float;False;True;-1;3;;0;12;Alab/Crystal;94348b07e5e8bab40bd6c8a1e3df54cd;True;Forward;0;1;Forward;21;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;2;d3d11;metal;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;1;LightMode=UniversalForward;False;False;0;;0;0;Standard;45;Lighting Model;0;0;Workflow;1;0;Surface;0;0;  Refraction Model;0;0;  Blend;0;0;Two Sided;1;0;Alpha Clipping;0;638748526282918200;  Use Shadow Threshold;0;0;Fragment Normal Space,InvertActionOnDeselection;0;638749443121243940;Forward Only;0;0;Transmission;0;0;  Transmission Shadow;0.5,False,;0;Translucency;0;0;  Translucency Strength;1,False,;0;  Normal Distortion;0.5,False,;0;  Scattering;2,False,;0;  Direct;0.9,False,;0;  Ambient;0.1,False,;0;  Shadow;0.5,False,;0;Cast Shadows;1;638748526321583750;Receive Shadows;1;638748526342477180;Receive SSAO;0;638748526253952670;Motion Vectors;0;638748526242843850;  Add Precomputed Velocity;0;0;GPU Instancing;1;0;LOD CrossFade;0;638748526222526340;Built-in Fog;0;638748526219245990;_FinalColorxAlpha;0;0;Meta Pass;0;638748526213121890;Override Baked GI;0;0;Extra Pre Pass;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,False,;0;  Type;0;0;  Tess;16,False,;0;  Min;10,False,;0;  Max;25,False,;0;  Edge Length;16,False,;0;  Max Displacement;25,False,;0;Write Depth;0;0;  Early Z;0;0;Vertex Position,InvertActionOnDeselection;0;638749459187523070;Debug Display;0;0;Clear Coat;0;0;0;11;False;True;True;True;False;False;False;True;False;False;False;False;;True;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;42;0,-128;Float;False;True;-1;3;;0;12;Alab/Crystal_DIscard;94348b07e5e8bab40bd6c8a1e3df54cd;True;Forward;0;1;Forward;21;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;2;d3d11;metal;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;1;LightMode=UniversalForward;False;False;0;;0;0;Standard;45;Lighting Model;0;0;Workflow;1;0;Surface;0;0;  Refraction Model;0;0;  Blend;0;0;Two Sided;1;0;Alpha Clipping;0;638748526282918200;  Use Shadow Threshold;0;0;Fragment Normal Space,InvertActionOnDeselection;0;0;Forward Only;0;0;Transmission;0;0;  Transmission Shadow;0.5,False,;0;Translucency;0;0;  Translucency Strength;1,False,;0;  Normal Distortion;0.5,False,;0;  Scattering;2,False,;0;  Direct;0.9,False,;0;  Ambient;0.1,False,;0;  Shadow;0.5,False,;0;Cast Shadows;1;638748526321583750;Receive Shadows;1;638748526342477180;Receive SSAO;0;638748526253952670;Motion Vectors;0;638748526242843850;  Add Precomputed Velocity;0;0;GPU Instancing;1;0;LOD CrossFade;0;638748526222526340;Built-in Fog;0;638748526219245990;_FinalColorxAlpha;0;0;Meta Pass;0;638748526213121890;Override Baked GI;0;0;Extra Pre Pass;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,False,;0;  Type;0;0;  Tess;16,False,;0;  Min;10,False,;0;  Max;25,False,;0;  Edge Length;16,False,;0;  Max Displacement;25,False,;0;Write Depth;0;0;  Early Z;0;0;Vertex Position,InvertActionOnDeselection;1;0;Debug Display;0;0;Clear Coat;0;0;0;11;False;True;True;True;False;False;False;True;False;False;False;False;;True;0
 WireConnection;28;0;25;1
 WireConnection;28;1;25;2
 WireConnection;29;0;25;3
@@ -2248,64 +2320,67 @@ WireConnection;14;0;16;0
 WireConnection;14;1;15;0
 WireConnection;14;2;19;0
 WireConnection;21;1;14;0
+WireConnection;56;0;21;1
+WireConnection;56;1;53;0
 WireConnection;62;0;61;1
 WireConnection;62;1;61;2
 WireConnection;63;0;61;3
 WireConnection;63;1;61;4
-WireConnection;56;0;21;1
-WireConnection;56;1;53;0
-WireConnection;152;3;146;0
+WireConnection;55;0;56;0
 WireConnection;60;0;62;0
 WireConnection;60;1;63;0
-WireConnection;55;0;56;0
-WireConnection;154;0;152;0
-WireConnection;89;0;60;0
 WireConnection;65;0;55;0
-WireConnection;156;0;154;0
-WireConnection;156;1;155;0
-WireConnection;157;0;156;0
-WireConnection;148;3;159;0
-WireConnection;66;1;92;0
+WireConnection;89;0;60;0
+WireConnection;114;0;134;0
+WireConnection;118;0;117;0
 WireConnection;57;1;90;0
-WireConnection;153;0;134;0
-WireConnection;153;1;157;0
-WireConnection;160;0;148;0
+WireConnection;66;1;92;0
+WireConnection;116;0;114;0
+WireConnection;116;1;118;0
+WireConnection;58;0;57;5
+WireConnection;58;1;59;0
 WireConnection;67;0;69;0
 WireConnection;67;1;66;1
 WireConnection;68;0;66;4
 WireConnection;68;1;70;0
-WireConnection;139;0;141;0
-WireConnection;139;1;57;0
-WireConnection;139;2;59;0
-WireConnection;136;0;160;0
-WireConnection;136;1;153;0
-WireConnection;136;2;117;0
+WireConnection;119;0;116;0
+WireConnection;71;0;58;0
 WireConnection;72;0;67;0
 WireConnection;73;0;68;0
-WireConnection;71;0;139;0
-WireConnection;137;0;136;0
-WireConnection;149;0;137;0
-WireConnection;149;1;150;0
-WireConnection;173;0;136;0
-WireConnection;174;0;173;0
-WireConnection;175;0;174;0
-WireConnection;175;1;176;0
-WireConnection;177;0;175;0
-WireConnection;166;0;164;0
-WireConnection;164;3;165;0
-WireConnection;167;0;166;0
-WireConnection;167;1;168;0
-WireConnection;169;0;167;0
-WireConnection;169;1;170;0
-WireConnection;171;0;169;0
-WireConnection;178;0;177;0
-WireConnection;178;1;171;0
-WireConnection;180;0;178;0
-WireConnection;183;0;180;0
-WireConnection;184;1;183;0
+WireConnection;120;1;119;0
+WireConnection;115;0;114;0
+WireConnection;115;1;120;0
+WireConnection;109;0;86;0
+WireConnection;87;0;86;0
+WireConnection;87;1;85;0
+WireConnection;106;0;107;0
+WireConnection;106;1;109;1
+WireConnection;111;0;110;0
+WireConnection;83;0;82;0
+WireConnection;83;1;84;0
+WireConnection;95;0;94;0
+WireConnection;126;0;81;0
+WireConnection;78;0;83;0
+WireConnection;78;1;87;0
+WireConnection;78;2;88;0
+WireConnection;78;3;95;0
+WireConnection;78;4;96;0
+WireConnection;78;5;81;0
+WireConnection;78;6;126;0
+WireConnection;78;7;98;0
+WireConnection;78;8;99;0
+WireConnection;78;9;100;0
+WireConnection;78;10;101;0
+WireConnection;78;11;102;0
+WireConnection;78;12;103;0
+WireConnection;78;13;104;0
+WireConnection;78;14;105;0
+WireConnection;78;15;106;0
+WireConnection;78;16;111;0
+WireConnection;78;17;112;0
 WireConnection;42;1;74;0
-WireConnection;42;2;149;0
+WireConnection;42;2;115;0
 WireConnection;42;3;75;0
 WireConnection;42;4;76;0
 ASEEND*/
-//CHKSM=5D41483F033CAFE4B6A85F7ED243A7B2A6955843
+//CHKSM=D1773CCB093E243F7083711E3B8DE76762D19FD6

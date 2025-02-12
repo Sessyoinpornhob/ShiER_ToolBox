@@ -174,6 +174,7 @@ Shader "ALab/Vertex_RBD3"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DBuffer.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/Debugging3D.hlsl"
         
             struct Attributes
             {
@@ -413,7 +414,8 @@ Shader "ALab/Vertex_RBD3"
 				inputData.bakedGI = SAMPLE_GI(input.lightmapUVOrVertexSH.xy, SH, normalWS_N);
 				inputData.shadowMask = SAMPLE_SHADOWMASK(input.lightmapUVOrVertexSH.xy);
 				inputData.viewDirectionWS = normalize(_WorldSpaceCameraPos - TransformObjectToWorld(input.positionOS));
-				
+
+				// SamplerState mySampler : register(s0);
 
 				SurfaceData surfaceData;
 				surfaceData.albedo              = BaseColor;

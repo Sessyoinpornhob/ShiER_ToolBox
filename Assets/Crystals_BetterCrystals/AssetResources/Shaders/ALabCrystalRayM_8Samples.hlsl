@@ -1,10 +1,10 @@
-	void MyCustomRaymarching_float( float3 ViewDirection,
+	float2 ALabCrystalRayM_8Samples( float3 ViewDirection,
 									float3 Position,
 									float Refraction,
 									float3 NormalVector,
 									float StepLength,
-									UnityTexture2D CustomVolumeNoise,
-									UnitySamplerState CustomVolumeNoiseSampler,
+									sampler2D CustomVolumeNoise,
+									SamplerState samplerState,
 									float VolumeNoiseScale,
 									float NoiseStrength,
 									float NoisePow,
@@ -15,23 +15,23 @@
 									float LinearMaskNegate,
 									float LinearMaskOffset,
 									float3 LinearMaskVector,
-									float3 LinearMaskVectorWorldOffset,
-									out float2 outputpom 
+									float3 LinearMaskVectorWorldOffset
 									)
 	{
 		float step = 0.0;
 		float final = 0.0;
 		float final2 = 0.0;
 		float3 sampledPosition;
+		
 
-		CustomVolumeNoiseSampler;
 
 		for (int i = 0; i < 8; i++)
 			{
 				sampledPosition = Position + refract(normalize(ViewDirection), NormalVector, saturate(1-(1.0/Refraction * RefractionSurfaceNoise))) * step;
-				
-				float2 sampledCustomNoise =SAMPLE_TEXTURE2D(CustomVolumeNoise, CustomVolumeNoiseSampler, sampledPosition.xy * VolumeNoiseScale) * SAMPLE_TEXTURE2D(CustomVolumeNoise, CustomVolumeNoiseSampler, sampledPosition.zy * VolumeNoiseScale + float2(144.23, 5444.12));
-				sampledCustomNoise *= SAMPLE_TEXTURE2D(CustomVolumeNoise, CustomVolumeNoiseSampler, sampledPosition.xz * VolumeNoiseScale + float2(3127.11, 1522.12));
+			
+				float2 sampledCustomNoise = SAMPLE_TEXTURE2D(CustomVolumeNoise, samplerState, sampledPosition.xy * VolumeNoiseScale).rgb * SAMPLE_TEXTURE2D(CustomVolumeNoise, samplerState, sampledPosition.zy * VolumeNoiseScale + float2(144.23, 5444.12)).rgb;
+			
+				sampledCustomNoise *= SAMPLE_TEXTURE2D(CustomVolumeNoise, samplerState, sampledPosition.xz * VolumeNoiseScale + float2(3127.11, 1522.12));
 
 				float linearMask = saturate(saturate((dot(sampledPosition - LinearMaskVectorWorldOffset, LinearMaskVector) + LinearMaskOffset) * LinearMaskScale) + LinearMaskNegate);
 
@@ -41,6 +41,9 @@
 				step += (StepLength/8.0);
 			}
 
+		float2 outputpom;
 		outputpom.x = final;
 		outputpom.y = final2;
-	}
+		return outputpom;
+}
+	
