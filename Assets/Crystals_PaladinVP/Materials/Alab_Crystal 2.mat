@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Alab_Crystal
+  m_Name: Alab_Crystal 2
   m_Shader: {fileID: 4800000, guid: b496d6e0a02f64fa397b7b3fdd2dcebf, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -35,6 +35,14 @@ Material:
         m_Texture: {fileID: 2800000, guid: 83218c6d0b3f4d2b9480b5c2d8df43a8, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _RSN2BaseMap:
+        m_Texture: {fileID: 2800000, guid: db14902354f944b98a0692474f23c227, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RSN2HeightMap:
+        m_Texture: {fileID: 2800000, guid: db14902354f944b98a0692474f23c227, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _RSNBaseMap:
         m_Texture: {fileID: 2800000, guid: ccf23d94ac25416aaf2fdf6af07afa43, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -51,8 +59,12 @@ Material:
         m_Texture: {fileID: 2800000, guid: 149c64ba9f994c978549249f8337eb6c, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Remap:
+        m_Texture: {fileID: 2800000, guid: 7c893e7d8c11419592e8aca47e75e07f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SurfaceMetallicSmoothness:
-        m_Texture: {fileID: 2800000, guid: 45a92f4ff58e46929713960a38af8fee, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SurfaceNormal:
@@ -90,41 +102,62 @@ Material:
     - _CurvFix: 1
     - _EnvironmentReflections: 1
     - _Float0: 1
-    - _FresnelPow: 2.44
+    - _FresnelOrNoise: 1
+    - _FresnelPow: 2.98
     - _LinearMaskNegate: 0.5
     - _LinearMaskOffset: 0
     - _LinearMaskScale: 0.25
     - _MainLight: 1
+    - _NoiseOrFresnel: 1
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _RSNNegate: 0
-    - _RSNScale: 0.063
+    - _RSN12Lerp: 0.5
+    - _RSN2Negate: 0.018
+    - _RSN2RangeMax: 1
+    - _RSN2RangeMin: 0
+    - _RSN2Scale: 0.2
+    - _RSNNegate: 0.343
+    - _RSNRangeMax: 1
+    - _RSNRangeMin: 0
+    - _RSNScale: 0.059
     - _RSN_Negate: 0
     - _RSN_Scale: 0.2
+    - _RampFresnelExp: 0.24
+    - _RampFresnelExp2: 1.03
     - _ReceiveShadows: 1
     - _Refraction: 0.536
+    - _RemapEmissionPower: 1.46
+    - _RemapExp: 2.95
+    - _RemapFresnelOffset: 0.4
     - _Scale: 0.25
     - _SpecularHighlights: 1
-    - _SurfaceMetallic: 0
-    - _SurfaceNormalStrength: 0.2
+    - _SurfaceMetallic: 1
+    - _SurfaceNormalStrength: 1
     - _SurfaceSmoothness: 1
     - _Test: 1.64
-    - _ThicknessFrsnel: 3.44
-    - _ThicknessNegateFresnel: 0.807
+    - _ThicknessClampMax: 0.822
+    - _ThicknessClampMin: 0.348
+    - _ThicknessFrsnel: 1.46
+    - _ThicknessNegateFresnel: 1
+    - _Thinkness: 0.17
     - _VolumeNoise2Exp: 0.2
-    - _VolumeNoise2Intersect: 0.802
+    - _VolumeNoise2Intersect: 0
     - _VolumeNoise2Multiply: 0.2
     - _VolumeNoiseExp: 0.5
     - _VolumeNoiseMultiply: 0.2
     - _VolumeNoiseScale: 0.84
     m_Colors:
+    - _BaseColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _LinearMaskVector: {r: 0, g: 1, b: -0.09, a: 0}
     - _LinearMaskVectorWorldOffset: {r: 0.1, g: 0, b: 0, a: 0}
-    - _RSNTiling_Offset: {r: 0.1, g: 0.1, b: 0.35, a: -0.59}
+    - _RSN2Tiling_Offset: {r: 3, g: 1.5, b: -0.21, a: -0.36}
+    - _RSNRange: {r: 0, g: 0, b: 0, a: 0}
+    - _RSNTiling_Offset: {r: 1, g: 0.46, b: 0.74, a: -0.59}
     - _RSN_Tiling_Offset: {r: 3, g: 3, b: 0, a: 0}
+    - _RemapColorTint: {r: 1, g: 1, b: 1, a: 1}
     - _SuraceTilingOffset: {r: 1, g: 1, b: 1, a: 1}
-    - _SurfaceTilingOffset: {r: 3, g: 3, b: 0, a: 0}
+    - _SurfaceTilingOffset: {r: 2, g: 2, b: 0.63, a: 0}
     - _Test_01: {r: 1, g: 1, b: -0.41, a: 0}
     - _Tiling_Offset: {r: 2, g: 2, b: 0.1, a: 0}
     - _Vector0: {r: 1.21, g: 0.84, b: -0.03, a: 0}

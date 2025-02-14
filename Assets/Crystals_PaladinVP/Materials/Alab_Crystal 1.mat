@@ -1,0 +1,148 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Alab_Crystal 1
+  m_Shader: {fileID: 4800000, guid: b496d6e0a02f64fa397b7b3fdd2dcebf, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: 149c64ba9f994c978549249f8337eb6c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _HeightMap:
+        m_Texture: {fileID: 2800000, guid: 149c64ba9f994c978549249f8337eb6c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Normal:
+        m_Texture: {fileID: 2800000, guid: 83218c6d0b3f4d2b9480b5c2d8df43a8, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RSNBaseMap:
+        m_Texture: {fileID: 2800000, guid: ccf23d94ac25416aaf2fdf6af07afa43, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RSNHeightMap:
+        m_Texture: {fileID: 2800000, guid: ccf23d94ac25416aaf2fdf6af07afa43, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RSN_BaseMap:
+        m_Texture: {fileID: 2800000, guid: 149c64ba9f994c978549249f8337eb6c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RSN_HeightMap:
+        m_Texture: {fileID: 2800000, guid: 149c64ba9f994c978549249f8337eb6c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Remap:
+        m_Texture: {fileID: 2800000, guid: 7c454a054d0946829d42e34211e38bb8, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SurfaceMetallicSmoothness:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SurfaceNormal:
+        m_Texture: {fileID: 2800000, guid: d7aa8e05f3b6118478e7caf71b9232c2, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Test:
+        m_Texture: {fileID: 2800000, guid: ebe3312bcc764b4292e446e360d3f3f2, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _VolumeNoise:
+        m_Texture: {fileID: 2800000, guid: 57a6897f65604754a28b38fd73598c5a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _texcoord:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AddPrecomputedVelocity: 1
+    - _AlphaCutoff: 0.5
+    - _CurvFix: 1
+    - _EnvironmentReflections: 1
+    - _Float0: 1
+    - _FresnelPow: 0.66
+    - _LinearMaskNegate: 0.5
+    - _LinearMaskOffset: 0
+    - _LinearMaskScale: 0.25
+    - _MainLight: 1
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _RSNNegate: 0.226
+    - _RSNRangeMax: 0.5
+    - _RSNRangeMin: 0.1
+    - _RSNScale: 0.0412
+    - _RSN_Negate: 0
+    - _RSN_Scale: 0.2
+    - _RampFresnelExp: 35.75
+    - _RampFresnelExp2: 1.16
+    - _ReceiveShadows: 1
+    - _Refraction: 0.536
+    - _RemapEmissionPower: 3.04
+    - _RemapExp: 2.37
+    - _RemapFresnelOffset: 0.781
+    - _Scale: 0.25
+    - _SpecularHighlights: 1
+    - _SurfaceMetallic: 0.6
+    - _SurfaceNormalStrength: 0.1
+    - _SurfaceSmoothness: 0.956
+    - _Test: 1.64
+    - _ThicknessFrsnel: 1.56
+    - _ThicknessNegateFresnel: 0.904
+    - _VolumeNoise2Exp: 0.2
+    - _VolumeNoise2Intersect: 1
+    - _VolumeNoise2Multiply: 0.2
+    - _VolumeNoiseExp: 0.5
+    - _VolumeNoiseMultiply: 0.2
+    - _VolumeNoiseScale: 0.84
+    m_Colors:
+    - _BaseColor: {r: 0.5188679, g: 0.14929688, b: 0.36839414, a: 1}
+    - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
+    - _LinearMaskVector: {r: 0, g: 1, b: -0.09, a: 0}
+    - _LinearMaskVectorWorldOffset: {r: 0.1, g: 0, b: 0, a: 0}
+    - _RSNRange: {r: 0, g: 0, b: 0, a: 0}
+    - _RSNTiling_Offset: {r: 0.1, g: 0.1, b: 0.35, a: -0.59}
+    - _RSN_Tiling_Offset: {r: 3, g: 3, b: 0, a: 0}
+    - _RemapColorTint: {r: 1, g: 1, b: 1, a: 1}
+    - _SuraceTilingOffset: {r: 1, g: 1, b: 1, a: 1}
+    - _SurfaceTilingOffset: {r: 0.5, g: 0.5, b: 0, a: 0}
+    - _Test_01: {r: 1, g: 1, b: -0.41, a: 0}
+    - _Tiling_Offset: {r: 2, g: 2, b: 0.1, a: 0}
+    - _Vector0: {r: 1.21, g: 0.84, b: -0.03, a: 0}
+    - _VolumePositionOffset: {r: 1.21, g: 0.2, b: 0, a: 0}
+    - _VolumePositionOffset1: {r: -2.63, g: -0.83, b: 0, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

@@ -3,6 +3,7 @@ guid: b496d6e0a02f64fa397b7b3fdd2dcebf
 ShaderImporter:
   externalObjects: {}
   defaultTextures:
+  - _RSN2HeightMap: {fileID: 2800000, guid: 811acfdce8944cb9986966700a6ccfc8, type: 3}
   - _RSNHeightMap: {fileID: 2800000, guid: 811acfdce8944cb9986966700a6ccfc8, type: 3}
   nonModifiableTextures: []
   userData: 
