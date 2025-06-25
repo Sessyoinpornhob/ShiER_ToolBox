@@ -1,0 +1,94 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: "\u53D1"
+  m_Shader: {fileID: 4800000, guid: d6db5e9cd70f6854d899f967c5dcf930, type: 3}
+  m_ValidKeywords:
+  - ENABLE_HAIR_RAMP_ON
+  - _ENABLE_ALPHA_TEST_ON
+  - _OLWVWD_ON
+  m_InvalidKeywords:
+  - _ENABLERIM_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: 37fd763978de9884492c8f0efa0e4781, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Faceshadow:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Faceshadow2:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _LightMap:
+        m_Texture: {fileID: 2800000, guid: 84246e67a65f70842beaadc68bddf188, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetalMap:
+        m_Texture: {fileID: 2800000, guid: bf1e23c3865c0c542a79867dcce38555, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RampMap:
+        m_Texture: {fileID: 2800000, guid: b983de4b10d692d4ea0beb10669858f0, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - ENABLE_HAIR_RAMP: 0
+    - _BrightIntensity: 0.9
+    - _Cutoff: 0.28
+    - _DarkIntensity: 0.9
+    - _DarkSideRimPow: 20
+    - _DarkSideRimSmooth: 0.5
+    - _ENABLE_ALPHA_TEST: 1
+    - _EnableLambert: 1
+    - _EnableRim: 1
+    - _LightThreshold: 0.899
+    - _MetalMapIntensity: 0.382
+    - _MetalMapV: 0.059
+    - _OLWVWD: 1
+    - _OutlineWidth: 0.2
+    - _RampAOLerp: 0.875
+    - _RampChoice: 0
+    - _RampIntensity: 1
+    - _RampShadowRange: 0.684
+    - _RimPow: 17.58
+    - _RimSmooth: 0.005
+    - _ShadowRampLerp: 0.577
+    - _SpecularExp: 2.2
+    - _SpecularIntensity: 5.01
+    - _StepSpecularIntensity: 0.826
+    - _StepSpecularIntensity1: 0.425
+    - _StepSpecularIntensity2: 0.513
+    - _StepSpecularIntensity3: 0.46
+    - _StepSpecularIntensity4: 0.54
+    - _StepSpecularWidth: 0.66
+    - _StepSpecularWidth1: 0.437
+    - _StepSpecularWidth2: 0.423
+    - _StepSpecularWidth3: 1.29
+    - _StepSpecularWidth4: 0
+    - _TestSpecularLayerController: 260
+    m_Colors:
+    - _BaseColor: {r: 0, g: 0, b: 0, a: 1}
+    - _DarkShadowMultColor: {r: 0.8745099, g: 0.80392164, b: 0.7372549, a: 1}
+    - _DarkSideRimColor: {r: 0.6792453, g: 0.6792453, b: 0.6792453, a: 1}
+    - _OutlineColor: {r: 0.2735849, g: 0.12425697, b: 0.09898609, a: 1}
+    - _RimColor: {r: 0.735849, g: 0.735849, b: 0.735849, a: 1}
+    - _ShadowMultColor: {r: 1, g: 0.7656342, b: 0, a: 1}
+  m_BuildTextureStacks: []

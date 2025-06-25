@@ -1,0 +1,88 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: "\u53D1sph+"
+  m_Shader: {fileID: 4800000, guid: f8867063326560a4bbbd246d93b7d3ed, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - ENABLE_HAIR_RAMP_ON
+  m_InvalidKeywords:
+  - _ENABLERIM_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: 928e8dc84ce0b4a4d9ba7d07995df88f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _LightMap:
+        m_Texture: {fileID: 2800000, guid: 84246e67a65f70842beaadc68bddf188, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetalMap:
+        m_Texture: {fileID: 2800000, guid: bf1e23c3865c0c542a79867dcce38555, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RampMap:
+        m_Texture: {fileID: 2800000, guid: b983de4b10d692d4ea0beb10669858f0, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - ENABLE_HAIR_RAMP: 0
+    - _BrightIntensity: 1
+    - _Cutoff: 0.5
+    - _DarkIntensity: 1
+    - _DarkSideRimPow: 9.3
+    - _DarkSideRimSmooth: 0.146
+    - _ENABLE_ALPHA_TEST: 0
+    - _EnableLambert: 0.705
+    - _EnableRim: 1
+    - _LightThreshold: 0.91
+    - _MetalMapIntensity: 0.939
+    - _MetalMapV: 0.823
+    - _OLWVWD: 0
+    - _OutlineWidth: 0.4
+    - _RampAOLerp: 0.642
+    - _RampChoice: 0
+    - _RampIntensity: 1
+    - _RampShadowRange: 0.733
+    - _RimPow: 12.1
+    - _RimSmooth: 0.245
+    - _ShadowRampLerp: 0.487
+    - _SpecularExp: 18.6
+    - _SpecularIntensity: 5.34
+    - _StepSpecularIntensity: 0.826
+    - _StepSpecularIntensity1: 0.139
+    - _StepSpecularIntensity2: 0.22
+    - _StepSpecularIntensity3: 1.64
+    - _StepSpecularIntensity4: 1.62
+    - _StepSpecularWidth: 0.66
+    - _StepSpecularWidth1: 0.277
+    - _StepSpecularWidth2: 0.204
+    - _StepSpecularWidth3: 0.22
+    - _StepSpecularWidth4: 1.93
+    - _TestSpecularLayerController: 260
+    m_Colors:
+    - _BaseColor: {r: 0, g: 0, b: 0, a: 1}
+    - _DarkShadowMultColor: {r: 0.8745099, g: 0.80392164, b: 0.7372549, a: 1}
+    - _DarkSideRimColor: {r: 0, g: 0.7159891, b: 1, a: 1}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
+    - _RimColor: {r: 0.48445278, g: 0.8820599, b: 1, a: 1}
+    - _ShadowMultColor: {r: 1, g: 0.7656342, b: 0, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
