@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Bump Mapping
+  m_Shader: {fileID: 4800000, guid: 97eaa3d53f0568840840151309926595, type: 3}
+  m_ValidKeywords:
+  - _HEIGHTMAP
+  - _NORMALMAP
+  - _RELIEFMAP
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _HeightMap:
+        m_Texture: {fileID: 2800000, guid: 577cc790a640f4f46be4661210384a1d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 690fc5800bc9fa34696914365c596294, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalMap:
+        m_Texture: {fileID: 2800000, guid: d255c25413002dd449ce3fe24fc69702, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _EnableBumpMap: 1
+    - _EnableHeightMap: 1
+    - _EnableReliefMap: 1
+    - _HeightScale: 0.03
+    - _Metallic: 0.77
+    - _NormalScale: 1.5
+    - _NumLayers: 40
+    - _Smoothness: 0.3
+    m_Colors: []
+  m_BuildTextureStacks: []
