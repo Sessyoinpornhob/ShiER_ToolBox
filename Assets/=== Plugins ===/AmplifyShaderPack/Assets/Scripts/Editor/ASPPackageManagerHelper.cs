@@ -14,14 +14,15 @@ namespace AmplifyShaderPack
 	public enum ASPSRPBaseline
 	{
 		ASP_SRP_INVALID = 0,
-		ASP_SRP_10 = 100000,
-		ASP_SRP_11 = 110000,
-		ASP_SRP_12 = 120000,
-		ASP_SRP_13 = 130000,
-		ASP_SRP_14 = 140000,
-		ASP_SRP_15 = 150000,
-        ASP_SRP_16 = 160000,
-        ASP_SRP_17 = 170000
+		ASP_SRP_10_0 = 100000,
+		ASP_SRP_11_0 = 110000,
+		ASP_SRP_12_0 = 120000,
+		ASP_SRP_13_0 = 130000,
+		ASP_SRP_14_0 = 140000,
+		ASP_SRP_15_0 = 150000,
+        ASP_SRP_16_0 = 160000,
+        ASP_SRP_17_0 = 170000,
+		ASE_SRP_17_1 = 170100
     }
 
 	public class ASPSRPPackageDesc
@@ -47,15 +48,16 @@ namespace AmplifyShaderPack
 
 		private static Dictionary<int, ASPSRPPackageDesc> m_srpPackageSupport = new Dictionary<int,ASPSRPPackageDesc>()
 		{
-			{ ( int )ASPSRPBaseline.ASP_SRP_10, new ASPSRPPackageDesc( ASPSRPBaseline.ASP_SRP_10, "409a6afa800412b418e2ff7a84801194", "1ac01ed79a181ea4b913bff141420cbf" ) },
-			{ ( int )ASPSRPBaseline.ASP_SRP_11, new ASPSRPPackageDesc( ASPSRPBaseline.ASP_SRP_11, "409a6afa800412b418e2ff7a84801194", "1ac01ed79a181ea4b913bff141420cbf" ) },
-			{ ( int )ASPSRPBaseline.ASP_SRP_12, new ASPSRPPackageDesc( ASPSRPBaseline.ASP_SRP_12, "576c965b42f20894da7b7405d682ac65", "0bacf8afbc03e384d849817d14bf7c1f" ) },
-			{ ( int )ASPSRPBaseline.ASP_SRP_13, new ASPSRPPackageDesc( ASPSRPBaseline.ASP_SRP_13, "576c965b42f20894da7b7405d682ac65", "0bacf8afbc03e384d849817d14bf7c1f" ) },
-			{ ( int )ASPSRPBaseline.ASP_SRP_14, new ASPSRPPackageDesc( ASPSRPBaseline.ASP_SRP_14, "7640552bf790cdd4982f86412ced542a", "04ecf131eb72f984b9ae503872cf17f9" ) },
-			{ ( int )ASPSRPBaseline.ASP_SRP_15, new ASPSRPPackageDesc( ASPSRPBaseline.ASP_SRP_15, "c77a06ef3266a6c4690d6269f8977924", "53390a32e6d4c6b41a86f003242f44e4" ) },
-            { ( int )ASPSRPBaseline.ASP_SRP_16, new ASPSRPPackageDesc( ASPSRPBaseline.ASP_SRP_16, "6a21139fc863b9845b73118098f69ab4", "4b0a078b4c12c2a4da53c2a643186373" ) },
-            { ( int )ASPSRPBaseline.ASP_SRP_17, new ASPSRPPackageDesc( ASPSRPBaseline.ASP_SRP_17, "b933d009540881e4abed80d8947c24ab", "5f247ef6f47b55e49a6659df8f720384" ) },
-        };
+			{ ( int )ASPSRPBaseline.ASP_SRP_10_0, new ASPSRPPackageDesc( ASPSRPBaseline.ASP_SRP_10_0, "409a6afa800412b418e2ff7a84801194", "1ac01ed79a181ea4b913bff141420cbf" ) },
+			{ ( int )ASPSRPBaseline.ASP_SRP_11_0, new ASPSRPPackageDesc( ASPSRPBaseline.ASP_SRP_11_0, "409a6afa800412b418e2ff7a84801194", "1ac01ed79a181ea4b913bff141420cbf" ) },
+			{ ( int )ASPSRPBaseline.ASP_SRP_12_0, new ASPSRPPackageDesc( ASPSRPBaseline.ASP_SRP_12_0, "576c965b42f20894da7b7405d682ac65", "0bacf8afbc03e384d849817d14bf7c1f" ) },
+			{ ( int )ASPSRPBaseline.ASP_SRP_13_0, new ASPSRPPackageDesc( ASPSRPBaseline.ASP_SRP_13_0, "576c965b42f20894da7b7405d682ac65", "0bacf8afbc03e384d849817d14bf7c1f" ) },
+			{ ( int )ASPSRPBaseline.ASP_SRP_14_0, new ASPSRPPackageDesc( ASPSRPBaseline.ASP_SRP_14_0, "7640552bf790cdd4982f86412ced542a", "04ecf131eb72f984b9ae503872cf17f9" ) },
+			{ ( int )ASPSRPBaseline.ASP_SRP_15_0, new ASPSRPPackageDesc( ASPSRPBaseline.ASP_SRP_15_0, "c77a06ef3266a6c4690d6269f8977924", "53390a32e6d4c6b41a86f003242f44e4" ) },
+			{ ( int )ASPSRPBaseline.ASP_SRP_16_0, new ASPSRPPackageDesc( ASPSRPBaseline.ASP_SRP_16_0, "6a21139fc863b9845b73118098f69ab4", "4b0a078b4c12c2a4da53c2a643186373" ) },
+			{ ( int )ASPSRPBaseline.ASP_SRP_17_0, new ASPSRPPackageDesc( ASPSRPBaseline.ASP_SRP_17_0, "b933d009540881e4abed80d8947c24ab", "5f247ef6f47b55e49a6659df8f720384" ) },
+			{ ( int )ASPSRPBaseline.ASE_SRP_17_1, new ASPSRPPackageDesc( ASPSRPBaseline.ASE_SRP_17_1, "88b3b9cf557e9bb42a775be3186b7e13", "0a0cb47dfba27084f9db34f244464102" ) },
+		};
 
 		private static ListRequest m_packageListRequest = null;
 
@@ -140,7 +142,11 @@ namespace AmplifyShaderPack
 					foreach ( UnityEditor.PackageManager.PackageInfo pi in m_packageListRequest.Result )
 					{
 						int version = PackageVersionStringToCode( pi.version, out int major, out int minor, out int patch );
-						int baseline = PackageVersionElementsToCode( major, 0, 0 );
+
+						int baselineMajor = major;
+						int baselineMinor = ( major >= 17 ) ? minor: 0; // from 17+ baseline includes minor version
+						int baseline = PackageVersionElementsToCode( baselineMajor, baselineMinor, 0 );
+
 						ASPSRPPackageDesc match;
 
 						if ( pi.name.Equals( URPPackageId ) && m_srpPackageSupport.TryGetValue( baseline, out match ) )

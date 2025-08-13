@@ -8,15 +8,21 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Physical Based Rendering Nose
-  m_Shader: {fileID: 4800000, guid: b9202a598bafa0c458e5d4738440b017, type: 3}
+  m_Shader: {fileID: 4800000, guid: 87f92840dff21fd488f230483a04f996, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
-  m_InvalidKeywords: []
+  m_InvalidKeywords:
+  - _ADD_PRECOMPUTED_VELOCITY
+  - _ENABLELIGHTMAPS_ON
+  - _REFLECTIVEBYPASS_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -72,6 +78,14 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _TranslucencyMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TransmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _texcoord:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -90,25 +104,28 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _AlbedoAffectEmissive: 0
     - _AlphaCutoff: 0.5
     - _AlphaCutoffBias: 0.5
     - _AlphaCutoffBiasShadow: 0.5
-    - _Brightness: 1
+    - _Brightness: 0.85
     - _BumpScale: 1
     - _ConvertMaptoMRO: 0
     - _Cull: 0
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _EmissionEnable: 0
+    - _EmissiveIntensity: 1
     - _EnvironmentReflections: 1
     - _Float2: 1
     - _GlancingClipMode: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _IndirectDiffuse: 0.045
-    - _IndirectSpecular: 0.215
-    - _IndirectSpecularSmoothness: 0.355
+    - _IndirectDiffuse: 1
+    - _IndirectSpecular: 0.9
+    - _IndirectSpecularSmoothness: 1
     - _MainMaskType: 1
     - _MapType: 1
     - _MaskClipValue2: 0.5
@@ -116,37 +133,53 @@ Material:
     - _MaxB: 0
     - _MaxC: 0
     - _Metallic: 0
-    - _MetallicStrength: 0.683
+    - _MetallicStrength: 0
     - _Mode: 0
     - _NDFAnistropic: -2
     - _NDFRoughness: 1.9
     - _NDFSmoothness: 0.765
     - _NormalStrength: 1
     - _OcclusionStrength: 1
-    - _OcclusionStrengthAO: 0.329
+    - _OcclusionStrengthAO: 0.9
     - _Parallax: 0.02
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _Saturation: 0
-    - _ShadowColorEnable: 0
-    - _ShadowFalloff: 1
-    - _ShadowOffset: 0.079
+    - _Saturation: 0.05
+    - _ShadowColorEnable: 1
+    - _ShadowFalloff: 1.25
+    - _ShadowOffset: -0.25
     - _ShadowSharpness: 0.738
-    - _ShadowStrength: 0.515
-    - _SmoothnessStrength: 0.933
+    - _ShadowStrength: 0.125
+    - _SmoothnessStrength: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _TranslucencyAmbient: 0.65
+    - _TranslucencyDirect: 0.45
+    - _TranslucencyFeather: 1
+    - _TranslucencyMapEnable: 1
+    - _TranslucencyMapInverted: 0
+    - _TranslucencyNormalDistortion: 0.3
+    - _TranslucencyScattering: 1
+    - _TranslucencyStrength: 0.75
+    - _TransmissionFeather: 1
+    - _TransmissionMapEnable: 1
+    - _TransmissionMapInverted: 0
+    - _TransmissionStrength: 0.15
     - _UVSec: 0
     - _ZWrite: 1
-    - __dirty: 1
+    - __dirty: 0
     - _fresnelIOR: 1.5
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
+    - _IndirectSpecColor: {r: 0.6132076, g: 0.25743148, b: 0.25743148, a: 1}
     - _IndirectSpecularColor: {r: 1, g: 0.9568626, b: 0.8392157, a: 0}
     - _MainUVs: {r: 1, g: 1, b: 0, a: 0}
-    - _ShadowColor: {r: 0.3113208, g: 0.3113208, b: 0.3113208, a: 0}
+    - _ShadowColor: {r: 0.3301887, g: 0.09812211, b: 0.11353245, a: 0}
+    - _SpecularColor: {r: 0.9528302, g: 0.62473303, b: 0.6526562, a: 1}
+    - _TranslucencyColor: {r: 0.8879232, g: 0.4072403, b: 0.4072403, a: 1}
+    - _TransmissionColor: {r: 0.8867924, g: 0.40574938, b: 0.40574938, a: 1}
   m_BuildTextureStacks: []

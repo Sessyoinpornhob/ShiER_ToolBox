@@ -20,7 +20,7 @@ namespace AmplifyShaderPack
 		//private static readonly string BiRPSamplesGUID = "cc34b441a892177478d7932a061167f7";
 
 		private static readonly string ChangeLogGUID = "c8b8d880514bcf14aa8b2bbb7d362e36";
-	
+
 
 		private static readonly string ASEIconGUID = "24f41dcf57cec2745a368c3504053d60";
 		private static readonly string ASPIconGUID = "bc13bd608b59d9d4aa6c5efd2294b54e";
@@ -62,8 +62,6 @@ namespace AmplifyShaderPack
 		private static readonly string SRPErrorMessage = "An incompatible SRP version was found in this project, valid versions are 10.x and above. Please note that it doesn't necessarily mean that shaders will fail to compile but they may require being recompiled to this version using Amplify Shader Editor";
 		private const string HDPackageId = "com.unity.render-pipelines.high-definition";
 		private const string UniversalPackageId = "com.unity.render-pipelines.universal";
-
-		public const string OnlineVersionWarning = "Please enable \"Allow downloads over HTTP*\" in Player Settings to access latest version information via Start Screen.";
 
 		//private static readonly string DownArrow = "\u25BC";
 
@@ -126,7 +124,7 @@ namespace AmplifyShaderPack
 		[NonSerialized]
 		private GUIStyle m_labelStyle = null;
 		[NonSerialized]
-		private GUIStyle m_srpLabelStyle = null;		
+		private GUIStyle m_srpLabelStyle = null;
 		[NonSerialized]
 		private GUIStyle m_linkStyle = null;
 
@@ -164,7 +162,7 @@ namespace AmplifyShaderPack
 				m_HDRPCataloguebutton = new GUIContent( " HDRP", m_textIcon );
 				m_URPCatalogueButton = new GUIContent( " URP", m_textIcon );
 				m_BuiltInCataloguebutton = new GUIContent( " Built-in", m_textIcon );
-				
+
 			}
 
 			if( m_packageIcon == null )
@@ -230,31 +228,22 @@ namespace AmplifyShaderPack
 			{
 				m_infoDownloaded = true;
 
-			#if UNITY_2022_1_OR_NEWER
-				if ( PlayerSettings.insecureHttpOption == InsecureHttpOption.NotAllowed )
+				StartBackgroundTask( StartRequest( ChangelogURL, () =>
 				{
-					Debug.LogWarning( "[AmplifyShaderPack] " + OnlineVersionWarning );
-				}
-				else
-			#endif
-				{
-					StartBackgroundTask( StartRequest( ChangelogURL, () =>
+					var temp = ChangeLogInfo.CreateFromJSON( m_webRequest.downloadHandler.text );
+					if( temp != null && temp.Version >= m_changeLog.Version )
 					{
-						var temp = ChangeLogInfo.CreateFromJSON( m_webRequest.downloadHandler.text );
-						if( temp != null && temp.Version >= m_changeLog.Version )
-						{
-							m_changeLog = temp;
-						}
-						
-						int version = m_changeLog.Version;
-						int major = version / 10000;
-						int minor = version / 1000 - major * 10;
-						int release = version / 100 - ( version / 1000 ) * 10;
-						int revision = version - ( version / 100 ) * 100;
-						m_newVersion = major + "." + minor + "." + release + ( revision > 0 ? "." + revision : "" );
-						Repaint();
-					} ) );
+						m_changeLog = temp;
 					}
+
+					int version = m_changeLog.Version;
+					int major = version / 10000;
+					int minor = version / 1000 - major * 10;
+					int release = version / 100 - ( version / 1000 ) * 10;
+					int revision = version - ( version / 100 ) * 100;
+					m_newVersion = major + "." + minor + "." + release + ( revision > 0 ? "." + revision : "" );
+					Repaint();
+				} ) );
 			}
 
 			if( m_buttonStyle == null )
@@ -425,7 +414,7 @@ namespace AmplifyShaderPack
 						Application.OpenURL( BuiltinCatalogueURL );
 				}
 				EditorGUILayout.EndVertical();
-				
+
 				/////////////////////////////////////////////////////////////////////////////////////
 				// RIGHT COLUMN
 				/////////////////////////////////////////////////////////////////////////////////////
@@ -594,7 +583,7 @@ namespace AmplifyShaderPack
 				}
 			}
 			EditorGUILayout.EndHorizontal();
-			
+
 			// Find a better way to update link buttons without repainting the window
 			//Repaint();
 		}
@@ -603,11 +592,7 @@ namespace AmplifyShaderPack
 		{
 			using( m_webRequest = UnityWebRequest.Get( url ) )
 			{
-#if UNITY_2017_2_OR_NEWER
 				yield return m_webRequest.SendWebRequest();
-#else
-				yield return www.Send();
-#endif
 
 				while( m_webRequest.isDone == false )
 					yield return null;

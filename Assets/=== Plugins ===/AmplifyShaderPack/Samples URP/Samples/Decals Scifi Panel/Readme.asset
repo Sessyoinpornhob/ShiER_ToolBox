@@ -16,7 +16,7 @@ MonoBehaviour:
   Title: Decals Scifi Panels
   Description:
     Heading: 
-    Text: This sample makes use of URP decal system.
+    Text: This sample makes use of HDRP decal system.
     LinkText: 
     Url: 
   PropertiesHeader:
@@ -55,7 +55,7 @@ MonoBehaviour:
     LinkText: 
     Url: 
   - Heading: Emission Intensity
-    Text: Emission Intensity value in color picker
+    Text: Emission Intensity value.
     LinkText: 
     Url: 
   - Heading: Emission Weight

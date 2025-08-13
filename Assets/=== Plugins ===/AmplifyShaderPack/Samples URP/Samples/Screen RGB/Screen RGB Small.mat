@@ -9,8 +9,6 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Screen RGB Small
   m_Shader: {fileID: 4800000, guid: b2d1613db98b404695e94352a295e34e, type: 3}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords:
   - _ADD_PRECOMPUTED_VELOCITY
@@ -22,7 +20,6 @@ Material:
     MotionVector: User
   disabledShaderPasses:
   - TransparentBackface
-  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:

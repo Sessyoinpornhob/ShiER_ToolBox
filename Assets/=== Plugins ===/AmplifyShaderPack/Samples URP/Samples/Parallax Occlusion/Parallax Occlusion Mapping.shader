@@ -1,4 +1,4 @@
-// Made with Amplify Shader Editor v1.9.8.1
+// Made with Amplify Shader Editor v1.9.9.1
 // Available at the Unity Asset Store - http://u3d.as/y3X 
 Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 {
@@ -6,19 +6,19 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 	{
 		[HideInInspector] _AlphaCutoff("Alpha Cutoff ", Range(0, 1)) = 0.5
 		[HideInInspector] _EmissionColor("Emission Color", Color) = (1,1,1,1)
-		_Albedo("Albedo", 2D) = "white" {}
-		_Normal("Normal", 2D) = "bump" {}
-		_NormalScale("Normal Scale", Float) = 0.5
-		_Metallic("Metallic", 2D) = "white" {}
-		_Roughness("Roughness", 2D) = "white" {}
-		_RoughScale("Rough Scale", Float) = 0.5
-		_Occlusion("Occlusion", 2D) = "white" {}
-		_HeightMap("HeightMap", 2D) = "white" {}
-		_Scale("Scale", Range( 0 , 1)) = 0.4247461
-		_CurvatureU("Curvature U", Range( 0 , 100)) = 0
-		_CurvatureV("Curvature V", Range( 0 , 30)) = 0
-		[Header(Parallax Occlusion Mapping)]
-		_CurvFix("Curvature Bias", Range( 0 , 1)) = 1
+		_Albedo( "Albedo", 2D ) = "white" {}
+		_Normal( "Normal", 2D ) = "bump" {}
+		_NormalScale( "Normal Scale", Float ) = 0.5
+		_Metallic( "Metallic", 2D ) = "white" {}
+		_Roughness( "Roughness", 2D ) = "white" {}
+		_RoughScale( "Rough Scale", Float ) = 0.5
+		_Occlusion( "Occlusion", 2D ) = "white" {}
+		_HeightMap( "HeightMap", 2D ) = "white" {}
+		_Scale( "Scale", Range( 0, 1 ) ) = 0.4247461
+		_CurvatureU( "Curvature U", Range( 0, 100 ) ) = 0
+		_CurvatureV( "Curvature V", Range( 0, 30 ) ) = 0
+		[Header( Parallax Occlusion Mapping )]
+		_CurvFix("Curvature Bias", Range( 0, 1 ) ) = 1
 
 
 		//_TransmissionShadow( "Transmission Shadow", Range( 0, 1 ) ) = 0.5
@@ -37,7 +37,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 
 		[HideInInspector][ToggleOff] _SpecularHighlights("Specular Highlights", Float) = 1
 		[HideInInspector][ToggleOff] _EnvironmentReflections("Environment Reflections", Float) = 1
-		[HideInInspector][ToggleOff] _ReceiveShadows("Receive Shadows", Float) = 1.0
+		[HideInInspector][ToggleOff] _ReceiveShadows("Receive Shadows", Float) = 1
 
 		[HideInInspector] _QueueOffset("_QueueOffset", Float) = 0
         [HideInInspector] _QueueControl("_QueueControl", Float) = -1
@@ -55,7 +55,9 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 
 		
 
-		Tags { "RenderPipeline"="UniversalPipeline" "RenderType"="Opaque" "Queue"="Geometry" "UniversalMaterialType"="Lit" }
+		
+
+		Tags { "RenderPipeline"="UniversalPipeline" "RenderType"="Opaque" "Queue"="Geometry" "UniversalMaterialType"="Lit" "AlwaysRenderMotionVectors"="false" }
 
 		Cull Back
 		ZWrite On
@@ -193,9 +195,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 
 			HLSLPROGRAM
 
-			#pragma multi_compile_fragment _ALPHATEST_ON
 			#define _NORMAL_DROPOFF_TS 1
-			#pragma shader_feature_local _RECEIVE_SHADOWS_OFF
 			#pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
 			#pragma multi_compile_instancing
 			#pragma instancing_options renderinglayer
@@ -203,8 +203,8 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			#pragma multi_compile_fog
 			#define ASE_FOG 1
 			#define _NORMALMAP 1
-			#define ASE_VERSION 19801
-			#define ASE_SRP_VERSION 170003
+			#define ASE_VERSION 19901
+			#define ASE_SRP_VERSION 170004
 
 
 			#pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
@@ -229,7 +229,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
+			#if defined(_SPECULAR_SETUP) && defined(ASE_LIGHTING_SIMPLE)
 				#define _SPECULAR_COLOR 1
 			#endif
 
@@ -260,8 +260,12 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				#define ENABLE_TERRAIN_PERPIXEL_NORMAL
 			#endif
 
+			#define ASE_NEEDS_TEXTURE_COORDINATES0
+			#define ASE_NEEDS_WORLD_POSITION
 			#define ASE_NEEDS_FRAG_WORLD_POSITION
+			#define ASE_NEEDS_WORLD_TANGENT
 			#define ASE_NEEDS_FRAG_WORLD_TANGENT
+			#define ASE_NEEDS_WORLD_NORMAL
 			#define ASE_NEEDS_FRAG_WORLD_NORMAL
 			#define ASE_NEEDS_FRAG_WORLD_BITANGENT
 			#define ASE_NEEDS_FRAG_WORLD_VIEW_DIR
@@ -278,11 +282,15 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			struct Attributes
 			{
 				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
-				float4 tangentOS : TANGENT;
+				half3 normalOS : NORMAL;
+				half4 tangentOS : TANGENT;
 				float4 texcoord : TEXCOORD0;
-				float4 texcoord1 : TEXCOORD1;
-				float4 texcoord2 : TEXCOORD2;
+				#if defined(LIGHTMAP_ON) || defined(ASE_NEEDS_TEXTURE_COORDINATES1)
+					float4 texcoord1 : TEXCOORD1;
+				#endif
+				#if defined(DYNAMICLIGHTMAP_ON) || defined(ASE_NEEDS_TEXTURE_COORDINATES2)
+					float4 texcoord2 : TEXCOORD2;
+				#endif
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -290,24 +298,20 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			struct PackedVaryings
 			{
 				ASE_SV_POSITION_QUALIFIERS float4 positionCS : SV_POSITION;
-				float4 clipPosV : TEXCOORD0;
-				float4 lightmapUVOrVertexSH : TEXCOORD1;
+				float3 positionWS : TEXCOORD0;
+				half3 normalWS : TEXCOORD1;
+				half4 tangentWS : TEXCOORD2;
+				float4 lightmapUVOrVertexSH : TEXCOORD3;
 				#if defined(ASE_FOG) || defined(_ADDITIONAL_LIGHTS_VERTEX)
-					half4 fogFactorAndVertexLight : TEXCOORD2;
-				#endif
-				float4 tSpace0 : TEXCOORD3;
-				float4 tSpace1 : TEXCOORD4;
-				float4 tSpace2 : TEXCOORD5;
-				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-					float4 shadowCoord : TEXCOORD6;
+					half4 fogFactorAndVertexLight : TEXCOORD4;
 				#endif
 				#if defined(DYNAMICLIGHTMAP_ON)
-					float2 dynamicLightmapUV : TEXCOORD7;
-				#endif	
-				#if defined(USE_APV_PROBE_OCCLUSION)
-					float4 probeOcclusion : TEXCOORD8;
+					float2 dynamicLightmapUV : TEXCOORD5;
 				#endif
-				float4 ase_texcoord9 : TEXCOORD9;
+				#if defined(USE_APV_PROBE_OCCLUSION)
+					float4 probeOcclusion : TEXCOORD6;
+				#endif
+				float4 ase_texcoord7 : TEXCOORD7;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
@@ -442,10 +446,10 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				UNITY_TRANSFER_INSTANCE_ID(input, output);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
-				output.ase_texcoord9.xy = input.texcoord.xy;
+				output.ase_texcoord7.xy = input.texcoord.xy;
 				
 				//setting value to unused interpolator channels and avoid initialization warnings
-				output.ase_texcoord9.zw = 0;
+				output.ase_texcoord7.zw = 0;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					float3 defaultVertexValue = input.positionOS.xyz;
@@ -466,20 +470,11 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				VertexPositionInputs vertexInput = GetVertexPositionInputs( input.positionOS.xyz );
 				VertexNormalInputs normalInput = GetVertexNormalInputs( input.normalOS, input.tangentOS );
 
-				output.tSpace0 = float4( normalInput.normalWS, vertexInput.positionWS.x );
-				output.tSpace1 = float4( normalInput.tangentWS, vertexInput.positionWS.y );
-				output.tSpace2 = float4( normalInput.bitangentWS, vertexInput.positionWS.z );
-
-				#if defined(LIGHTMAP_ON)
-					OUTPUT_LIGHTMAP_UV(input.texcoord1, unity_LightmapST, output.lightmapUVOrVertexSH.xy);
-				#else
-					OUTPUT_SH(normalInput.normalWS.xyz, output.lightmapUVOrVertexSH.xyz);
-				#endif
+				OUTPUT_LIGHTMAP_UV(input.texcoord1, unity_LightmapST, output.lightmapUVOrVertexSH.xy);
 				#if defined(DYNAMICLIGHTMAP_ON)
 					output.dynamicLightmapUV.xy = input.texcoord2.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
 				#endif
-
-				OUTPUT_SH4( vertexInput.positionWS, normalInput.normalWS.xyz, GetWorldSpaceNormalizeViewDir( vertexInput.positionWS ), output.lightmapUVOrVertexSH.xyz, output.probeOcclusion );
+				OUTPUT_SH4(vertexInput.positionWS, normalInput.normalWS.xyz, GetWorldSpaceNormalizeViewDir(vertexInput.positionWS), output.lightmapUVOrVertexSH.xyz, output.probeOcclusion);
 
 				#if defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
 					output.lightmapUVOrVertexSH.zw = input.texcoord.xy;
@@ -497,12 +492,10 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 					#endif
 				#endif
 
-				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-					output.shadowCoord = GetShadowCoord( vertexInput );
-				#endif
-
 				output.positionCS = vertexInput.positionCS;
-				output.clipPosV = vertexInput.positionCS;
+				output.positionWS = vertexInput.positionWS;
+				output.normalWS = normalInput.normalWS;
+				output.tangentWS = float4( normalInput.tangentWS, ( input.tangentOS.w > 0.0 ? 1.0 : -1.0 ) * GetOddNegativeScale() );
 				return output;
 			}
 
@@ -510,11 +503,15 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			struct VertexControl
 			{
 				float4 positionOS : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
-				float4 tangentOS : TANGENT;
+				half3 normalOS : NORMAL;
+				half4 tangentOS : TANGENT;
 				float4 texcoord : TEXCOORD0;
-				float4 texcoord1 : TEXCOORD1;
-				float4 texcoord2 : TEXCOORD2;
+				#if defined(LIGHTMAP_ON) || defined(ASE_NEEDS_TEXTURE_COORDINATES1)
+					float4 texcoord1 : TEXCOORD1;
+				#endif
+				#if defined(DYNAMICLIGHTMAP_ON) || defined(ASE_NEEDS_TEXTURE_COORDINATES2)
+					float4 texcoord2 : TEXCOORD2;
+				#endif
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -534,8 +531,12 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				output.normalOS = input.normalOS;
 				output.tangentOS = input.tangentOS;
 				output.texcoord = input.texcoord;
-				output.texcoord1 = input.texcoord1;
-				output.texcoord2 = input.texcoord2;
+				#if defined(LIGHTMAP_ON) || defined(ASE_NEEDS_TEXTURE_COORDINATES1)
+					output.texcoord1 = input.texcoord1;
+				#endif
+				#if defined(DYNAMICLIGHTMAP_ON) || defined(ASE_NEEDS_TEXTURE_COORDINATES2)
+					output.texcoord2 = input.texcoord2;
+				#endif
 				
 				return output;
 			}
@@ -577,8 +578,12 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				output.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
 				output.tangentOS = patch[0].tangentOS * bary.x + patch[1].tangentOS * bary.y + patch[2].tangentOS * bary.z;
 				output.texcoord = patch[0].texcoord * bary.x + patch[1].texcoord * bary.y + patch[2].texcoord * bary.z;
-				output.texcoord1 = patch[0].texcoord1 * bary.x + patch[1].texcoord1 * bary.y + patch[2].texcoord1 * bary.z;
-				output.texcoord2 = patch[0].texcoord2 * bary.x + patch[1].texcoord2 * bary.y + patch[2].texcoord2 * bary.z;
+				#if defined(LIGHTMAP_ON) || defined(ASE_NEEDS_TEXTURE_COORDINATES1)
+					output.texcoord1 = patch[0].texcoord1 * bary.x + patch[1].texcoord1 * bary.y + patch[2].texcoord1 * bary.z;
+				#endif
+				#if defined(DYNAMICLIGHTMAP_ON) || defined(ASE_NEEDS_TEXTURE_COORDINATES2)
+					output.texcoord2 = patch[0].texcoord2 * bary.x + patch[1].texcoord2 * bary.y + patch[2].texcoord2 * bary.z;
+				#endif
 				
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
@@ -598,7 +603,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			#endif
 
 			half4 frag ( PackedVaryings input
-						#ifdef ASE_DEPTH_WRITE_ON
+						#if defined( ASE_DEPTH_WRITE_ON )
 						,out float outputDepth : ASE_SV_DEPTH
 						#endif
 						#ifdef _WRITE_RENDERING_LAYERS
@@ -613,41 +618,41 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 					LODFadeCrossFade( input.positionCS );
 				#endif
 
+				#if defined(MAIN_LIGHT_CALCULATE_SHADOWS)
+					float4 shadowCoord = TransformWorldToShadowCoord( input.positionWS );
+				#else
+					float4 shadowCoord = float4(0, 0, 0, 0);
+				#endif
+
+				// @diogo: mikktspace compliant
+				float renormFactor = 1.0 / max( FLT_MIN, length( input.normalWS ) );
+
+				float3 PositionWS = input.positionWS;
+				float3 PositionRWS = GetCameraRelativePositionWS( PositionWS );
+				float3 ViewDirWS = GetWorldSpaceNormalizeViewDir( PositionWS );
+				float4 ShadowCoord = shadowCoord;
+				float4 ScreenPosNorm = float4( GetNormalizedScreenSpaceUV( input.positionCS ), input.positionCS.zw );
+				float4 ClipPos = ComputeClipSpacePosition( ScreenPosNorm.xy, input.positionCS.z ) * input.positionCS.w;
+				float4 ScreenPos = ComputeScreenPos( ClipPos );
+				float3 TangentWS = input.tangentWS.xyz * renormFactor;
+				float3 BitangentWS = cross( input.normalWS, input.tangentWS.xyz ) * input.tangentWS.w * renormFactor;
+				float3 NormalWS = input.normalWS * renormFactor;
+
 				#if defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
 					float2 sampleCoords = (input.lightmapUVOrVertexSH.zw / _TerrainHeightmapRecipSize.zw + 0.5f) * _TerrainHeightmapRecipSize.xy;
-					float3 WorldNormal = TransformObjectToWorldNormal(normalize(SAMPLE_TEXTURE2D(_TerrainNormalmapTexture, sampler_TerrainNormalmapTexture, sampleCoords).rgb * 2 - 1));
-					float3 WorldTangent = -cross(GetObjectToWorldMatrix()._13_23_33, WorldNormal);
-					float3 WorldBiTangent = cross(WorldNormal, -WorldTangent);
-				#else
-					float3 WorldNormal = normalize( input.tSpace0.xyz );
-					float3 WorldTangent = input.tSpace1.xyz;
-					float3 WorldBiTangent = input.tSpace2.xyz;
+					NormalWS = TransformObjectToWorldNormal(normalize(SAMPLE_TEXTURE2D(_TerrainNormalmapTexture, sampler_TerrainNormalmapTexture, sampleCoords).rgb * 2 - 1));
+					TangentWS = -cross(GetObjectToWorldMatrix()._13_23_33, NormalWS);
+					BitangentWS = cross(NormalWS, -TangentWS);
 				#endif
 
-				float3 WorldPosition = float3(input.tSpace0.w,input.tSpace1.w,input.tSpace2.w);
-				float3 WorldViewDirection = GetWorldSpaceNormalizeViewDir( WorldPosition );
-				float4 ShadowCoords = float4( 0, 0, 0, 0 );
-				float4 ClipPos = input.clipPosV;
-				float4 ScreenPos = ComputeScreenPos( input.clipPosV );
-
-				float2 NormalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
-
-				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-					ShadowCoords = input.shadowCoord;
-				#elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
-					ShadowCoords = TransformWorldToShadowCoord( WorldPosition );
-				#endif
-
-				WorldViewDirection = SafeNormalize( WorldViewDirection );
-
-				float2 uv_Albedo = input.ase_texcoord9.xy * _Albedo_ST.xy + _Albedo_ST.zw;
-				float3 tanToWorld0 = float3( WorldTangent.x, WorldBiTangent.x, WorldNormal.x );
-				float3 tanToWorld1 = float3( WorldTangent.y, WorldBiTangent.y, WorldNormal.y );
-				float3 tanToWorld2 = float3( WorldTangent.z, WorldBiTangent.z, WorldNormal.z );
-				float3 ase_viewVectorTS =  tanToWorld0 * ( _WorldSpaceCameraPos.xyz - WorldPosition ).x + tanToWorld1 * ( _WorldSpaceCameraPos.xyz - WorldPosition ).y  + tanToWorld2 * ( _WorldSpaceCameraPos.xyz - WorldPosition ).z;
+				float2 uv_Albedo = input.ase_texcoord7.xy * _Albedo_ST.xy + _Albedo_ST.zw;
+				float3 tanToWorld0 = float3( TangentWS.x, BitangentWS.x, NormalWS.x );
+				float3 tanToWorld1 = float3( TangentWS.y, BitangentWS.y, NormalWS.y );
+				float3 tanToWorld2 = float3( TangentWS.z, BitangentWS.z, NormalWS.z );
+				float3 ase_viewVectorTS =  tanToWorld0 * ( _WorldSpaceCameraPos.xyz - PositionWS ).x + tanToWorld1 * ( _WorldSpaceCameraPos.xyz - PositionWS ).y  + tanToWorld2 * ( _WorldSpaceCameraPos.xyz - PositionWS ).z;
 				float3 ase_viewDirTS = normalize( ase_viewVectorTS );
 				float2 appendResult47 = (float2(_CurvatureU , _CurvatureV));
-				float2 OffsetPOM8 = POM( _HeightMap, uv_Albedo, ddx(uv_Albedo), ddy(uv_Albedo), WorldNormal, WorldViewDirection, ase_viewDirTS, 128, 128, 10, _Scale, 0, _HeightMap_ST.xy, appendResult47, 0 );
+				float2 OffsetPOM8 = POM( _HeightMap, uv_Albedo, ddx( uv_Albedo ), ddy( uv_Albedo ), NormalWS, ViewDirWS, ase_viewDirTS, 128, 128, 10, _Scale, 0, _HeightMap_ST.xy, appendResult47, 0 );
 				float2 customUVs39 = OffsetPOM8;
 				float2 temp_output_40_0 = ddx( uv_Albedo );
 				float2 temp_output_41_0 = ddy( uv_Albedo );
@@ -658,11 +663,11 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 
 				float3 BaseColor = tex2D( _Albedo, customUVs39, temp_output_40_0, temp_output_41_0 ).rgb;
 				float3 Normal = unpack14;
-				float3 Emission = 0;
 				float3 Specular = 0.5;
 				float Metallic = tex2D( _Metallic, customUVs39, temp_output_40_0, temp_output_41_0 ).r;
 				float Smoothness = ( 1.0 - ( _RoughScale * tex2D( _Roughness, customUVs39, temp_output_40_0, temp_output_41_0 ).r ) );
 				float Occlusion = tex2D( _Occlusion, customUVs39, temp_output_40_0, temp_output_41_0 ).r;
+				float3 Emission = 0;
 				float Alpha = 1;
 				float AlphaClipThreshold = 0.5;
 				float AlphaClipThresholdShadow = 0.5;
@@ -672,8 +677,8 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				float3 Transmission = 1;
 				float3 Translucency = 1;
 
-				#ifdef ASE_DEPTH_WRITE_ON
-					float DepthValue = input.positionCS.z;
+				#if defined( ASE_DEPTH_WRITE_ON )
+					float DeviceDepth = ClipPos.z;
 				#endif
 
 				#ifdef _CLEARCOAT
@@ -685,14 +690,20 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 					clip(Alpha - AlphaClipThreshold);
 				#endif
 
+				#if defined(MAIN_LIGHT_CALCULATE_SHADOWS) && defined(ASE_CHANGES_WORLD_POS)
+					ShadowCoord = TransformWorldToShadowCoord( PositionWS );
+				#endif
+
 				InputData inputData = (InputData)0;
-				inputData.positionWS = WorldPosition;
-				inputData.positionCS = input.positionCS;
-				inputData.viewDirectionWS = WorldViewDirection;
+				inputData.positionWS = PositionWS;
+				inputData.positionCS = float4( input.positionCS.xy, ClipPos.zw / ClipPos.w );
+				inputData.normalizedScreenSpaceUV = ScreenPosNorm.xy;
+				inputData.viewDirectionWS = ViewDirWS;
+				inputData.shadowCoord = ShadowCoord;
 
 				#ifdef _NORMALMAP
 						#if _NORMAL_DROPOFF_TS
-							inputData.normalWS = TransformTangentToWorld(Normal, half3x3(WorldTangent, WorldBiTangent, WorldNormal));
+							inputData.normalWS = TransformTangentToWorld(Normal, half3x3(TangentWS, BitangentWS, NormalWS));
 						#elif _NORMAL_DROPOFF_OS
 							inputData.normalWS = TransformObjectToWorldNormal(Normal);
 						#elif _NORMAL_DROPOFF_WS
@@ -700,15 +711,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 						#endif
 					inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);
 				#else
-					inputData.normalWS = WorldNormal;
-				#endif
-
-				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-					inputData.shadowCoord = ShadowCoords;
-				#elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
-					inputData.shadowCoord = TransformWorldToShadowCoord(inputData.positionWS);
-				#else
-					inputData.shadowCoord = float4(0, 0, 0, 0);
+					inputData.normalWS = NormalWS;
 				#endif
 
 				#ifdef ASE_FOG
@@ -742,8 +745,6 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				#ifdef ASE_BAKEDGI
 					inputData.bakedGI = BakedGI;
 				#endif
-
-				inputData.normalizedScreenSpaceUV = NormalizedScreenSpaceUV;
 
 				#if defined(DEBUG_DISPLAY)
 					#if defined(DYNAMICLIGHTMAP_ON)
@@ -780,7 +781,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 					ApplyDecalToSurfaceData(input.positionCS, surfaceData, inputData);
 				#endif
 
-				#ifdef _ASE_LIGHTING_SIMPLE
+				#ifdef ASE_LIGHTING_SIMPLE
 					half4 color = UniversalFragmentBlinnPhong( inputData, surfaceData);
 				#else
 					half4 color = UniversalFragmentPBR( inputData, surfaceData);
@@ -879,7 +880,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 
 				#ifdef ASE_REFRACTION
 					float4 projScreenPos = ScreenPos / ScreenPos.w;
-					float3 refractionOffset = ( RefractionIndex - 1.0 ) * mul( UNITY_MATRIX_V, float4( WorldNormal,0 ) ).xyz * ( 1.0 - dot( WorldNormal, WorldViewDirection ) );
+					float3 refractionOffset = ( RefractionIndex - 1.0 ) * mul( UNITY_MATRIX_V, float4( NormalWS,0 ) ).xyz * ( 1.0 - dot( NormalWS, ViewDirWS ) );
 					projScreenPos.xy += refractionOffset.xy;
 					float3 refraction = SHADERGRAPH_SAMPLE_SCENE_COLOR( projScreenPos.xy ) * RefractionColor;
 					color.rgb = lerp( refraction, color.rgb, color.a );
@@ -898,8 +899,8 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 					#endif
 				#endif
 
-				#ifdef ASE_DEPTH_WRITE_ON
-					outputDepth = DepthValue;
+				#if defined( ASE_DEPTH_WRITE_ON )
+					outputDepth = DeviceDepth;
 				#endif
 
 				#ifdef _WRITE_RENDERING_LAYERS
@@ -926,14 +927,13 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 
 			HLSLPROGRAM
 
-			#pragma multi_compile _ALPHATEST_ON
 			#define _NORMAL_DROPOFF_TS 1
 			#pragma multi_compile_instancing
 			#pragma multi_compile _ LOD_FADE_CROSSFADE
 			#define ASE_FOG 1
 			#define _NORMALMAP 1
-			#define ASE_VERSION 19801
-			#define ASE_SRP_VERSION 170003
+			#define ASE_VERSION 19901
+			#define ASE_SRP_VERSION 170004
 
 
 			#pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
@@ -941,7 +941,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
+			#if defined(_SPECULAR_SETUP) && defined(ASE_LIGHTING_SIMPLE)
 				#define _SPECULAR_COLOR 1
 			#endif
 
@@ -977,7 +977,8 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			struct Attributes
 			{
 				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
+				half3 normalOS : NORMAL;
+				half4 tangentOS : TANGENT;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -985,11 +986,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			struct PackedVaryings
 			{
 				ASE_SV_POSITION_QUALIFIERS float4 positionCS : SV_POSITION;
-				float4 clipPosV : TEXCOORD0;
-				float3 positionWS : TEXCOORD1;
-				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
-					float4 shadowCoord : TEXCOORD2;
-				#endif
+				float3 positionWS : TEXCOORD0;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
@@ -1035,10 +1032,10 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 
 			
 
-			
 			float3 _LightDirection;
 			float3 _LightPosition;
 
+			
 			PackedVaryings VertexFunction( Attributes input )
 			{
 				PackedVaryings output;
@@ -1062,6 +1059,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				#endif
 
 				input.normalOS = input.normalOS;
+				input.tangentOS = input.tangentOS;
 
 				float3 positionWS = TransformObjectToWorld( input.positionOS.xyz );
 				float3 normalWS = TransformObjectToWorldDir(input.normalOS);
@@ -1077,15 +1075,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				//code for UNITY_REVERSED_Z is moved into Shadows.hlsl from 6000.0.22 and or higher
 				positionCS = ApplyShadowClamping(positionCS);
 
-				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
-					VertexPositionInputs vertexInput = (VertexPositionInputs)0;
-					vertexInput.positionWS = positionWS;
-					vertexInput.positionCS = positionCS;
-					output.shadowCoord = GetShadowCoord( vertexInput );
-				#endif
-
 				output.positionCS = positionCS;
-				output.clipPosV = positionCS;
 				output.positionWS = positionWS;
 				return output;
 			}
@@ -1094,7 +1084,8 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			struct VertexControl
 			{
 				float4 positionOS : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
+				half3 normalOS : NORMAL;
+				half4 tangentOS : TANGENT;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -1112,6 +1103,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				UNITY_TRANSFER_INSTANCE_ID(input, output);
 				output.positionOS = input.positionOS;
 				output.normalOS = input.normalOS;
+				output.tangentOS = input.tangentOS;
 				
 				return output;
 			}
@@ -1151,6 +1143,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				Attributes output = (Attributes) 0;
 				output.positionOS = patch[0].positionOS * bary.x + patch[1].positionOS * bary.y + patch[2].positionOS * bary.z;
 				output.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
+				output.tangentOS = patch[0].tangentOS * bary.x + patch[1].tangentOS * bary.y + patch[2].tangentOS * bary.z;
 				
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
@@ -1170,7 +1163,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			#endif
 
 			half4 frag(	PackedVaryings input
-						#ifdef ASE_DEPTH_WRITE_ON
+						#if defined( ASE_DEPTH_WRITE_ON )
 						,out float outputDepth : ASE_SV_DEPTH
 						#endif
 						 ) : SV_Target
@@ -1178,18 +1171,18 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				UNITY_SETUP_INSTANCE_ID( input );
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX( input );
 
-				float3 WorldPosition = input.positionWS;
-				float4 ShadowCoords = float4( 0, 0, 0, 0 );
-				float4 ClipPos = input.clipPosV;
-				float4 ScreenPos = ComputeScreenPos( input.clipPosV );
-
-				#if defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
-					#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-						ShadowCoords = input.shadowCoord;
-					#elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
-						ShadowCoords = TransformWorldToShadowCoord( WorldPosition );
-					#endif
+				#if defined(MAIN_LIGHT_CALCULATE_SHADOWS) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
+					float4 shadowCoord = TransformWorldToShadowCoord(input.positionWS);
+				#else
+					float4 shadowCoord = float4(0, 0, 0, 0);
 				#endif
+
+				float3 PositionWS = input.positionWS;
+				float3 PositionRWS = GetCameraRelativePositionWS( input.positionWS );
+				float4 ShadowCoord = shadowCoord;
+				float4 ScreenPosNorm = float4( GetNormalizedScreenSpaceUV( input.positionCS ), input.positionCS.zw );
+				float4 ClipPos = ComputeClipSpacePosition( ScreenPosNorm.xy, input.positionCS.z ) * input.positionCS.w;
+				float4 ScreenPos = ComputeScreenPos( ClipPos );
 
 				
 
@@ -1197,8 +1190,8 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				float AlphaClipThreshold = 0.5;
 				float AlphaClipThresholdShadow = 0.5;
 
-				#ifdef ASE_DEPTH_WRITE_ON
-					float DepthValue = input.positionCS.z;
+				#if defined( ASE_DEPTH_WRITE_ON )
+					float DeviceDepth = input.positionCS.z;
 				#endif
 
 				#ifdef _ALPHATEST_ON
@@ -1213,8 +1206,8 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 					LODFadeCrossFade( input.positionCS );
 				#endif
 
-				#ifdef ASE_DEPTH_WRITE_ON
-					outputDepth = DepthValue;
+				#if defined( ASE_DEPTH_WRITE_ON )
+					outputDepth = DeviceDepth;
 				#endif
 
 				return 0;
@@ -1235,20 +1228,19 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 
 			HLSLPROGRAM
 
-			#pragma multi_compile _ALPHATEST_ON
 			#define _NORMAL_DROPOFF_TS 1
 			#pragma multi_compile_instancing
 			#pragma multi_compile _ LOD_FADE_CROSSFADE
 			#define ASE_FOG 1
 			#define _NORMALMAP 1
-			#define ASE_VERSION 19801
-			#define ASE_SRP_VERSION 170003
+			#define ASE_VERSION 19901
+			#define ASE_SRP_VERSION 170004
 
 
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
+			#if defined(_SPECULAR_SETUP) && defined(ASE_LIGHTING_SIMPLE)
 				#define _SPECULAR_COLOR 1
 			#endif
 
@@ -1283,7 +1275,8 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			struct Attributes
 			{
 				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
+				half3 normalOS : NORMAL;
+				half4 tangentOS : TANGENT;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -1291,11 +1284,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			struct PackedVaryings
 			{
 				ASE_SV_POSITION_QUALIFIERS float4 positionCS : SV_POSITION;
-				float4 clipPosV : TEXCOORD0;
-				float3 positionWS : TEXCOORD1;
-				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
-					float4 shadowCoord : TEXCOORD2;
-				#endif
+				float3 positionWS : TEXCOORD0;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
@@ -1366,15 +1355,11 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				#endif
 
 				input.normalOS = input.normalOS;
+				input.tangentOS = input.tangentOS;
 
 				VertexPositionInputs vertexInput = GetVertexPositionInputs( input.positionOS.xyz );
 
-				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
-					output.shadowCoord = GetShadowCoord( vertexInput );
-				#endif
-
 				output.positionCS = vertexInput.positionCS;
-				output.clipPosV = vertexInput.positionCS;
 				output.positionWS = vertexInput.positionWS;
 				return output;
 			}
@@ -1383,7 +1368,8 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			struct VertexControl
 			{
 				float4 positionOS : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
+				half3 normalOS : NORMAL;
+				half4 tangentOS : TANGENT;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -1401,6 +1387,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				UNITY_TRANSFER_INSTANCE_ID(input, output);
 				output.positionOS = input.positionOS;
 				output.normalOS = input.normalOS;
+				output.tangentOS = input.tangentOS;
 				
 				return output;
 			}
@@ -1440,6 +1427,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				Attributes output = (Attributes) 0;
 				output.positionOS = patch[0].positionOS * bary.x + patch[1].positionOS * bary.y + patch[2].positionOS * bary.z;
 				output.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
+				output.tangentOS = patch[0].tangentOS * bary.x + patch[1].tangentOS * bary.y + patch[2].tangentOS * bary.z;
 				
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
@@ -1459,7 +1447,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			#endif
 
 			half4 frag(	PackedVaryings input
-						#ifdef ASE_DEPTH_WRITE_ON
+						#if defined( ASE_DEPTH_WRITE_ON )
 						,out float outputDepth : ASE_SV_DEPTH
 						#endif
 						 ) : SV_Target
@@ -1467,26 +1455,26 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				UNITY_SETUP_INSTANCE_ID(input);
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX( input );
 
-				float3 WorldPosition = input.positionWS;
-				float4 ShadowCoords = float4( 0, 0, 0, 0 );
-				float4 ClipPos = input.clipPosV;
-				float4 ScreenPos = ComputeScreenPos( input.clipPosV );
-
-				#if defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
-					#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-						ShadowCoords = input.shadowCoord;
-					#elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
-						ShadowCoords = TransformWorldToShadowCoord( WorldPosition );
-					#endif
+				#if defined(MAIN_LIGHT_CALCULATE_SHADOWS) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
+					float4 shadowCoord = TransformWorldToShadowCoord(input.positionWS);
+				#else
+					float4 shadowCoord = float4(0, 0, 0, 0);
 				#endif
+
+				float3 PositionWS = input.positionWS;
+				float3 PositionRWS = GetCameraRelativePositionWS( input.positionWS );
+				float4 ShadowCoord = shadowCoord;
+				float4 ScreenPosNorm = float4( GetNormalizedScreenSpaceUV( input.positionCS ), input.positionCS.zw );
+				float4 ClipPos = ComputeClipSpacePosition( ScreenPosNorm.xy, input.positionCS.z ) * input.positionCS.w;
+				float4 ScreenPos = ComputeScreenPos( ClipPos );
 
 				
 
 				float Alpha = 1;
 				float AlphaClipThreshold = 0.5;
 
-				#ifdef ASE_DEPTH_WRITE_ON
-					float DepthValue = input.positionCS.z;
+				#if defined( ASE_DEPTH_WRITE_ON )
+					float DeviceDepth = input.positionCS.z;
 				#endif
 
 				#ifdef _ALPHATEST_ON
@@ -1497,8 +1485,8 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 					LODFadeCrossFade( input.positionCS );
 				#endif
 
-				#ifdef ASE_DEPTH_WRITE_ON
-					outputDepth = DepthValue;
+				#if defined( ASE_DEPTH_WRITE_ON )
+					outputDepth = DeviceDepth;
 				#endif
 
 				return 0;
@@ -1516,19 +1504,18 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			Cull Off
 
 			HLSLPROGRAM
-			#pragma multi_compile_fragment _ALPHATEST_ON
 			#define _NORMAL_DROPOFF_TS 1
 			#define ASE_FOG 1
 			#define _NORMALMAP 1
-			#define ASE_VERSION 19801
-			#define ASE_SRP_VERSION 170003
+			#define ASE_VERSION 19901
+			#define ASE_SRP_VERSION 170004
 
 			#pragma shader_feature EDITOR_VISUALIZATION
 
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
+			#if defined(_SPECULAR_SETUP) && defined(ASE_LIGHTING_SIMPLE)
 				#define _SPECULAR_COLOR 1
 			#endif
 
@@ -1547,38 +1534,37 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/MetaInput.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 
+			#define ASE_NEEDS_TEXTURE_COORDINATES0
+			#define ASE_NEEDS_WORLD_POSITION
 			#define ASE_NEEDS_FRAG_WORLD_POSITION
+			#define ASE_NEEDS_VERT_TANGENT
 			#define ASE_NEEDS_VERT_NORMAL
 
 
 			struct Attributes
 			{
 				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
+				half3 normalOS : NORMAL;
+				half4 tangentOS : TANGENT;
 				float4 texcoord0 : TEXCOORD0;
 				float4 texcoord1 : TEXCOORD1;
 				float4 texcoord2 : TEXCOORD2;
-				float4 ase_tangent : TANGENT;
+				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
 			struct PackedVaryings
 			{
 				float4 positionCS : SV_POSITION;
-				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					float3 positionWS : TEXCOORD0;
-				#endif
-				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
-					float4 shadowCoord : TEXCOORD1;
-				#endif
+				float3 positionWS : TEXCOORD0;
 				#ifdef EDITOR_VISUALIZATION
-					float4 VizUV : TEXCOORD2;
-					float4 LightCoord : TEXCOORD3;
+					float4 VizUV : TEXCOORD1;
+					float4 LightCoord : TEXCOORD2;
 				#endif
+				float4 ase_texcoord3 : TEXCOORD3;
 				float4 ase_texcoord4 : TEXCOORD4;
 				float4 ase_texcoord5 : TEXCOORD5;
 				float4 ase_texcoord6 : TEXCOORD6;
-				float4 ase_texcoord7 : TEXCOORD7;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
@@ -1709,21 +1695,21 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				UNITY_TRANSFER_INSTANCE_ID(input, output);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
-				float3 ase_tangentWS = TransformObjectToWorldDir( input.ase_tangent.xyz );
-				output.ase_texcoord5.xyz = ase_tangentWS;
+				float3 ase_tangentWS = TransformObjectToWorldDir( input.tangentOS.xyz );
+				output.ase_texcoord4.xyz = ase_tangentWS;
 				float3 ase_normalWS = TransformObjectToWorldNormal( input.normalOS );
-				output.ase_texcoord6.xyz = ase_normalWS;
-				float ase_tangentSign = input.ase_tangent.w * ( unity_WorldTransformParams.w >= 0.0 ? 1.0 : -1.0 );
+				output.ase_texcoord5.xyz = ase_normalWS;
+				float ase_tangentSign = input.tangentOS.w * ( unity_WorldTransformParams.w >= 0.0 ? 1.0 : -1.0 );
 				float3 ase_bitangentWS = cross( ase_normalWS, ase_tangentWS ) * ase_tangentSign;
-				output.ase_texcoord7.xyz = ase_bitangentWS;
+				output.ase_texcoord6.xyz = ase_bitangentWS;
 				
-				output.ase_texcoord4.xy = input.texcoord0.xy;
+				output.ase_texcoord3.xy = input.texcoord0.xy;
 				
 				//setting value to unused interpolator channels and avoid initialization warnings
-				output.ase_texcoord4.zw = 0;
+				output.ase_texcoord3.zw = 0;
+				output.ase_texcoord4.w = 0;
 				output.ase_texcoord5.w = 0;
 				output.ase_texcoord6.w = 0;
-				output.ase_texcoord7.w = 0;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					float3 defaultVertexValue = input.positionOS.xyz;
@@ -1740,14 +1726,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				#endif
 
 				input.normalOS = input.normalOS;
-
-				float3 positionWS = TransformObjectToWorld( input.positionOS.xyz );
-
-				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					output.positionWS = positionWS;
-				#endif
-
-				output.positionCS = MetaVertexPosition( input.positionOS, input.texcoord1.xy, input.texcoord1.xy, unity_LightmapST, unity_DynamicLightmapST );
+				input.tangentOS = input.tangentOS;
 
 				#ifdef EDITOR_VISUALIZATION
 					float2 VizUV = 0;
@@ -1757,13 +1736,8 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 					output.LightCoord = LightCoord;
 				#endif
 
-				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
-					VertexPositionInputs vertexInput = (VertexPositionInputs)0;
-					vertexInput.positionWS = positionWS;
-					vertexInput.positionCS = output.positionCS;
-					output.shadowCoord = GetShadowCoord( vertexInput );
-				#endif
-
+				output.positionCS = MetaVertexPosition( input.positionOS, input.texcoord1.xy, input.texcoord1.xy, unity_LightmapST, unity_DynamicLightmapST );
+				output.positionWS = TransformObjectToWorld( input.positionOS.xyz );
 				return output;
 			}
 
@@ -1771,12 +1745,9 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			struct VertexControl
 			{
 				float4 positionOS : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
-				float4 texcoord0 : TEXCOORD0;
-				float4 texcoord1 : TEXCOORD1;
-				float4 texcoord2 : TEXCOORD2;
-				float4 ase_tangent : TANGENT;
-
+				half3 normalOS : NORMAL;
+				half4 tangentOS : TANGENT;
+				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
@@ -1793,10 +1764,8 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				UNITY_TRANSFER_INSTANCE_ID(input, output);
 				output.positionOS = input.positionOS;
 				output.normalOS = input.normalOS;
-				output.texcoord0 = input.texcoord0;
-				output.texcoord1 = input.texcoord1;
-				output.texcoord2 = input.texcoord2;
-				output.ase_tangent = input.ase_tangent;
+				output.tangentOS = input.tangentOS;
+				
 				return output;
 			}
 
@@ -1835,10 +1804,8 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				Attributes output = (Attributes) 0;
 				output.positionOS = patch[0].positionOS * bary.x + patch[1].positionOS * bary.y + patch[2].positionOS * bary.z;
 				output.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
-				output.texcoord0 = patch[0].texcoord0 * bary.x + patch[1].texcoord0 * bary.y + patch[2].texcoord0 * bary.z;
-				output.texcoord1 = patch[0].texcoord1 * bary.x + patch[1].texcoord1 * bary.y + patch[2].texcoord1 * bary.z;
-				output.texcoord2 = patch[0].texcoord2 * bary.x + patch[1].texcoord2 * bary.y + patch[2].texcoord2 * bary.z;
-				output.ase_tangent = patch[0].ase_tangent * bary.x + patch[1].ase_tangent * bary.y + patch[2].ase_tangent * bary.z;
+				output.tangentOS = patch[0].tangentOS * bary.x + patch[1].tangentOS * bary.y + patch[2].tangentOS * bary.z;
+				
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
@@ -1861,33 +1828,29 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				UNITY_SETUP_INSTANCE_ID(input);
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX( input );
 
-				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					float3 WorldPosition = input.positionWS;
+				#if defined(MAIN_LIGHT_CALCULATE_SHADOWS) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
+					float4 shadowCoord = TransformWorldToShadowCoord(input.positionWS);
+				#else
+					float4 shadowCoord = float4(0, 0, 0, 0);
 				#endif
 
-				float4 ShadowCoords = float4( 0, 0, 0, 0 );
+				float3 PositionWS = input.positionWS;
+				float3 PositionRWS = GetCameraRelativePositionWS( input.positionWS );
+				float4 ShadowCoord = shadowCoord;
 
-				#if defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
-					#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-						ShadowCoords = input.shadowCoord;
-					#elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
-						ShadowCoords = TransformWorldToShadowCoord( WorldPosition );
-					#endif
-				#endif
-
-				float2 uv_Albedo = input.ase_texcoord4.xy * _Albedo_ST.xy + _Albedo_ST.zw;
-				float3 ase_tangentWS = input.ase_texcoord5.xyz;
-				float3 ase_normalWS = input.ase_texcoord6.xyz;
-				float3 ase_bitangentWS = input.ase_texcoord7.xyz;
+				float2 uv_Albedo = input.ase_texcoord3.xy * _Albedo_ST.xy + _Albedo_ST.zw;
+				float3 ase_tangentWS = input.ase_texcoord4.xyz;
+				float3 ase_normalWS = input.ase_texcoord5.xyz;
+				float3 ase_bitangentWS = input.ase_texcoord6.xyz;
 				float3 tanToWorld0 = float3( ase_tangentWS.x, ase_bitangentWS.x, ase_normalWS.x );
 				float3 tanToWorld1 = float3( ase_tangentWS.y, ase_bitangentWS.y, ase_normalWS.y );
 				float3 tanToWorld2 = float3( ase_tangentWS.z, ase_bitangentWS.z, ase_normalWS.z );
-				float3 ase_viewVectorTS =  tanToWorld0 * ( _WorldSpaceCameraPos.xyz - WorldPosition ).x + tanToWorld1 * ( _WorldSpaceCameraPos.xyz - WorldPosition ).y  + tanToWorld2 * ( _WorldSpaceCameraPos.xyz - WorldPosition ).z;
+				float3 ase_viewVectorTS =  tanToWorld0 * ( _WorldSpaceCameraPos.xyz - PositionWS ).x + tanToWorld1 * ( _WorldSpaceCameraPos.xyz - PositionWS ).y  + tanToWorld2 * ( _WorldSpaceCameraPos.xyz - PositionWS ).z;
 				float3 ase_viewDirTS = normalize( ase_viewVectorTS );
-				float3 ase_viewVectorWS = ( _WorldSpaceCameraPos.xyz - WorldPosition );
+				float3 ase_viewVectorWS = ( _WorldSpaceCameraPos.xyz - PositionWS );
 				float3 ase_viewDirWS = normalize( ase_viewVectorWS );
 				float2 appendResult47 = (float2(_CurvatureU , _CurvatureV));
-				float2 OffsetPOM8 = POM( _HeightMap, uv_Albedo, ddx(uv_Albedo), ddy(uv_Albedo), ase_normalWS, ase_viewDirWS, ase_viewDirTS, 128, 128, 10, _Scale, 0, _HeightMap_ST.xy, appendResult47, 0 );
+				float2 OffsetPOM8 = POM( _HeightMap, uv_Albedo, ddx( uv_Albedo ), ddy( uv_Albedo ), ase_normalWS, ase_viewDirWS, ase_viewDirTS, 128, 128, 10, _Scale, 0, _HeightMap_ST.xy, appendResult47, 0 );
 				float2 customUVs39 = OffsetPOM8;
 				float2 temp_output_40_0 = ddx( uv_Albedo );
 				float2 temp_output_41_0 = ddy( uv_Albedo );
@@ -1930,18 +1893,17 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 
 			HLSLPROGRAM
 
-			#pragma multi_compile_fragment _ALPHATEST_ON
 			#define _NORMAL_DROPOFF_TS 1
 			#define ASE_FOG 1
 			#define _NORMALMAP 1
-			#define ASE_VERSION 19801
-			#define ASE_SRP_VERSION 170003
+			#define ASE_VERSION 19901
+			#define ASE_SRP_VERSION 170004
 
 
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
+			#if defined(_SPECULAR_SETUP) && defined(ASE_LIGHTING_SIMPLE)
 				#define _SPECULAR_COLOR 1
 			#endif
 
@@ -1959,32 +1921,30 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 
+			#define ASE_NEEDS_TEXTURE_COORDINATES0
+			#define ASE_NEEDS_WORLD_POSITION
 			#define ASE_NEEDS_FRAG_WORLD_POSITION
+			#define ASE_NEEDS_VERT_TANGENT
 			#define ASE_NEEDS_VERT_NORMAL
 
 
 			struct Attributes
 			{
 				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
+				half3 normalOS : NORMAL;
+				half4 tangentOS : TANGENT;
 				float4 ase_texcoord : TEXCOORD0;
-				float4 ase_tangent : TANGENT;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
 			struct PackedVaryings
 			{
 				float4 positionCS : SV_POSITION;
-				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					float3 positionWS : TEXCOORD0;
-				#endif
-				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
-					float4 shadowCoord : TEXCOORD1;
-				#endif
+				float3 positionWS : TEXCOORD0;
+				float4 ase_texcoord1 : TEXCOORD1;
 				float4 ase_texcoord2 : TEXCOORD2;
 				float4 ase_texcoord3 : TEXCOORD3;
 				float4 ase_texcoord4 : TEXCOORD4;
-				float4 ase_texcoord5 : TEXCOORD5;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
@@ -2115,21 +2075,21 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				UNITY_TRANSFER_INSTANCE_ID( input, output );
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO( output );
 
-				float3 ase_tangentWS = TransformObjectToWorldDir( input.ase_tangent.xyz );
-				output.ase_texcoord3.xyz = ase_tangentWS;
+				float3 ase_tangentWS = TransformObjectToWorldDir( input.tangentOS.xyz );
+				output.ase_texcoord2.xyz = ase_tangentWS;
 				float3 ase_normalWS = TransformObjectToWorldNormal( input.normalOS );
-				output.ase_texcoord4.xyz = ase_normalWS;
-				float ase_tangentSign = input.ase_tangent.w * ( unity_WorldTransformParams.w >= 0.0 ? 1.0 : -1.0 );
+				output.ase_texcoord3.xyz = ase_normalWS;
+				float ase_tangentSign = input.tangentOS.w * ( unity_WorldTransformParams.w >= 0.0 ? 1.0 : -1.0 );
 				float3 ase_bitangentWS = cross( ase_normalWS, ase_tangentWS ) * ase_tangentSign;
-				output.ase_texcoord5.xyz = ase_bitangentWS;
+				output.ase_texcoord4.xyz = ase_bitangentWS;
 				
-				output.ase_texcoord2.xy = input.ase_texcoord.xy;
+				output.ase_texcoord1.xy = input.ase_texcoord.xy;
 				
 				//setting value to unused interpolator channels and avoid initialization warnings
-				output.ase_texcoord2.zw = 0;
+				output.ase_texcoord1.zw = 0;
+				output.ase_texcoord2.w = 0;
 				output.ase_texcoord3.w = 0;
 				output.ase_texcoord4.w = 0;
-				output.ase_texcoord5.w = 0;
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					float3 defaultVertexValue = input.positionOS.xyz;
@@ -2146,18 +2106,12 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				#endif
 
 				input.normalOS = input.normalOS;
+				input.tangentOS = input.tangentOS;
 
 				VertexPositionInputs vertexInput = GetVertexPositionInputs( input.positionOS.xyz );
 
-				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					output.positionWS = vertexInput.positionWS;
-				#endif
-
-				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
-					output.shadowCoord = GetShadowCoord( vertexInput );
-				#endif
-
 				output.positionCS = vertexInput.positionCS;
+				output.positionWS = vertexInput.positionWS;
 				return output;
 			}
 
@@ -2165,9 +2119,9 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			struct VertexControl
 			{
 				float4 positionOS : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
+				half3 normalOS : NORMAL;
+				half4 tangentOS : TANGENT;
 				float4 ase_texcoord : TEXCOORD0;
-				float4 ase_tangent : TANGENT;
 
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -2185,8 +2139,8 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				UNITY_TRANSFER_INSTANCE_ID(input, output);
 				output.positionOS = input.positionOS;
 				output.normalOS = input.normalOS;
+				output.tangentOS = input.tangentOS;
 				output.ase_texcoord = input.ase_texcoord;
-				output.ase_tangent = input.ase_tangent;
 				return output;
 			}
 
@@ -2225,8 +2179,8 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				Attributes output = (Attributes) 0;
 				output.positionOS = patch[0].positionOS * bary.x + patch[1].positionOS * bary.y + patch[2].positionOS * bary.z;
 				output.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
+				output.tangentOS = patch[0].tangentOS * bary.x + patch[1].tangentOS * bary.y + patch[2].tangentOS * bary.z;
 				output.ase_texcoord = patch[0].ase_texcoord * bary.x + patch[1].ase_texcoord * bary.y + patch[2].ase_texcoord * bary.z;
-				output.ase_tangent = patch[0].ase_tangent * bary.x + patch[1].ase_tangent * bary.y + patch[2].ase_tangent * bary.z;
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
@@ -2249,33 +2203,29 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				UNITY_SETUP_INSTANCE_ID( input );
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX( input );
 
-				#if defined(ASE_NEEDS_FRAG_WORLD_POSITION)
-					float3 WorldPosition = input.positionWS;
+				#if defined(MAIN_LIGHT_CALCULATE_SHADOWS) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
+					float4 shadowCoord = TransformWorldToShadowCoord(input.positionWS);
+				#else
+					float4 shadowCoord = float4(0, 0, 0, 0);
 				#endif
 
-				float4 ShadowCoords = float4( 0, 0, 0, 0 );
+				float3 PositionWS = input.positionWS;
+				float3 PositionRWS = GetCameraRelativePositionWS( input.positionWS );
+				float4 ShadowCoord = shadowCoord;
 
-				#if defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
-					#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-						ShadowCoords = input.shadowCoord;
-					#elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
-						ShadowCoords = TransformWorldToShadowCoord( WorldPosition );
-					#endif
-				#endif
-
-				float2 uv_Albedo = input.ase_texcoord2.xy * _Albedo_ST.xy + _Albedo_ST.zw;
-				float3 ase_tangentWS = input.ase_texcoord3.xyz;
-				float3 ase_normalWS = input.ase_texcoord4.xyz;
-				float3 ase_bitangentWS = input.ase_texcoord5.xyz;
+				float2 uv_Albedo = input.ase_texcoord1.xy * _Albedo_ST.xy + _Albedo_ST.zw;
+				float3 ase_tangentWS = input.ase_texcoord2.xyz;
+				float3 ase_normalWS = input.ase_texcoord3.xyz;
+				float3 ase_bitangentWS = input.ase_texcoord4.xyz;
 				float3 tanToWorld0 = float3( ase_tangentWS.x, ase_bitangentWS.x, ase_normalWS.x );
 				float3 tanToWorld1 = float3( ase_tangentWS.y, ase_bitangentWS.y, ase_normalWS.y );
 				float3 tanToWorld2 = float3( ase_tangentWS.z, ase_bitangentWS.z, ase_normalWS.z );
-				float3 ase_viewVectorTS =  tanToWorld0 * ( _WorldSpaceCameraPos.xyz - WorldPosition ).x + tanToWorld1 * ( _WorldSpaceCameraPos.xyz - WorldPosition ).y  + tanToWorld2 * ( _WorldSpaceCameraPos.xyz - WorldPosition ).z;
+				float3 ase_viewVectorTS =  tanToWorld0 * ( _WorldSpaceCameraPos.xyz - PositionWS ).x + tanToWorld1 * ( _WorldSpaceCameraPos.xyz - PositionWS ).y  + tanToWorld2 * ( _WorldSpaceCameraPos.xyz - PositionWS ).z;
 				float3 ase_viewDirTS = normalize( ase_viewVectorTS );
-				float3 ase_viewVectorWS = ( _WorldSpaceCameraPos.xyz - WorldPosition );
+				float3 ase_viewVectorWS = ( _WorldSpaceCameraPos.xyz - PositionWS );
 				float3 ase_viewDirWS = normalize( ase_viewVectorWS );
 				float2 appendResult47 = (float2(_CurvatureU , _CurvatureV));
-				float2 OffsetPOM8 = POM( _HeightMap, uv_Albedo, ddx(uv_Albedo), ddy(uv_Albedo), ase_normalWS, ase_viewDirWS, ase_viewDirTS, 128, 128, 10, _Scale, 0, _HeightMap_ST.xy, appendResult47, 0 );
+				float2 OffsetPOM8 = POM( _HeightMap, uv_Albedo, ddx( uv_Albedo ), ddy( uv_Albedo ), ase_normalWS, ase_viewDirWS, ase_viewDirTS, 128, 128, 10, _Scale, 0, _HeightMap_ST.xy, appendResult47, 0 );
 				float2 customUVs39 = OffsetPOM8;
 				float2 temp_output_40_0 = ddx( uv_Albedo );
 				float2 temp_output_41_0 = ddy( uv_Albedo );
@@ -2310,20 +2260,19 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 
 			HLSLPROGRAM
 
-			#pragma multi_compile _ALPHATEST_ON
 			#define _NORMAL_DROPOFF_TS 1
 			#pragma multi_compile_instancing
 			#pragma multi_compile _ LOD_FADE_CROSSFADE
 			#define ASE_FOG 1
 			#define _NORMALMAP 1
-			#define ASE_VERSION 19801
-			#define ASE_SRP_VERSION 170003
+			#define ASE_VERSION 19901
+			#define ASE_SRP_VERSION 170004
 
 
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
+			#if defined(_SPECULAR_SETUP) && defined(ASE_LIGHTING_SIMPLE)
 				#define _SPECULAR_COLOR 1
 			#endif
 
@@ -2348,11 +2297,14 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
             #endif
 
+			#define ASE_NEEDS_TEXTURE_COORDINATES0
+			#define ASE_NEEDS_WORLD_POSITION
 			#define ASE_NEEDS_FRAG_WORLD_POSITION
+			#define ASE_NEEDS_WORLD_TANGENT
 			#define ASE_NEEDS_FRAG_WORLD_TANGENT
+			#define ASE_NEEDS_WORLD_NORMAL
 			#define ASE_NEEDS_FRAG_WORLD_NORMAL
-			#define ASE_NEEDS_VERT_NORMAL
-			#define ASE_NEEDS_VERT_TANGENT
+			#define ASE_NEEDS_FRAG_WORLD_BITANGENT
 
 
 			#if defined(ASE_EARLY_Z_DEPTH_OPTIMIZE) && (SHADER_TARGET >= 45)
@@ -2366,8 +2318,8 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			struct Attributes
 			{
 				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
-				float4 tangentOS : TANGENT;
+				half3 normalOS : NORMAL;
+				half4 tangentOS : TANGENT;
 				float4 ase_texcoord : TEXCOORD0;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -2375,15 +2327,10 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			struct PackedVaryings
 			{
 				ASE_SV_POSITION_QUALIFIERS float4 positionCS : SV_POSITION;
-				float4 clipPosV : TEXCOORD0;
-				float3 positionWS : TEXCOORD1;
-				float3 normalWS : TEXCOORD2;
-				float4 tangentWS : TEXCOORD3;
-				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
-					float4 shadowCoord : TEXCOORD4;
-				#endif
-				float4 ase_texcoord5 : TEXCOORD5;
-				float4 ase_texcoord6 : TEXCOORD6;
+				float3 positionWS : TEXCOORD0;
+				float3 normalWS : TEXCOORD1;
+				half4 tangentWS : TEXCOORD2;
+				float4 ase_texcoord3 : TEXCOORD3;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
@@ -2515,17 +2462,10 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				UNITY_TRANSFER_INSTANCE_ID(input, output);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
-				float3 ase_normalWS = TransformObjectToWorldNormal( input.normalOS );
-				float3 ase_tangentWS = TransformObjectToWorldDir( input.tangentOS.xyz );
-				float ase_tangentSign = input.tangentOS.w * ( unity_WorldTransformParams.w >= 0.0 ? 1.0 : -1.0 );
-				float3 ase_bitangentWS = cross( ase_normalWS, ase_tangentWS ) * ase_tangentSign;
-				output.ase_texcoord6.xyz = ase_bitangentWS;
-				
-				output.ase_texcoord5.xy = input.ase_texcoord.xy;
+				output.ase_texcoord3.xy = input.ase_texcoord.xy;
 				
 				//setting value to unused interpolator channels and avoid initialization warnings
-				output.ase_texcoord5.zw = 0;
-				output.ase_texcoord6.w = 0;
+				output.ase_texcoord3.zw = 0;
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					float3 defaultVertexValue = input.positionOS.xyz;
 				#else
@@ -2544,19 +2484,12 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				input.tangentOS = input.tangentOS;
 
 				VertexPositionInputs vertexInput = GetVertexPositionInputs( input.positionOS.xyz );
-
-				float3 normalWS = TransformObjectToWorldNormal( input.normalOS );
-				float4 tangentWS = float4( TransformObjectToWorldDir( input.tangentOS.xyz ), input.tangentOS.w );
-
-				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
-					output.shadowCoord = GetShadowCoord( vertexInput );
-				#endif
+				VertexNormalInputs normalInput = GetVertexNormalInputs( input.normalOS, input.tangentOS );
 
 				output.positionCS = vertexInput.positionCS;
-				output.clipPosV = vertexInput.positionCS;
 				output.positionWS = vertexInput.positionWS;
-				output.normalWS = normalWS;
-				output.tangentWS = tangentWS;
+				output.normalWS = normalInput.normalWS;
+				output.tangentWS = float4( normalInput.tangentWS, ( input.tangentOS.w > 0.0 ? 1.0 : -1.0 ) * GetOddNegativeScale() );
 				return output;
 			}
 
@@ -2564,8 +2497,8 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			struct VertexControl
 			{
 				float4 positionOS : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
-				float4 tangentOS : TANGENT;
+				half3 normalOS : NORMAL;
+				half4 tangentOS : TANGENT;
 				float4 ase_texcoord : TEXCOORD0;
 
 				UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -2645,7 +2578,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 
 			void frag(	PackedVaryings input
 						, out half4 outNormalWS : SV_Target0
-						#ifdef ASE_DEPTH_WRITE_ON
+						#if defined( ASE_DEPTH_WRITE_ON )
 						,out float outputDepth : ASE_SV_DEPTH
 						#endif
 						#ifdef _WRITE_RENDERING_LAYERS
@@ -2656,32 +2589,35 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				UNITY_SETUP_INSTANCE_ID(input);
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX( input );
 
-				float4 ShadowCoords = float4( 0, 0, 0, 0 );
-				float3 WorldNormal = input.normalWS;
-				float4 WorldTangent = input.tangentWS;
-				float3 WorldPosition = input.positionWS;
-				float4 ClipPos = input.clipPosV;
-				float4 ScreenPos = ComputeScreenPos( input.clipPosV );
-
-				#if defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
-					#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-						ShadowCoords = input.shadowCoord;
-					#elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
-						ShadowCoords = TransformWorldToShadowCoord( WorldPosition );
-					#endif
+				#if defined(MAIN_LIGHT_CALCULATE_SHADOWS) && defined(ASE_NEEDS_FRAG_SHADOWCOORDS)
+					float4 shadowCoord = TransformWorldToShadowCoord(input.positionWS);
+				#else
+					float4 shadowCoord = float4(0, 0, 0, 0);
 				#endif
 
-				float2 uv_Albedo = input.ase_texcoord5.xy * _Albedo_ST.xy + _Albedo_ST.zw;
-				float3 ase_bitangentWS = input.ase_texcoord6.xyz;
-				float3 tanToWorld0 = float3( WorldTangent.xyz.x, ase_bitangentWS.x, WorldNormal.x );
-				float3 tanToWorld1 = float3( WorldTangent.xyz.y, ase_bitangentWS.y, WorldNormal.y );
-				float3 tanToWorld2 = float3( WorldTangent.xyz.z, ase_bitangentWS.z, WorldNormal.z );
-				float3 ase_viewVectorTS =  tanToWorld0 * ( _WorldSpaceCameraPos.xyz - WorldPosition ).x + tanToWorld1 * ( _WorldSpaceCameraPos.xyz - WorldPosition ).y  + tanToWorld2 * ( _WorldSpaceCameraPos.xyz - WorldPosition ).z;
+				// @diogo: mikktspace compliant
+				float renormFactor = 1.0 / max( FLT_MIN, length( input.normalWS ) );
+
+				float3 PositionWS = input.positionWS;
+				float3 PositionRWS = GetCameraRelativePositionWS( input.positionWS );
+				float4 ShadowCoord = shadowCoord;
+				float4 ScreenPosNorm = float4( GetNormalizedScreenSpaceUV( input.positionCS ), input.positionCS.zw );
+				float4 ClipPos = ComputeClipSpacePosition( ScreenPosNorm.xy, input.positionCS.z ) * input.positionCS.w;
+				float4 ScreenPos = ComputeScreenPos( ClipPos );
+				float3 TangentWS = input.tangentWS.xyz * renormFactor;
+				float3 BitangentWS = cross( input.normalWS, input.tangentWS.xyz ) * input.tangentWS.w * renormFactor;
+				float3 NormalWS = input.normalWS * renormFactor;
+
+				float2 uv_Albedo = input.ase_texcoord3.xy * _Albedo_ST.xy + _Albedo_ST.zw;
+				float3 tanToWorld0 = float3( TangentWS.x, BitangentWS.x, NormalWS.x );
+				float3 tanToWorld1 = float3( TangentWS.y, BitangentWS.y, NormalWS.y );
+				float3 tanToWorld2 = float3( TangentWS.z, BitangentWS.z, NormalWS.z );
+				float3 ase_viewVectorTS =  tanToWorld0 * ( _WorldSpaceCameraPos.xyz - PositionWS ).x + tanToWorld1 * ( _WorldSpaceCameraPos.xyz - PositionWS ).y  + tanToWorld2 * ( _WorldSpaceCameraPos.xyz - PositionWS ).z;
 				float3 ase_viewDirTS = normalize( ase_viewVectorTS );
-				float3 ase_viewVectorWS = ( _WorldSpaceCameraPos.xyz - WorldPosition );
+				float3 ase_viewVectorWS = ( _WorldSpaceCameraPos.xyz - PositionWS );
 				float3 ase_viewDirWS = normalize( ase_viewVectorWS );
 				float2 appendResult47 = (float2(_CurvatureU , _CurvatureV));
-				float2 OffsetPOM8 = POM( _HeightMap, uv_Albedo, ddx(uv_Albedo), ddy(uv_Albedo), WorldNormal, ase_viewDirWS, ase_viewDirTS, 128, 128, 10, _Scale, 0, _HeightMap_ST.xy, appendResult47, 0 );
+				float2 OffsetPOM8 = POM( _HeightMap, uv_Albedo, ddx( uv_Albedo ), ddy( uv_Albedo ), NormalWS, ase_viewDirWS, ase_viewDirTS, 128, 128, 10, _Scale, 0, _HeightMap_ST.xy, appendResult47, 0 );
 				float2 customUVs39 = OffsetPOM8;
 				float2 temp_output_40_0 = ddx( uv_Albedo );
 				float2 temp_output_41_0 = ddy( uv_Albedo );
@@ -2693,8 +2629,8 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				float Alpha = 1;
 				float AlphaClipThreshold = 0.5;
 
-				#ifdef ASE_DEPTH_WRITE_ON
-					float DepthValue = input.positionCS.z;
+				#if defined( ASE_DEPTH_WRITE_ON )
+					float DeviceDepth = input.positionCS.z;
 				#endif
 
 				#ifdef _ALPHATEST_ON
@@ -2705,28 +2641,26 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 					LODFadeCrossFade( input.positionCS );
 				#endif
 
-				#ifdef ASE_DEPTH_WRITE_ON
-					outputDepth = DepthValue;
+				#if defined( ASE_DEPTH_WRITE_ON )
+					outputDepth = DeviceDepth;
 				#endif
 
 				#if defined(_GBUFFER_NORMALS_OCT)
-					float2 octNormalWS = PackNormalOctQuadEncode(WorldNormal);
+					float2 octNormalWS = PackNormalOctQuadEncode(NormalWS);
 					float2 remappedOctNormalWS = saturate(octNormalWS * 0.5 + 0.5);
 					half3 packedNormalWS = PackFloat2To888(remappedOctNormalWS);
 					outNormalWS = half4(packedNormalWS, 0.0);
 				#else
 					#if defined(_NORMALMAP)
 						#if _NORMAL_DROPOFF_TS
-							float crossSign = (WorldTangent.w > 0.0 ? 1.0 : -1.0) * GetOddNegativeScale();
-							float3 bitangent = crossSign * cross(WorldNormal.xyz, WorldTangent.xyz);
-							float3 normalWS = TransformTangentToWorld(Normal, half3x3(WorldTangent.xyz, bitangent, WorldNormal.xyz));
+							float3 normalWS = TransformTangentToWorld(Normal, half3x3(TangentWS, BitangentWS, NormalWS));
 						#elif _NORMAL_DROPOFF_OS
 							float3 normalWS = TransformObjectToWorldNormal(Normal);
 						#elif _NORMAL_DROPOFF_WS
 							float3 normalWS = Normal;
 						#endif
 					#else
-						float3 normalWS = WorldNormal;
+						float3 normalWS = NormalWS;
 					#endif
 					outNormalWS = half4(NormalizeNormalPerPixel(normalWS), 0.0);
 				#endif
@@ -2755,17 +2689,15 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 
 			HLSLPROGRAM
 
-			#pragma multi_compile_fragment _ALPHATEST_ON
 			#define _NORMAL_DROPOFF_TS 1
-			#pragma shader_feature_local _RECEIVE_SHADOWS_OFF
 			#pragma multi_compile_instancing
 			#pragma instancing_options renderinglayer
 			#pragma multi_compile _ LOD_FADE_CROSSFADE
 			#pragma multi_compile_fog
 			#define ASE_FOG 1
 			#define _NORMALMAP 1
-			#define ASE_VERSION 19801
-			#define ASE_SRP_VERSION 170003
+			#define ASE_VERSION 19901
+			#define ASE_SRP_VERSION 170004
 
 
 			#pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
@@ -2787,7 +2719,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
+			#if defined(_SPECULAR_SETUP) && defined(ASE_LIGHTING_SIMPLE)
 				#define _SPECULAR_COLOR 1
 			#endif
 
@@ -2818,8 +2750,12 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				#define ENABLE_TERRAIN_PERPIXEL_NORMAL
 			#endif
 
+			#define ASE_NEEDS_TEXTURE_COORDINATES0
+			#define ASE_NEEDS_WORLD_POSITION
 			#define ASE_NEEDS_FRAG_WORLD_POSITION
+			#define ASE_NEEDS_WORLD_TANGENT
 			#define ASE_NEEDS_FRAG_WORLD_TANGENT
+			#define ASE_NEEDS_WORLD_NORMAL
 			#define ASE_NEEDS_FRAG_WORLD_NORMAL
 			#define ASE_NEEDS_FRAG_WORLD_BITANGENT
 			#define ASE_NEEDS_FRAG_WORLD_VIEW_DIR
@@ -2836,11 +2772,15 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			struct Attributes
 			{
 				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
-				float4 tangentOS : TANGENT;
+				half3 normalOS : NORMAL;
+				half4 tangentOS : TANGENT;
 				float4 texcoord : TEXCOORD0;
-				float4 texcoord1 : TEXCOORD1;
-				float4 texcoord2 : TEXCOORD2;
+				#if defined(LIGHTMAP_ON) || defined(ASE_NEEDS_TEXTURE_COORDINATES1)
+					float4 texcoord1 : TEXCOORD1;
+				#endif
+				#if defined(DYNAMICLIGHTMAP_ON) || defined(ASE_NEEDS_TEXTURE_COORDINATES2)
+					float4 texcoord2 : TEXCOORD2;
+				#endif
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -2848,24 +2788,20 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			struct PackedVaryings
 			{
 				ASE_SV_POSITION_QUALIFIERS float4 positionCS : SV_POSITION;
-				float4 clipPosV : TEXCOORD0;
-				float4 lightmapUVOrVertexSH : TEXCOORD1;
+				float3 positionWS : TEXCOORD0;
+				half3 normalWS : TEXCOORD1;
+				half4 tangentWS : TEXCOORD2;
+				float4 lightmapUVOrVertexSH : TEXCOORD3;
 				#if defined(ASE_FOG) || defined(_ADDITIONAL_LIGHTS_VERTEX)
-					half4 fogFactorAndVertexLight : TEXCOORD2;
-				#endif
-				float4 tSpace0 : TEXCOORD3;
-				float4 tSpace1 : TEXCOORD4;
-				float4 tSpace2 : TEXCOORD5;
-				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-				float4 shadowCoord : TEXCOORD6;
+					half4 fogFactorAndVertexLight : TEXCOORD4;
 				#endif
 				#if defined(DYNAMICLIGHTMAP_ON)
-				float2 dynamicLightmapUV : TEXCOORD7;
+					float2 dynamicLightmapUV : TEXCOORD5;
 				#endif
 				#if defined(USE_APV_PROBE_OCCLUSION)
-					float4 probeOcclusion : TEXCOORD8;
+					float4 probeOcclusion : TEXCOORD6;
 				#endif
-				float4 ase_texcoord9 : TEXCOORD9;
+				float4 ase_texcoord7 : TEXCOORD7;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
@@ -3002,10 +2938,10 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				UNITY_TRANSFER_INSTANCE_ID(input, output);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
-				output.ase_texcoord9.xy = input.texcoord.xy;
+				output.ase_texcoord7.xy = input.texcoord.xy;
 				
 				//setting value to unused interpolator channels and avoid initialization warnings
-				output.ase_texcoord9.zw = 0;
+				output.ase_texcoord7.zw = 0;
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					float3 defaultVertexValue = input.positionOS.xyz;
 				#else
@@ -3026,19 +2962,11 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				VertexPositionInputs vertexInput = GetVertexPositionInputs( input.positionOS.xyz );
 				VertexNormalInputs normalInput = GetVertexNormalInputs( input.normalOS, input.tangentOS );
 
-				output.tSpace0 = float4( normalInput.normalWS, vertexInput.positionWS.x);
-				output.tSpace1 = float4( normalInput.tangentWS, vertexInput.positionWS.y);
-				output.tSpace2 = float4( normalInput.bitangentWS, vertexInput.positionWS.z);
-
-				#if defined(LIGHTMAP_ON)
-					OUTPUT_LIGHTMAP_UV(input.texcoord1, unity_LightmapST, output.lightmapUVOrVertexSH.xy);
-				#endif
-
+				OUTPUT_LIGHTMAP_UV(input.texcoord1, unity_LightmapST, output.lightmapUVOrVertexSH.xy);
 				#if defined(DYNAMICLIGHTMAP_ON)
 					output.dynamicLightmapUV.xy = input.texcoord2.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
 				#endif
-
-				OUTPUT_SH4( vertexInput.positionWS, normalInput.normalWS.xyz, GetWorldSpaceNormalizeViewDir( vertexInput.positionWS ), output.lightmapUVOrVertexSH.xyz, output.probeOcclusion );
+				OUTPUT_SH4(vertexInput.positionWS, normalInput.normalWS.xyz, GetWorldSpaceNormalizeViewDir(vertexInput.positionWS), output.lightmapUVOrVertexSH.xyz, output.probeOcclusion);
 
 				#if defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
 					output.lightmapUVOrVertexSH.zw = input.texcoord.xy;
@@ -3056,12 +2984,10 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 					#endif
 				#endif
 
-				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-					output.shadowCoord = GetShadowCoord( vertexInput );
-				#endif
-
 				output.positionCS = vertexInput.positionCS;
-				output.clipPosV = vertexInput.positionCS;
+				output.positionWS = vertexInput.positionWS;
+				output.normalWS = normalInput.normalWS;
+				output.tangentWS = float4( normalInput.tangentWS, ( input.tangentOS.w > 0.0 ? 1.0 : -1.0 ) * GetOddNegativeScale() );
 				return output;
 			}
 
@@ -3069,11 +2995,15 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			struct VertexControl
 			{
 				float4 positionOS : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
-				float4 tangentOS : TANGENT;
+				half3 normalOS : NORMAL;
+				half4 tangentOS : TANGENT;
 				float4 texcoord : TEXCOORD0;
-				float4 texcoord1 : TEXCOORD1;
-				float4 texcoord2 : TEXCOORD2;
+				#if defined(LIGHTMAP_ON) || defined(ASE_NEEDS_TEXTURE_COORDINATES1)
+					float4 texcoord1 : TEXCOORD1;
+				#endif
+				#if defined(DYNAMICLIGHTMAP_ON) || defined(ASE_NEEDS_TEXTURE_COORDINATES2)
+					float4 texcoord2 : TEXCOORD2;
+				#endif
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -3093,8 +3023,12 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				output.normalOS = input.normalOS;
 				output.tangentOS = input.tangentOS;
 				output.texcoord = input.texcoord;
-				output.texcoord1 = input.texcoord1;
-				output.texcoord2 = input.texcoord2;
+				#if defined(LIGHTMAP_ON) || defined(ASE_NEEDS_TEXTURE_COORDINATES1)
+					output.texcoord1 = input.texcoord1;
+				#endif
+				#if defined(DYNAMICLIGHTMAP_ON) || defined(ASE_NEEDS_TEXTURE_COORDINATES2)
+					output.texcoord2 = input.texcoord2;
+				#endif
 				
 				return output;
 			}
@@ -3136,8 +3070,12 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				output.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
 				output.tangentOS = patch[0].tangentOS * bary.x + patch[1].tangentOS * bary.y + patch[2].tangentOS * bary.z;
 				output.texcoord = patch[0].texcoord * bary.x + patch[1].texcoord * bary.y + patch[2].texcoord * bary.z;
-				output.texcoord1 = patch[0].texcoord1 * bary.x + patch[1].texcoord1 * bary.y + patch[2].texcoord1 * bary.z;
-				output.texcoord2 = patch[0].texcoord2 * bary.x + patch[1].texcoord2 * bary.y + patch[2].texcoord2 * bary.z;
+				#if defined(LIGHTMAP_ON) || defined(ASE_NEEDS_TEXTURE_COORDINATES1)
+					output.texcoord1 = patch[0].texcoord1 * bary.x + patch[1].texcoord1 * bary.y + patch[2].texcoord1 * bary.z;
+				#endif
+				#if defined(DYNAMICLIGHTMAP_ON) || defined(ASE_NEEDS_TEXTURE_COORDINATES2)
+					output.texcoord2 = patch[0].texcoord2 * bary.x + patch[1].texcoord2 * bary.y + patch[2].texcoord2 * bary.z;
+				#endif
 				
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
@@ -3157,7 +3095,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			#endif
 
 			FragmentOutput frag ( PackedVaryings input
-								#ifdef ASE_DEPTH_WRITE_ON
+								#if defined( ASE_DEPTH_WRITE_ON )
 								,out float outputDepth : ASE_SV_DEPTH
 								#endif
 								 )
@@ -3169,43 +3107,41 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 					LODFadeCrossFade( input.positionCS );
 				#endif
 
+				#if defined(MAIN_LIGHT_CALCULATE_SHADOWS)
+					float4 shadowCoord = TransformWorldToShadowCoord( input.positionWS );
+				#else
+					float4 shadowCoord = float4(0, 0, 0, 0);
+				#endif
+
+				// @diogo: mikktspace compliant
+				float renormFactor = 1.0 / max( FLT_MIN, length( input.normalWS ) );
+
+				float3 PositionWS = input.positionWS;
+				float3 PositionRWS = GetCameraRelativePositionWS( PositionWS );
+				float3 ViewDirWS = GetWorldSpaceNormalizeViewDir( PositionWS );
+				float4 ShadowCoord = shadowCoord;
+				float4 ScreenPosNorm = float4( GetNormalizedScreenSpaceUV( input.positionCS ), input.positionCS.zw );
+				float4 ClipPos = ComputeClipSpacePosition( ScreenPosNorm.xy, input.positionCS.z ) * input.positionCS.w;
+				float4 ScreenPos = ComputeScreenPos( ClipPos );
+				float3 TangentWS = input.tangentWS.xyz * renormFactor;
+				float3 BitangentWS = cross( input.normalWS, input.tangentWS.xyz ) * input.tangentWS.w * renormFactor;
+				float3 NormalWS = input.normalWS * renormFactor;
+
 				#if defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
 					float2 sampleCoords = (input.lightmapUVOrVertexSH.zw / _TerrainHeightmapRecipSize.zw + 0.5f) * _TerrainHeightmapRecipSize.xy;
-					float3 WorldNormal = TransformObjectToWorldNormal(normalize(SAMPLE_TEXTURE2D(_TerrainNormalmapTexture, sampler_TerrainNormalmapTexture, sampleCoords).rgb * 2 - 1));
-					float3 WorldTangent = -cross(GetObjectToWorldMatrix()._13_23_33, WorldNormal);
-					float3 WorldBiTangent = cross(WorldNormal, -WorldTangent);
-				#else
-					float3 WorldNormal = normalize( input.tSpace0.xyz );
-					float3 WorldTangent = input.tSpace1.xyz;
-					float3 WorldBiTangent = input.tSpace2.xyz;
+					NormalWS = TransformObjectToWorldNormal(normalize(SAMPLE_TEXTURE2D(_TerrainNormalmapTexture, sampler_TerrainNormalmapTexture, sampleCoords).rgb * 2 - 1));
+					TangentWS = -cross(GetObjectToWorldMatrix()._13_23_33, NormalWS);
+					BitangentWS = cross(NormalWS, -TangentWS);
 				#endif
 
-				float3 WorldPosition = float3(input.tSpace0.w,input.tSpace1.w,input.tSpace2.w);
-				float3 WorldViewDirection = GetWorldSpaceNormalizeViewDir( WorldPosition );
-				float4 ShadowCoords = float4( 0, 0, 0, 0 );
-				float4 ClipPos = input.clipPosV;
-				float4 ScreenPos = ComputeScreenPos( input.clipPosV );
-
-				float2 NormalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
-
-				#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-					ShadowCoords = input.shadowCoord;
-				#elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
-					ShadowCoords = TransformWorldToShadowCoord( WorldPosition );
-				#else
-					ShadowCoords = float4(0, 0, 0, 0);
-				#endif
-
-				WorldViewDirection = SafeNormalize( WorldViewDirection );
-
-				float2 uv_Albedo = input.ase_texcoord9.xy * _Albedo_ST.xy + _Albedo_ST.zw;
-				float3 tanToWorld0 = float3( WorldTangent.x, WorldBiTangent.x, WorldNormal.x );
-				float3 tanToWorld1 = float3( WorldTangent.y, WorldBiTangent.y, WorldNormal.y );
-				float3 tanToWorld2 = float3( WorldTangent.z, WorldBiTangent.z, WorldNormal.z );
-				float3 ase_viewVectorTS =  tanToWorld0 * ( _WorldSpaceCameraPos.xyz - WorldPosition ).x + tanToWorld1 * ( _WorldSpaceCameraPos.xyz - WorldPosition ).y  + tanToWorld2 * ( _WorldSpaceCameraPos.xyz - WorldPosition ).z;
+				float2 uv_Albedo = input.ase_texcoord7.xy * _Albedo_ST.xy + _Albedo_ST.zw;
+				float3 tanToWorld0 = float3( TangentWS.x, BitangentWS.x, NormalWS.x );
+				float3 tanToWorld1 = float3( TangentWS.y, BitangentWS.y, NormalWS.y );
+				float3 tanToWorld2 = float3( TangentWS.z, BitangentWS.z, NormalWS.z );
+				float3 ase_viewVectorTS =  tanToWorld0 * ( _WorldSpaceCameraPos.xyz - PositionWS ).x + tanToWorld1 * ( _WorldSpaceCameraPos.xyz - PositionWS ).y  + tanToWorld2 * ( _WorldSpaceCameraPos.xyz - PositionWS ).z;
 				float3 ase_viewDirTS = normalize( ase_viewVectorTS );
 				float2 appendResult47 = (float2(_CurvatureU , _CurvatureV));
-				float2 OffsetPOM8 = POM( _HeightMap, uv_Albedo, ddx(uv_Albedo), ddy(uv_Albedo), WorldNormal, WorldViewDirection, ase_viewDirTS, 128, 128, 10, _Scale, 0, _HeightMap_ST.xy, appendResult47, 0 );
+				float2 OffsetPOM8 = POM( _HeightMap, uv_Albedo, ddx( uv_Albedo ), ddy( uv_Albedo ), NormalWS, ViewDirWS, ase_viewDirTS, 128, 128, 10, _Scale, 0, _HeightMap_ST.xy, appendResult47, 0 );
 				float2 customUVs39 = OffsetPOM8;
 				float2 temp_output_40_0 = ddx( uv_Albedo );
 				float2 temp_output_41_0 = ddy( uv_Albedo );
@@ -3216,11 +3152,11 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 
 				float3 BaseColor = tex2D( _Albedo, customUVs39, temp_output_40_0, temp_output_41_0 ).rgb;
 				float3 Normal = unpack14;
-				float3 Emission = 0;
 				float3 Specular = 0.5;
 				float Metallic = tex2D( _Metallic, customUVs39, temp_output_40_0, temp_output_41_0 ).r;
 				float Smoothness = ( 1.0 - ( _RoughScale * tex2D( _Roughness, customUVs39, temp_output_40_0, temp_output_41_0 ).r ) );
 				float Occlusion = tex2D( _Occlusion, customUVs39, temp_output_40_0, temp_output_41_0 ).r;
+				float3 Emission = 0;
 				float Alpha = 1;
 				float AlphaClipThreshold = 0.5;
 				float AlphaClipThresholdShadow = 0.5;
@@ -3230,33 +3166,38 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				float3 Transmission = 1;
 				float3 Translucency = 1;
 
-				#ifdef ASE_DEPTH_WRITE_ON
-					float DepthValue = input.positionCS.z;
+				#if defined( ASE_DEPTH_WRITE_ON )
+					float DeviceDepth = ClipPos.z;
 				#endif
 
 				#ifdef _ALPHATEST_ON
 					clip(Alpha - AlphaClipThreshold);
 				#endif
 
+				#if defined(MAIN_LIGHT_CALCULATE_SHADOWS) && defined(ASE_CHANGES_WORLD_POS)
+					ShadowCoord = TransformWorldToShadowCoord( PositionWS );
+				#endif
+
 				InputData inputData = (InputData)0;
-				inputData.positionWS = WorldPosition;
-				inputData.positionCS = input.positionCS;
-				inputData.shadowCoord = ShadowCoords;
+				inputData.positionWS = PositionWS;
+				inputData.positionCS = float4( input.positionCS.xy, ClipPos.zw / ClipPos.w );
+				inputData.normalizedScreenSpaceUV = ScreenPosNorm.xy;
+				inputData.shadowCoord = ShadowCoord;
 
 				#ifdef _NORMALMAP
 					#if _NORMAL_DROPOFF_TS
-						inputData.normalWS = TransformTangentToWorld(Normal, half3x3( WorldTangent, WorldBiTangent, WorldNormal ));
+						inputData.normalWS = TransformTangentToWorld(Normal, half3x3( TangentWS, BitangentWS, NormalWS ));
 					#elif _NORMAL_DROPOFF_OS
 						inputData.normalWS = TransformObjectToWorldNormal(Normal);
 					#elif _NORMAL_DROPOFF_WS
 						inputData.normalWS = Normal;
 					#endif
 				#else
-					inputData.normalWS = WorldNormal;
+					inputData.normalWS = NormalWS;
 				#endif
 
 				inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);
-				inputData.viewDirectionWS = SafeNormalize( WorldViewDirection );
+				inputData.viewDirectionWS = SafeNormalize( ViewDirWS );
 
 				#ifdef ASE_FOG
 					// @diogo: no fog applied in GBuffer
@@ -3275,12 +3216,13 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 					inputData.bakedGI = SAMPLE_GI(input.lightmapUVOrVertexSH.xy, input.dynamicLightmapUV.xy, SH, inputData.normalWS);
 					inputData.shadowMask = SAMPLE_SHADOWMASK(input.lightmapUVOrVertexSH.xy);
 				#elif !defined(LIGHTMAP_ON) && (defined(PROBE_VOLUMES_L1) || defined(PROBE_VOLUMES_L2))
-					inputData.bakedGI = SAMPLE_GI( SH, GetAbsolutePositionWS(inputData.positionWS),
+					inputData.bakedGI = SAMPLE_GI(SH,
+						GetAbsolutePositionWS(inputData.positionWS),
 						inputData.normalWS,
 						inputData.viewDirectionWS,
 						input.positionCS.xy,
 						input.probeOcclusion,
-						inputData.shadowMask );
+						inputData.shadowMask);
 				#else
 					inputData.bakedGI = SAMPLE_GI(input.lightmapUVOrVertexSH.xy, SH, inputData.normalWS);
 					inputData.shadowMask = SAMPLE_SHADOWMASK(input.lightmapUVOrVertexSH.xy);
@@ -3289,8 +3231,6 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				#ifdef ASE_BAKEDGI
 					inputData.bakedGI = BakedGI;
 				#endif
-
-				inputData.normalizedScreenSpaceUV = NormalizedScreenSpaceUV;
 
 				#if defined(DEBUG_DISPLAY)
 					#if defined(DYNAMICLIGHTMAP_ON)
@@ -3317,8 +3257,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				#endif
 
 				BRDFData brdfData;
-				InitializeBRDFData
-				(BaseColor, Metallic, Specular, Smoothness, Alpha, brdfData);
+				InitializeBRDFData(BaseColor, Metallic, Specular, Smoothness, Alpha, brdfData);
 
 				Light mainLight = GetMainLight(inputData.shadowCoord, inputData.positionWS, inputData.shadowMask);
 				half4 color;
@@ -3330,8 +3269,8 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 					color.rgb *= color.a;
 				#endif
 
-				#ifdef ASE_DEPTH_WRITE_ON
-					outputDepth = DepthValue;
+				#if defined( ASE_DEPTH_WRITE_ON )
+					outputDepth = DeviceDepth;
 				#endif
 
 				return BRDFDataToGbuffer(brdfData, inputData, Smoothness, Emission + color.rgb, Occlusion);
@@ -3355,14 +3294,14 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			#define _NORMAL_DROPOFF_TS 1
 			#define ASE_FOG 1
 			#define _NORMALMAP 1
-			#define ASE_VERSION 19801
-			#define ASE_SRP_VERSION 170003
+			#define ASE_VERSION 19901
+			#define ASE_SRP_VERSION 170004
 
 
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
+			#if defined(_SPECULAR_SETUP) && defined(ASE_LIGHTING_SIMPLE)
 				#define _SPECULAR_COLOR 1
 			#endif
 
@@ -3387,17 +3326,27 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 
 			
 
+			#if defined(ASE_EARLY_Z_DEPTH_OPTIMIZE) && (SHADER_TARGET >= 45)
+				#define ASE_SV_DEPTH SV_DepthLessEqual
+				#define ASE_SV_POSITION_QUALIFIERS linear noperspective centroid
+			#else
+				#define ASE_SV_DEPTH SV_Depth
+				#define ASE_SV_POSITION_QUALIFIERS
+			#endif
+
 			struct Attributes
 			{
 				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
+				half3 normalOS : NORMAL;
+				half4 tangentOS : TANGENT;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
 			struct PackedVaryings
 			{
-				float4 positionCS : SV_POSITION;
+				ASE_SV_POSITION_QUALIFIERS float4 positionCS : SV_POSITION;
+				float3 positionWS : TEXCOORD0;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
@@ -3477,10 +3426,10 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 
 				input.normalOS = input.normalOS;
 
-				float3 positionWS = TransformObjectToWorld( input.positionOS.xyz );
+				VertexPositionInputs vertexInput = GetVertexPositionInputs( input.positionOS.xyz );
 
-				output.positionCS = TransformWorldToHClip(positionWS);
-
+				output.positionCS = vertexInput.positionCS;
+				output.positionWS = vertexInput.positionWS;
 				return output;
 			}
 
@@ -3488,7 +3437,8 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			struct VertexControl
 			{
 				float4 positionOS : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
+				half3 normalOS : NORMAL;
+				half4 tangentOS : TANGENT;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -3506,6 +3456,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				UNITY_TRANSFER_INSTANCE_ID(input, output);
 				output.positionOS = input.positionOS;
 				output.normalOS = input.normalOS;
+				output.tangentOS = input.tangentOS;
 				
 				return output;
 			}
@@ -3545,6 +3496,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				Attributes output = (Attributes) 0;
 				output.positionOS = patch[0].positionOS * bary.x + patch[1].positionOS * bary.y + patch[2].positionOS * bary.z;
 				output.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
+				output.tangentOS = patch[0].tangentOS * bary.x + patch[1].tangentOS * bary.y + patch[2].tangentOS * bary.z;
 				
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
@@ -3563,14 +3515,27 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			}
 			#endif
 
-			half4 frag(PackedVaryings input ) : SV_Target
+			half4 frag( PackedVaryings input
+				#if defined( ASE_DEPTH_WRITE_ON )
+				,out float outputDepth : ASE_SV_DEPTH
+				#endif
+				 ) : SV_Target
 			{
 				SurfaceDescription surfaceDescription = (SurfaceDescription)0;
+
+				float3 PositionWS = input.positionWS;
+				float3 PositionRWS = GetCameraRelativePositionWS( PositionWS );
+				float4 ScreenPosNorm = float4( GetNormalizedScreenSpaceUV( input.positionCS ), input.positionCS.zw );
+				float4 ClipPos = ComputeClipSpacePosition( ScreenPosNorm.xy, input.positionCS.z ) * input.positionCS.w;
 
 				
 
 				surfaceDescription.Alpha = 1;
 				surfaceDescription.AlphaClipThreshold = 0.5;
+
+				#if defined( ASE_DEPTH_WRITE_ON )
+					float DeviceDepth = input.positionCS.z;
+				#endif
 
 				#if _ALPHATEST_ON
 					float alphaClipThreshold = 0.01f;
@@ -3580,15 +3545,11 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 					clip(surfaceDescription.Alpha - alphaClipThreshold);
 				#endif
 
-				half4 outColor = 0;
-
-				#ifdef SCENESELECTIONPASS
-					outColor = half4(_ObjectId, _PassValue, 1.0, 1.0);
-				#elif defined(SCENEPICKINGPASS)
-					outColor = _SelectionID;
+				#if defined( ASE_DEPTH_WRITE_ON )
+					outputDepth = DeviceDepth;
 				#endif
 
-				return outColor;
+				return half4( _ObjectId, _PassValue, 1.0, 1.0 );
 			}
 
 			ENDHLSL
@@ -3608,14 +3569,14 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			#define _NORMAL_DROPOFF_TS 1
 			#define ASE_FOG 1
 			#define _NORMALMAP 1
-			#define ASE_VERSION 19801
-			#define ASE_SRP_VERSION 170003
+			#define ASE_VERSION 19901
+			#define ASE_SRP_VERSION 170004
 
 
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
+			#if defined(_SPECULAR_SETUP) && defined(ASE_LIGHTING_SIMPLE)
 				#define _SPECULAR_COLOR 1
 			#endif
 
@@ -3640,17 +3601,27 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 
 			
 
+			#if defined(ASE_EARLY_Z_DEPTH_OPTIMIZE) && (SHADER_TARGET >= 45)
+				#define ASE_SV_DEPTH SV_DepthLessEqual
+				#define ASE_SV_POSITION_QUALIFIERS linear noperspective centroid
+			#else
+				#define ASE_SV_DEPTH SV_Depth
+				#define ASE_SV_POSITION_QUALIFIERS
+			#endif
+
 			struct Attributes
 			{
 				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
+				half3 normalOS : NORMAL;
+				half4 tangentOS : TANGENT;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
 			struct PackedVaryings
 			{
-				float4 positionCS : SV_POSITION;
+				ASE_SV_POSITION_QUALIFIERS float4 positionCS : SV_POSITION;
+				float3 positionWS : TEXCOORD0;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
@@ -3703,7 +3674,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				float AlphaClipThreshold;
 			};
 
-			PackedVaryings VertexFunction(Attributes input  )
+			PackedVaryings VertexFunction( Attributes input  )
 			{
 				PackedVaryings output;
 				ZERO_INITIALIZE(PackedVaryings, output);
@@ -3730,9 +3701,10 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 
 				input.normalOS = input.normalOS;
 
-				float3 positionWS = TransformObjectToWorld( input.positionOS.xyz );
-				output.positionCS = TransformWorldToHClip(positionWS);
+				VertexPositionInputs vertexInput = GetVertexPositionInputs( input.positionOS.xyz );
 
+				output.positionCS = vertexInput.positionCS;
+				output.positionWS = vertexInput.positionWS;
 				return output;
 			}
 
@@ -3740,7 +3712,8 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			struct VertexControl
 			{
 				float4 positionOS : INTERNALTESSPOS;
-				float3 normalOS : NORMAL;
+				half3 normalOS : NORMAL;
+				half4 tangentOS : TANGENT;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -3758,6 +3731,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				UNITY_TRANSFER_INSTANCE_ID(input, output);
 				output.positionOS = input.positionOS;
 				output.normalOS = input.normalOS;
+				output.tangentOS = input.tangentOS;
 				
 				return output;
 			}
@@ -3797,6 +3771,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				Attributes output = (Attributes) 0;
 				output.positionOS = patch[0].positionOS * bary.x + patch[1].positionOS * bary.y + patch[2].positionOS * bary.z;
 				output.normalOS = patch[0].normalOS * bary.x + patch[1].normalOS * bary.y + patch[2].normalOS * bary.z;
+				output.tangentOS = patch[0].tangentOS * bary.x + patch[1].tangentOS * bary.y + patch[2].tangentOS * bary.z;
 				
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
@@ -3815,14 +3790,27 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 			}
 			#endif
 
-			half4 frag(PackedVaryings input ) : SV_Target
+			half4 frag( PackedVaryings input
+				#if defined( ASE_DEPTH_WRITE_ON )
+				,out float outputDepth : ASE_SV_DEPTH
+				#endif
+				 ) : SV_Target
 			{
 				SurfaceDescription surfaceDescription = (SurfaceDescription)0;
+
+				float3 PositionWS = input.positionWS;
+				float3 PositionRWS = GetCameraRelativePositionWS( PositionWS );
+				float4 ScreenPosNorm = float4( GetNormalizedScreenSpaceUV( input.positionCS ), input.positionCS.zw );
+				float4 ClipPos = ComputeClipSpacePosition( ScreenPosNorm.xy, input.positionCS.z ) * input.positionCS.w;
 
 				
 
 				surfaceDescription.Alpha = 1;
 				surfaceDescription.AlphaClipThreshold = 0.5;
+
+				#if defined( ASE_DEPTH_WRITE_ON )
+					float DeviceDepth = input.positionCS.z;
+				#endif
 
 				#if _ALPHATEST_ON
 					float alphaClipThreshold = 0.01f;
@@ -3832,17 +3820,12 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 						clip(surfaceDescription.Alpha - alphaClipThreshold);
 				#endif
 
-				half4 outColor = 0;
-
-				#ifdef SCENESELECTIONPASS
-					outColor = half4(_ObjectId, _PassValue, 1.0, 1.0);
-				#elif defined(SCENEPICKINGPASS)
-					outColor = _SelectionID;
+				#if defined( ASE_DEPTH_WRITE_ON )
+					outputDepth = DeviceDepth;
 				#endif
 
-				return outColor;
+				return _SelectionID;
 			}
-
 			ENDHLSL
 		}
 
@@ -3857,23 +3840,21 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 
 			HLSLPROGRAM
 
-			#pragma multi_compile _ALPHATEST_ON
 			#define _NORMAL_DROPOFF_TS 1
-			#pragma multi_compile_instancing
 			#pragma multi_compile _ LOD_FADE_CROSSFADE
 			#define ASE_FOG 1
 			#define _NORMALMAP 1
-			#define ASE_VERSION 19801
-			#define ASE_SRP_VERSION 170003
+			#define ASE_VERSION 19901
+			#define ASE_SRP_VERSION 170004
 
 
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#if defined(_SPECULAR_SETUP) && defined(_ASE_LIGHTING_SIMPLE)
+			#if defined(_SPECULAR_SETUP) && defined(ASE_LIGHTING_SIMPLE)
 				#define _SPECULAR_COLOR 1
 			#endif
-	
+
             #define SHADERPASS SHADERPASS_MOTION_VECTORS
 
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
@@ -3898,6 +3879,14 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 
 			
 
+			#if defined(ASE_EARLY_Z_DEPTH_OPTIMIZE) && (SHADER_TARGET >= 45)
+				#define ASE_SV_DEPTH SV_DepthLessEqual
+				#define ASE_SV_POSITION_QUALIFIERS linear noperspective centroid
+			#else
+				#define ASE_SV_DEPTH SV_Depth
+				#define ASE_SV_POSITION_QUALIFIERS
+			#endif
+
 			struct Attributes
 			{
 				float4 positionOS : POSITION;
@@ -3905,6 +3894,8 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				#if _ADD_PRECOMPUTED_VELOCITY
 					float3 alembicMotionVector : TEXCOORD5;
 				#endif
+				half3 normalOS : NORMAL;
+				half4 tangentOS : TANGENT;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -3914,6 +3905,7 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				float4 positionCS : SV_POSITION;
 				float4 positionCSNoJitter : TEXCOORD0;
 				float4 previousPositionCSNoJitter : TEXCOORD1;
+				float3 positionWS : TEXCOORD2;
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
@@ -3986,13 +3978,11 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				VertexPositionInputs vertexInput = GetVertexPositionInputs( input.positionOS.xyz );
 
 				#if defined(APLICATION_SPACE_WARP_MOTION)
-					// We do not need jittered position in ASW
-					output.positionCSNoJitter = mul(_NonJitteredViewProjMatrix, mul(UNITY_MATRIX_M, input.positionOS));;
+					output.positionCSNoJitter = mul(_NonJitteredViewProjMatrix, mul(UNITY_MATRIX_M, input.positionOS));
 					output.positionCS = output.positionCSNoJitter;
 				#else
-					// Jittered. Match the frame.
 					output.positionCS = vertexInput.positionCS;
-					output.positionCSNoJitter = mul( _NonJitteredViewProjMatrix, mul( UNITY_MATRIX_M, input.positionOS));
+					output.positionCSNoJitter = mul(_NonJitteredViewProjMatrix, mul(UNITY_MATRIX_M, input.positionOS));
 				#endif
 
 				float4 prevPos = ( unity_MotionVectorsParams.x == 1 ) ? float4( input.positionOld, 1 ) : input.positionOS;
@@ -4002,6 +3992,9 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				#endif
 
 				output.previousPositionCSNoJitter = mul( _PrevViewProjMatrix, mul( UNITY_PREV_MATRIX_M, prevPos ) );
+
+				output.positionWS = vertexInput.positionWS;
+
 				// removed in ObjectMotionVectors.hlsl found in unity 6000.0.23 and higher
 				//ApplyMotionVectorZBias( output.positionCS );
 				return output;
@@ -4012,22 +4005,46 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				return VertexFunction( input );
 			}
 
-			half4 frag(	PackedVaryings input  ) : SV_Target
+			half4 frag(	PackedVaryings input
+				#if defined( ASE_DEPTH_WRITE_ON )
+				,out float outputDepth : ASE_SV_DEPTH
+				#endif
+				 ) : SV_Target
 			{
 				UNITY_SETUP_INSTANCE_ID(input);
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX( input );
+
+				float3 PositionWS = input.positionWS;
+				float3 PositionRWS = GetCameraRelativePositionWS( PositionWS );
+				float4 ScreenPosNorm = float4( GetNormalizedScreenSpaceUV( input.positionCS ), input.positionCS.zw );
+				float4 ClipPos = ComputeClipSpacePosition( ScreenPosNorm.xy, input.positionCS.z ) * input.positionCS.w;
 
 				
 
 				float Alpha = 1;
 				float AlphaClipThreshold = 0.5;
 
+				#if defined( ASE_DEPTH_WRITE_ON )
+					float DeviceDepth = input.positionCS.z;
+				#endif
+
 				#ifdef _ALPHATEST_ON
 					clip(Alpha - AlphaClipThreshold);
 				#endif
 
+				#if defined(ASE_CHANGES_WORLD_POS)
+					float3 positionOS = mul( GetWorldToObjectMatrix(),  float4( PositionWS, 1.0 ) ).xyz;
+					float3 previousPositionWS = mul( GetPrevObjectToWorldMatrix(),  float4( positionOS, 1.0 ) ).xyz;
+					input.positionCSNoJitter = mul( _NonJitteredViewProjMatrix, float4( PositionWS, 1.0 ) );
+					input.previousPositionCSNoJitter = mul( _PrevViewProjMatrix, float4( previousPositionWS, 1.0 ) );
+				#endif
+
 				#if defined(LOD_FADE_CROSSFADE)
 					LODFadeCrossFade( input.positionCS );
+				#endif
+
+				#if defined( ASE_DEPTH_WRITE_ON )
+					outputDepth = DeviceDepth;
 				#endif
 
 				#if defined(APLICATION_SPACE_WARP_MOTION)
@@ -4035,10 +4052,11 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 				#else
 					return float4( CalcNdcMotionVectorFromCsPositions( input.positionCSNoJitter, input.previousPositionCSNoJitter ), 0, 0 );
 				#endif
-			}		
+			}
 			ENDHLSL
 		}
-		
+
+	
 	}
 	
 	CustomEditor "UnityEditor.ShaderGraphLitGUI"
@@ -4046,39 +4064,41 @@ Shader "AmplifyShaderPack/Parallax Occlusion Mapping"
 	
 	Fallback Off
 }
+
 /*ASEBEGIN
-Version=19801
-Node;AmplifyShaderEditor.RangedFloatNode;43;-1504,384;Float;False;Property;_CurvatureU;Curvature U;9;0;Create;True;0;0;0;False;0;False;0;0;0;100;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;45;-1504,464;Float;False;Property;_CurvatureV;Curvature V;10;0;Create;True;0;0;0;False;0;False;0;0;0;30;0;1;FLOAT;0
-Node;AmplifyShaderEditor.ViewDirInputsCoordNode;15;-1296,192;Float;False;Tangent;False;0;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
-Node;AmplifyShaderEditor.DynamicAppendNode;47;-1168,368;Inherit;False;FLOAT2;4;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.TexturePropertyNode;9;-1729,0.5;Float;True;Property;_HeightMap;HeightMap;7;0;Create;True;0;0;0;False;0;False;None;085af6efd01d48aaa9981d4b8d75ecce;False;white;Auto;Texture2D;-1;0;2;SAMPLER2D;0;SAMPLERSTATE;1
-Node;AmplifyShaderEditor.RangedFloatNode;13;-1448,78.5;Float;False;Property;_Scale;Scale;8;0;Create;True;0;0;0;False;0;False;0.4247461;0.095;0;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.TextureCoordinatesNode;10;-1384,-81.5;Inherit;False;0;11;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.ParallaxOcclusionMappingNode;8;-1032.9,-21.1;Inherit;False;0;128;False;;128;False;;10;0.02;0;False;1,1;True;10,0;11;0;FLOAT2;0,0;False;1;SAMPLER2D;;False;7;SAMPLERSTATE;;False;2;FLOAT;0;False;3;FLOAT3;0,0,0;False;8;INT;0;False;9;INT;0;False;10;INT;0;False;4;FLOAT;0;False;5;FLOAT2;0,0;False;6;FLOAT;0;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.DdyOpNode;41;-656,-96;Inherit;False;1;0;FLOAT2;0,0;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.RegisterLocalVarNode;39;-752,-240;Float;False;customUVs;1;False;1;0;FLOAT2;0,0;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.DdxOpNode;40;-656,-160;Inherit;False;1;0;FLOAT2;0,0;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.RangedFloatNode;25;192,256;Float;False;Property;_RoughScale;Rough Scale;5;0;Create;True;0;0;0;False;0;False;0.5;0.5;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.SamplerNode;20;64,336;Inherit;True;Property;_Roughness;Roughness;4;0;Create;True;0;0;0;False;0;False;-1;None;b6a6c7bc322040c5b1fed27b535af25f;True;0;False;white;Auto;False;Object;-1;Derivative;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;1;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.SamplerNode;21;64,528;Inherit;True;Property;_Occlusion;Occlusion;6;0;Create;True;0;0;0;False;0;False;-1;None;d6dd85c78644495f98c427634c7d81e7;True;0;False;white;Auto;False;Object;-1;Derivative;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;1;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.RangedFloatNode;24;-292.5285,-343.4738;Float;False;Property;_NormalScale;Normal Scale;2;0;Create;True;0;0;0;False;0;False;0.5;1;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.SamplerNode;23;64,64;Inherit;True;Property;_Metallic;Metallic;3;0;Create;True;0;0;0;False;0;False;-1;None;0f1be42ec7d6427fbeb99bb7a4480d54;True;0;False;white;Auto;False;Object;-1;Derivative;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;1;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.SamplerNode;14;64,-128;Inherit;True;Property;_Normal;Normal;1;0;Create;True;0;0;0;False;0;False;-1;None;0e5318892134427a92eb01a797250708;True;0;True;bump;Auto;True;Object;-1;Derivative;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;1;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.SimpleMultiplyOpNode;26;377.1725,251.9035;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.OneMinusNode;42;506.9241,247.9579;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.SamplerNode;11;64,-320;Inherit;True;Property;_Albedo;Albedo;0;0;Create;True;0;0;0;False;0;False;-1;None;4998839cc7304cff87a29e2535dd1bbb;True;0;False;white;Auto;False;Object;-1;Derivative;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;1;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;48;780.7046,-269.0693;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ExtraPrePass;0;0;ExtraPrePass;5;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;0;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;49;780.7046,-269.0693;Float;False;True;-1;2;UnityEditor.ShaderGraphLitGUI;0;12;AmplifyShaderPack/Parallax Occlusion Mapping;94348b07e5e8bab40bd6c8a1e3df54cd;True;Forward;0;1;Forward;21;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;1;LightMode=UniversalForward;False;False;0;;0;0;Standard;45;Lighting Model;0;0;Workflow;1;0;Surface;0;0;  Refraction Model;0;0;  Blend;0;0;Two Sided;1;0;Alpha Clipping;1;0;  Use Shadow Threshold;0;0;Fragment Normal Space,InvertActionOnDeselection;0;0;Forward Only;0;0;Transmission;0;0;  Transmission Shadow;0.5,False,;0;Translucency;0;0;  Translucency Strength;1,False,;0;  Normal Distortion;0.5,False,;0;  Scattering;2,False,;0;  Direct;0.9,False,;0;  Ambient;0.1,False,;0;  Shadow;0.5,False,;0;Cast Shadows;1;0;Receive Shadows;1;0;Receive SSAO;1;0;Motion Vectors;1;0;  Add Precomputed Velocity;0;0;GPU Instancing;1;0;LOD CrossFade;1;0;Built-in Fog;1;0;_FinalColorxAlpha;0;0;Meta Pass;1;0;Override Baked GI;0;0;Extra Pre Pass;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,False,;0;  Type;0;0;  Tess;16,False,;0;  Min;10,False,;0;  Max;25,False,;0;  Edge Length;16,False,;0;  Max Displacement;25,False,;0;Write Depth;0;0;  Early Z;0;0;Vertex Position,InvertActionOnDeselection;1;0;Debug Display;0;0;Clear Coat;0;0;0;11;False;True;True;True;True;True;True;True;True;True;True;False;;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;50;780.7046,-269.0693;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ShadowCaster;0;2;ShadowCaster;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;True;False;False;False;False;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;False;True;1;LightMode=ShadowCaster;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;51;780.7046,-269.0693;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;DepthOnly;0;3;DepthOnly;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;True;False;False;False;False;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;False;False;True;1;LightMode=DepthOnly;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;52;780.7046,-269.0693;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;Meta;0;4;Meta;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Meta;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;53;780.7046,-269.0693;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;Universal2D;0;5;Universal2D;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;1;LightMode=Universal2D;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;54;780.7046,-269.0693;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;DepthNormals;0;6;DepthNormals;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;False;True;1;LightMode=DepthNormals;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;55;780.7046,-269.0693;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;GBuffer;0;7;GBuffer;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;1;LightMode=UniversalGBuffer;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;56;780.7046,-189.0693;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;SceneSelectionPass;0;8;SceneSelectionPass;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;2;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=SceneSelectionPass;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;57;780.7046,-189.0693;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ScenePickingPass;0;9;ScenePickingPass;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Picking;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;58;780.7046,-169.0693;Float;False;False;-1;3;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;MotionVectors;0;10;MotionVectors;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;4;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;False;False;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=MotionVectors;False;False;0;;0;0;Standard;0;False;0
+Version=19901
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;43;-1504,384;Float;False;Property;_CurvatureU;Curvature U;9;0;Create;True;0;0;0;False;0;False;0;0;0;100;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;45;-1504,464;Float;False;Property;_CurvatureV;Curvature V;10;0;Create;True;0;0;0;False;0;False;0;0;0;30;0;1;FLOAT;0
+Node;AmplifyShaderEditor.ViewDirInputsCoordNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;15;-1296,192;Float;False;Tangent;False;0;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
+Node;AmplifyShaderEditor.DynamicAppendNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;47;-1168,368;Inherit;False;FLOAT2;4;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.TexturePropertyNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;9;-1729,0.5;Float;True;Property;_HeightMap;HeightMap;7;0;Create;True;0;0;0;False;0;False;None;085af6efd01d48aaa9981d4b8d75ecce;False;white;Auto;Texture2D;-1;0;2;SAMPLER2D;0;SAMPLERSTATE;1
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;13;-1448,78.5;Float;False;Property;_Scale;Scale;8;0;Create;True;0;0;0;False;0;False;0.4247461;0.095;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.TextureCoordinatesNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;10;-1384,-81.5;Inherit;False;0;11;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.ParallaxOcclusionMappingNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;8;-1032.9,-21.1;Inherit;False;0;128;False;;128;False;;10;0.02;0;False;1,1;True;10,0;11;0;FLOAT2;0,0;False;1;SAMPLER2D;;False;7;SAMPLERSTATE;;False;2;FLOAT;0;False;3;FLOAT3;0,0,0;False;8;INT;0;False;9;INT;0;False;10;INT;0;False;4;FLOAT;0;False;5;FLOAT2;0,0;False;6;FLOAT;0;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.DdyOpNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;41;-656,-96;Inherit;False;1;0;FLOAT2;0,0;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.RegisterLocalVarNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;39;-752,-240;Float;False;customUVs;1;False;1;0;FLOAT2;0,0;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.DdxOpNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;40;-656,-160;Inherit;False;1;0;FLOAT2;0,0;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;25;192,256;Float;False;Property;_RoughScale;Rough Scale;5;0;Create;True;0;0;0;False;0;False;0.5;0.5;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.SamplerNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;20;64,336;Inherit;True;Property;_Roughness;Roughness;4;0;Create;True;0;0;0;False;0;False;-1;None;b6a6c7bc322040c5b1fed27b535af25f;True;0;False;white;Auto;False;Object;-1;Derivative;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;1;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;24;-292.5285,-343.4738;Float;False;Property;_NormalScale;Normal Scale;2;0;Create;True;0;0;0;False;0;False;0.5;1;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.SimpleMultiplyOpNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;26;377.1725,251.9035;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SamplerNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;21;64,528;Inherit;True;Property;_Occlusion;Occlusion;6;0;Create;True;0;0;0;False;0;False;-1;None;d6dd85c78644495f98c427634c7d81e7;True;0;False;white;Auto;False;Object;-1;Derivative;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;1;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.SamplerNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;11;64,-320;Inherit;True;Property;_Albedo;Albedo;0;0;Create;True;0;0;0;False;0;False;-1;None;4998839cc7304cff87a29e2535dd1bbb;True;0;False;white;Auto;False;Object;-1;Derivative;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;1;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.SamplerNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;23;64,64;Inherit;True;Property;_Metallic;Metallic;3;0;Create;True;0;0;0;False;0;False;-1;None;0f1be42ec7d6427fbeb99bb7a4480d54;True;0;False;white;Auto;False;Object;-1;Derivative;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;1;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.SamplerNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;14;64,-128;Inherit;True;Property;_Normal;Normal;1;0;Create;True;0;0;0;False;0;False;-1;None;0e5318892134427a92eb01a797250708;True;0;True;bump;Auto;True;Object;-1;Derivative;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;1;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.OneMinusNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;42;506.9241,247.9579;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;48;780.7046,-269.0693;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ExtraPrePass;0;0;ExtraPrePass;6;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;5;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;AlwaysRenderMotionVectors=false;True;5;True;12;all;0;False;True;1;1;False;;0;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;0;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;49;780.7046,-269.0693;Float;False;True;-1;2;UnityEditor.ShaderGraphLitGUI;0;12;AmplifyShaderPack/Parallax Occlusion Mapping;94348b07e5e8bab40bd6c8a1e3df54cd;True;Forward;0;1;Forward;21;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;5;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;AlwaysRenderMotionVectors=false;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;1;LightMode=UniversalForward;False;False;0;;0;0;Standard;48;Lighting Model;0;0;Workflow;1;0;Surface;0;0;  Refraction Model;0;0;  Blend;0;0;Two Sided;1;0;Alpha Clipping;0;638667079138216040;  Use Shadow Threshold;0;0;Fragment Normal Space,InvertActionOnDeselection;0;0;Forward Only;0;0;Transmission;0;0;  Transmission Shadow;0.5,True,_ASETransmissionShadow;0;Translucency;0;0;  Translucency Strength;1,True,_ASETranslucencyStrength;0;  Normal Distortion;0.5,True,_ASETranslucencyNormalDistortion;0;  Scattering;2,True,_ASETranslucencyScattering;0;  Direct;0.9,True,_ASETranslucencyDirect;0;  Ambient;0.1,True,_ASETranslucencyAmbient;0;  Shadow;0.5,True,_ASETranslucencyShadow;0;Cast Shadows;1;0;Receive Shadows;1;0;Receive SSAO;1;0;Specular Highlights;1;0;Environment Reflections;1;0;Motion Vectors;1;0;  Add Precomputed Velocity;0;0;  XR Motion Vectors;0;0;GPU Instancing;1;0;LOD CrossFade;1;0;Built-in Fog;1;0;_FinalColorxAlpha;0;0;Meta Pass;1;0;Override Baked GI;0;0;Extra Pre Pass;0;0;Tessellation;0;0;  Phong;0;0;  Strength;0.5,True,_TessellationPhong;0;  Type;0;0;  Tess;16,True,_TessellationStrength;0;  Min;10,True,_TessellationDistanceMin;0;  Max;25,True,_TessellationDistanceMax;0;  Edge Length;16,False,;0;  Max Displacement;25,False,;0;Write Depth;0;0;  Early Z;0;0;Vertex Position,InvertActionOnDeselection;1;0;Debug Display;0;0;Clear Coat;0;0;0;12;False;True;True;True;True;True;True;True;True;True;True;False;False;;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;50;780.7046,-269.0693;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ShadowCaster;0;2;ShadowCaster;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;5;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;AlwaysRenderMotionVectors=false;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;True;False;False;False;False;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;False;True;1;LightMode=ShadowCaster;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;51;780.7046,-269.0693;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;DepthOnly;0;3;DepthOnly;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;5;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;AlwaysRenderMotionVectors=false;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;True;False;False;False;False;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;False;False;True;1;LightMode=DepthOnly;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;52;780.7046,-269.0693;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;Meta;0;4;Meta;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;5;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;AlwaysRenderMotionVectors=false;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Meta;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;53;780.7046,-269.0693;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;Universal2D;0;5;Universal2D;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;5;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;AlwaysRenderMotionVectors=false;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;1;LightMode=Universal2D;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;54;780.7046,-269.0693;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;DepthNormals;0;6;DepthNormals;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;5;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;AlwaysRenderMotionVectors=false;True;5;True;12;all;0;False;True;1;1;False;;0;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;;True;3;False;;False;True;1;LightMode=DepthNormals;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;55;780.7046,-269.0693;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;GBuffer;0;7;GBuffer;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;5;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;AlwaysRenderMotionVectors=false;True;5;True;12;all;0;False;True;1;1;False;;0;False;;1;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;1;LightMode=UniversalGBuffer;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;56;780.7046,-189.0693;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;SceneSelectionPass;0;8;SceneSelectionPass;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;5;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;AlwaysRenderMotionVectors=false;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;2;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=SceneSelectionPass;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;57;780.7046,-189.0693;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;ScenePickingPass;0;9;ScenePickingPass;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;5;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;AlwaysRenderMotionVectors=false;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Picking;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;58;780.7046,-169.0693;Float;False;False;-1;2;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;MotionVectors;0;10;MotionVectors;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;5;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;AlwaysRenderMotionVectors=false;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;False;False;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=MotionVectors;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;59;780.7046,-159.0693;Float;False;False;-1;3;UnityEditor.ShaderGraphLitGUI;0;1;New Amplify Shader;94348b07e5e8bab40bd6c8a1e3df54cd;True;XRMotionVectors;0;11;XRMotionVectors;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;True;0;False;;False;False;False;False;False;False;False;False;False;True;False;0;False;;255;False;;255;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;True;1;False;;True;3;False;;True;True;0;False;;0;False;;True;5;RenderPipeline=UniversalPipeline;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;UniversalMaterialType=Lit;AlwaysRenderMotionVectors=false;True;5;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;False;False;False;False;False;False;True;True;1;False;;255;False;;1;False;;7;False;;3;False;;0;False;;0;False;;0;False;;0;False;;0;False;;0;False;;False;False;False;False;True;1;LightMode=XRMotionVectors;False;False;0;;0;0;Standard;0;False;0
 WireConnection;47;0;43;0
 WireConnection;47;1;45;0
 WireConnection;8;0;10;0
@@ -4092,9 +4112,14 @@ WireConnection;40;0;10;0
 WireConnection;20;1;39;0
 WireConnection;20;3;40;0
 WireConnection;20;4;41;0
+WireConnection;26;0;25;0
+WireConnection;26;1;20;1
 WireConnection;21;1;39;0
 WireConnection;21;3;40;0
 WireConnection;21;4;41;0
+WireConnection;11;1;39;0
+WireConnection;11;3;40;0
+WireConnection;11;4;41;0
 WireConnection;23;1;39;0
 WireConnection;23;3;40;0
 WireConnection;23;4;41;0
@@ -4102,16 +4127,11 @@ WireConnection;14;1;39;0
 WireConnection;14;3;40;0
 WireConnection;14;4;41;0
 WireConnection;14;5;24;0
-WireConnection;26;0;25;0
-WireConnection;26;1;20;1
 WireConnection;42;0;26;0
-WireConnection;11;1;39;0
-WireConnection;11;3;40;0
-WireConnection;11;4;41;0
 WireConnection;49;0;11;0
 WireConnection;49;1;14;0
 WireConnection;49;3;23;1
 WireConnection;49;4;42;0
 WireConnection;49;5;21;0
 ASEEND*/
-//CHKSM=D7BF9FB9850671EA02FB66C185E5B1B800B33A3A
+//CHKSM=25FCF19E57BFF8A2810C672A06B32A381EF4CC35

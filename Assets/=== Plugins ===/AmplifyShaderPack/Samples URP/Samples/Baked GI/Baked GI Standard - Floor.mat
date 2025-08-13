@@ -123,7 +123,7 @@ Material:
     - _NormalIntensity: 1
     - _NormalStrength: 1
     - _OcclusionStrength: 1
-    - _OcclusionStrengthAO: 0
+    - _OcclusionStrengthAO: 0.15
     - _OpaqueCullMode: 2
     - _Parallax: 0.02
     - _QueueControl: 0
@@ -139,7 +139,7 @@ Material:
     - _ShadowSharpness: 0.7
     - _ShadowStrength: 1
     - _Smoothness: 0.644
-    - _SmoothnessStrength: 0
+    - _SmoothnessStrength: 0.75
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -168,7 +168,7 @@ Material:
     - _ZWrite: 1
     - __dirty: 0
     m_Colors:
-    - _BaseColor: {r: 0.9882353, g: 0.98039216, b: 0.9607843, a: 0}
+    - _BaseColor: {r: 0.9882353, g: 0.98039216, b: 0.96078426, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}

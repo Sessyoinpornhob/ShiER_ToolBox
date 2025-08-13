@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Baked GI Specular Cutout
   m_Shader: {fileID: 4800000, guid: d3083426f44d4dd9884d577aa6b789d7, type: 3}
-  m_ShaderKeywords: 
+  m_ShaderKeywords: _NORMALMAP _WINDQUALITY_NONE
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -120,7 +120,7 @@ Material:
     - _NormalMapKwToggle: 0
     - _NormalStrength: 1
     - _OcclusionStrength: 1
-    - _OcclusionStrengthAO: 0
+    - _OcclusionStrengthAO: 0.2
     - _Parallax: 0.02
     - _QueueControl: 0
     - _QueueOffset: 0
@@ -130,10 +130,10 @@ Material:
     - _ShadowOffset: 0.5
     - _ShadowSharpness: 0.7
     - _ShadowStrength: 1
-    - _SmoothnessStrength: 0
+    - _SmoothnessStrength: 0.129
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
-    - _SpecularStrength: 0.164
+    - _SpecularStrength: 0.226
     - _SrcBlend: 1
     - _SubsurfaceIndirect: 0.25
     - _SubsurfaceKwToggle: 0

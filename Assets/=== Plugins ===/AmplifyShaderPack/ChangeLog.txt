@@ -1,3 +1,50 @@
+v2.3.5
+
+   Highlights
+      * Updated per ASE editor v1.9.9.1
+      * New add samples for Unity 6000.1 (17.1x)
+      * Updated sample "Reflection Probe URP"
+      * Updated sample "Community Physical Based Rendering"
+         * New shader Physical Based Rendering Eye
+         * New shader Physical Based Rendering Hair
+         * New shader Physical Based Rendering Skin
+         * New function SRP Additional Lighting Data
+         * New function SRP Additional Lighting PBR
+         * Updated function PBR Core
+         * Updated function PBR Light Model
+         * Updated function GSF CookTorrance
+         * Updated function NDF Ward Anisotropic
+         * Updated function NDF Trowbridge Reitz Anisotropic
+         * Updated function NDF Trowbridge Reitz
+         * Updated function NDF GGX
+         * Updated function NDF BlinnPhong
+         * Updated function NDF Beckman
+      * Fix URP sample Stencil Portals
+
+v2.3.4
+
+   Highlights
+      * Updated per ASE editor v1.9.8.1
+      * Updated "Reflection Probe URP"
+
+v2.3.3
+
+   Highlights
+      * Updated per ASE editor v1.9.8.0
+      * Housekeeping removed unused prefabs
+      * Updated all functions "Community Physical Based Rendering"
+      * Removed and moved Saturation function into ASE
+
+v2.3.2
+
+   Highlights
+      * Updated per ASE editor v1.9.6.3
+      * Updated "Community Physical Based Rendering" (BIRP/HDRP/HDRP)
+         * PBR Light model name changed to PBR Core
+         * PBR Core updated Indirect Diffuse
+      * Updated Function "Material Baked GI" (BIRP/HDRP/HDRP)
+      * Updated Function "Material Lighting" (BIRP/HDRP/HDRP)
+
 v2.3.1
 
    Highlights
@@ -10,7 +57,7 @@ v2.3.0
       * Updated per ASE editor v1.9.6.0
       * Updated 17x per Unity 6000.0.9 and higher
       * Optimized package size
-      * Housekeeping removed unused prefabs 
+      * Housekeeping removed unused prefabs
       * Updated "Community Physical Based Rendering" (BIRP/HDRP/HDRP)
          * PBR Light model
          * GSF GGX
@@ -41,17 +88,17 @@ v2.2.0
       * Updated Reflection Probe URP (URP)
       * Updated Terrain Samples (BIRP/HDRP)
       * Update demo scene lighting (BIRP/HDRP/HDRP)
- 
+
 
 v2.1.2
 
    Highlights
-      * Updated per ASE editor v1.9.3.3 
+      * Updated per ASE editor v1.9.3.3
       * Updated samples URP/HDRP 17x (updated per Beta 6000.0b13)
       * Updated URP 14x per unity version 2022.3.18 & or higher
       * Added samples scene Particle Heat Haze (URP)
-      * Added samples scene Material Sample Billboard (BIRP/HDRP/HDRP) 
-      * Updated Material Sample Hair (HDRP)  
+      * Added samples scene Material Sample Billboard (BIRP/HDRP/HDRP)
+      * Updated Material Sample Hair (HDRP)
 
 v2.1.1
 
@@ -61,14 +108,14 @@ v2.1.1
 v2.1.0
 
    Highlights
-      * Updated per ASE editor v1.9.3.0 
+      * Updated per ASE editor v1.9.3.0
       * Added samples URP/HDRP 17x (updated per Beta 2023.3.0b4)
       * New sample Refraction HDRP
 
 v2.0.0.2
 
    Highlights
-      * Updated per ASE editor v1.9.2.2 
+      * Updated per ASE editor v1.9.2.2
       * Updated function Material Baked GI
       * Updated function Material Lighting
       * Updated function Terrain 4 Layer
@@ -77,7 +124,7 @@ v2.0.0.2
 v2.0.0.1
 
    Highlights
-      * Updated per ASE editor v1.9.2.1 
+      * Updated per ASE editor v1.9.2.1
       * New material lighting function replaced baked GI  function
       * New example scripts for Global Light Settings (BIRP)
 
@@ -87,7 +134,7 @@ v2.0.0
       * Added samples for URP/HDRP 16x (updated per Beta 2023.2.0b5)
       * Added samples for URP/HDRP 15x
       * Added samples for URP/HDRP 14x
-      * Updated samples for URP/HDRP 10x and 12x      
+      * Updated samples for URP/HDRP 10x and 12x
       * Fixed all samples for URP/HDRP versions 10 to 12
       * Built with Amplify Shader Editor v1.9.2
       * Improved Start Screen sample importer

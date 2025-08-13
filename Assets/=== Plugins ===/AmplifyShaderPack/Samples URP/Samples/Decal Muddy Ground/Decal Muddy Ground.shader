@@ -1,4 +1,4 @@
-// Made with Amplify Shader Editor v1.9.6.2
+// Made with Amplify Shader Editor v1.9.9.1
 // Available at the Unity Asset Store - http://u3d.as/y3X 
 Shader  "AmplifyShaderPack/Decal Muddy Ground"
 {
@@ -6,13 +6,13 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
     {
         [HideInInspector] _AlphaCutoff("Alpha Cutoff ", Range(0, 1)) = 0.5
         [HideInInspector] _EmissionColor("Emission Color", Color) = (1,1,1,1)
-        _BaseColor("Base Color", 2D) = "white" {}
-        _Mask("Mask", 2D) = "white" {}
-        _Normal("Normal", 2D) = "bump" {}
-        _SmoothnessMultiplier("Smoothness Multiplier", Range( 0 , 1)) = 0
-        _NormalIntensity("Normal Intensity", Float) = 1
-        _DecalQuantity("Decal Quantity", Float) = 2
-        [IntRange]_DecalType("Decal Type", Range( 0 , 3)) = 3
+        _BaseColor( "Base Color", 2D ) = "white" {}
+        _Mask( "Mask", 2D ) = "white" {}
+        _Normal( "Normal", 2D ) = "bump" {}
+        _SmoothnessMultiplier( "Smoothness Multiplier", Range( 0, 1 ) ) = 0
+        _NormalIntensity( "Normal Intensity", Float ) = 1
+        _DecalQuantity( "Decal Quantity", Float ) = 2
+        [IntRange] _DecalType( "Decal Type", Range( 0, 3 ) ) = 3
 
 
         [HideInInspector] _DrawOrder("Draw Order", Range(-50, 50)) = 0
@@ -69,7 +69,8 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 			#define _MATERIAL_AFFECTS_NORMAL_BLEND 1
 			#define  _MATERIAL_AFFECTS_MAOS 1
 			#define DECAL_ANGLE_FADE 1
-			#define ASE_SRP_VERSION 140011
+			#define ASE_VERSION 19901
+			#define ASE_SRP_VERSION 170004
 
 
 			#pragma vertex Vert
@@ -82,47 +83,25 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 			#pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
 			#pragma multi_compile _ _DECAL_LAYERS
 
-			
-
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
             #define HAVE_MESH_MODIFICATION
             #define SHADERPASS SHADERPASS_DBUFFER_PROJECTOR
 
-			#if _RENDER_PASS_ENABLED
-			#define GBUFFER3 0
-			#define GBUFFER4 1
-			FRAMEBUFFER_INPUT_HALF(GBUFFER3);
-			FRAMEBUFFER_INPUT_HALF(GBUFFER4);
-			#endif
-
-			
-
-			
-            #if ASE_SRP_VERSION >=140007
 			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-			#endif
-		
-
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
-			
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
+            #include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
+			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/DebugMipmapStreamingMacros.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ProbeVolumeVariants.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DecalInput.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderVariablesDecal.hlsl"
@@ -131,6 +110,13 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 			#if defined(LOD_FADE_CROSSFADE)
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
             #endif
+
+			#if _RENDER_PASS_ENABLED
+			#define GBUFFER3 0
+			#define GBUFFER4 1
+			FRAMEBUFFER_INPUT_X_HALF(GBUFFER3);
+			FRAMEBUFFER_INPUT_X_HALF(GBUFFER4);
+			#endif
 
 			#define ASE_NEEDS_FRAG_TEXTURE_COORDINATES0
 
@@ -176,6 +162,7 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 			#if defined(DECAL_ANGLE_FADE)
 			float _DecalAngleFadeSupported;
 			#endif
+			UNITY_TEXTURE_STREAMING_DEBUG_VARS;
 			CBUFFER_END
 
             #ifdef SCENEPICKINGPASS
@@ -213,10 +200,21 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
                 surfaceData.baseColor.xyz = half3(surfaceDescription.BaseColor);
                 surfaceData.baseColor.w = half(surfaceDescription.Alpha * fadeFactor);
 
-                #if defined(_MATERIAL_AFFECTS_NORMAL)
-                    surfaceData.normalWS.xyz = mul((half3x3)normalToWorld, surfaceDescription.NormalTS.xyz);
-                #else
-                    surfaceData.normalWS.xyz = normalToWorld[2].xyz;
+                #if (SHADERPASS == SHADERPASS_DBUFFER_PROJECTOR) || (SHADERPASS == SHADERPASS_DECAL_SCREEN_SPACE_PROJECTOR) || (SHADERPASS == SHADERPASS_DECAL_GBUFFER_PROJECTOR)
+                    #if defined(_MATERIAL_AFFECTS_NORMAL)
+						surfaceData.normalWS.xyz = normalize(mul((half3x3)normalToWorld, surfaceDescription.NormalTS.xyz));
+                    #else
+						surfaceData.normalWS.xyz = normalize(normalToWorld[2].xyz);
+                    #endif
+                #elif (SHADERPASS == SHADERPASS_DBUFFER_MESH) || (SHADERPASS == SHADERPASS_DECAL_SCREEN_SPACE_MESH) || (SHADERPASS == SHADERPASS_DECAL_GBUFFER_MESH)
+                    #if defined(_MATERIAL_AFFECTS_NORMAL)
+                        float sgn = input.tangentWS.w;
+                        float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+                        half3x3 tangentToWorld = half3x3(input.tangentWS.xyz, bitangent.xyz, input.normalWS.xyz);
+                        surfaceData.normalWS.xyz = normalize(TransformTangentToWorld(surfaceDescription.NormalTS, tangentToWorld));
+                    #else
+						surfaceData.normalWS.xyz = normalize(half3(input.normalWS));
+                    #endif
                 #endif
 
                 surfaceData.normalWS.w = surfaceDescription.NormalAlpha * fadeFactor;
@@ -321,12 +319,21 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				clip((surfaceRenderingLayer & projectorRenderingLayer) - 0.1);
             #endif
 
-
-				#if UNITY_REVERSED_Z
-					float depth = LoadSceneDepth(packedInput.positionCS.xy);
-				#else
-					float depth = lerp(UNITY_NEAR_CLIP_VALUE, 1, LoadSceneDepth(packedInput.positionCS.xy));
-				#endif
+			#if defined(DECAL_PROJECTOR)
+			#if UNITY_REVERSED_Z
+			#if _RENDER_PASS_ENABLED
+				float depth = LOAD_FRAMEBUFFER_X_INPUT(GBUFFER3, packedInput.positionCS.xy).x;
+			#else
+				float depth = LoadSceneDepth(packedInput.positionCS.xy);
+			#endif
+			#else
+			#if _RENDER_PASS_ENABLED
+				float depth = lerp(UNITY_NEAR_CLIP_VALUE, 1, LOAD_FRAMEBUFFER_X_INPUT(GBUFFER3, packedInput.positionCS.xy));
+			#else
+				float depth = lerp(UNITY_NEAR_CLIP_VALUE, 1, LoadSceneDepth(packedInput.positionCS.xy));
+			#endif
+			#endif
+			#endif
 
 				#if defined(DECAL_RECONSTRUCT_NORMAL)
 					#if defined(_DECAL_NORMAL_BLEND_HIGH)
@@ -340,12 +347,20 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 					half3 normalWS = half3(LoadSceneNormals(packedInput.positionCS.xy));
 				#endif
 
-				float2 positionSS = packedInput.positionCS.xy * _ScreenSize.zw;
+				float2 positionSS = FoveatedRemapNonUniformToLinearCS(packedInput.positionCS.xy) * _ScreenSize.zw;
 
-				float3 positionWS = ComputeWorldSpacePosition(positionSS, depth, UNITY_MATRIX_I_VP);
+				float4 positionCS = ComputeClipSpacePosition( positionSS, depth );
+				float4 hpositionVS = mul( UNITY_MATRIX_I_P, positionCS );
 
+				float4 ScreenPosNorm = float4( positionSS, positionCS.zw );
+				float4 ClipPos = positionCS * packedInput.positionCS.w;
+				float4 ScreenPos = ComputeScreenPos( ClipPos );
+				float3 PositionRWS = mul( ( float3x3 )UNITY_MATRIX_I_V, hpositionVS.xyz / hpositionVS.w );
+				float3 PositionWS = PositionRWS + _WorldSpaceCameraPos;
+				float3 PositionOS = TransformWorldToObject( PositionWS );
+				float3 PositionVS = TransformWorldToView( PositionWS );
 
-				float3 positionDS = TransformWorldToObject(positionWS);
+				float3 positionDS = TransformWorldToObject(PositionWS);
 				positionDS = positionDS * float3(1.0, -1.0, 1.0);
 
 				float clipValue = 0.5 - Max3(abs(positionDS).x, abs(positionDS).y, abs(positionDS).z);
@@ -411,7 +426,7 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				// UV Offset
 				float2 fboffset17 = float2(fboffsetx17, fboffsety17);
 				// Flipbook UV
-				half2 fbuv17 = texCoord15 * fbtiling17 + fboffset17;
+				float2 fbuv17 = texCoord15 * fbtiling17 + fboffset17;
 				// *** END Flipbook UV Animation vars ***
 				int flipbookFrame17 = ( ( int )fbcurrenttileindex17);
 				float2 FlipUVs20 = fbuv17;
@@ -438,10 +453,6 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				GetSurfaceData(surfaceDescription, angleFadeFactor, surfaceData);
 				ENCODE_INTO_DBUFFER(surfaceData, outDBuffer);
 
-                #if defined(_FOVEATED_RENDERING_NON_UNIFORM_RASTER)
-                positionSS = RemapFoveatedRenderingDistortCS(packedInput.positionCS.xy, true) * _ScreenSize.zw;
-                #endif
-
 			}
             ENDHLSL
         }
@@ -465,7 +476,8 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 			#define _MATERIAL_AFFECTS_NORMAL_BLEND 1
 			#define  _MATERIAL_AFFECTS_MAOS 1
 			#define DECAL_ANGLE_FADE 1
-			#define ASE_SRP_VERSION 140011
+			#define ASE_VERSION 19901
+			#define ASE_SRP_VERSION 170004
 
 
 			#pragma vertex Vert
@@ -477,22 +489,16 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 			#pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
 			#pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
 			#pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
-
-			
-
-			
-			#pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
-           
-
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
 			#pragma multi_compile _ _FORWARD_PLUS
-
-			
-
+			#pragma multi_compile_fragment _ _LIGHT_COOKIES
+			#pragma multi_compile_fragment _ DEBUG_DISPLAY
 			#pragma multi_compile _DECAL_NORMAL_BLEND_LOW _DECAL_NORMAL_BLEND_MEDIUM _DECAL_NORMAL_BLEND_HIGH
 			#pragma multi_compile _ _DECAL_LAYERS
 
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
             #define ATTRIBUTES_NEED_NORMAL
 			#define ATTRIBUTES_NEED_TEXCOORD0
@@ -508,39 +514,18 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 
             #define SHADERPASS SHADERPASS_DECAL_SCREEN_SPACE_PROJECTOR
 
-			#if _RENDER_PASS_ENABLED
-			#define GBUFFER3 0
-			#define GBUFFER4 1
-			FRAMEBUFFER_INPUT_HALF(GBUFFER3);
-			FRAMEBUFFER_INPUT_HALF(GBUFFER4);
-			#endif
-
-			
-
-			
-            #if ASE_SRP_VERSION >=140007
 			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-			#endif
-		
-
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
-			
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
+            #include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
+			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/DebugMipmapStreamingMacros.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ProbeVolumeVariants.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DecalInput.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderVariablesDecal.hlsl"
@@ -548,6 +533,13 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 		    #if defined(LOD_FADE_CROSSFADE)
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
             #endif
+
+			#if _RENDER_PASS_ENABLED
+			#define GBUFFER3 0
+			#define GBUFFER4 1
+			FRAMEBUFFER_INPUT_X_HALF(GBUFFER3);
+			FRAMEBUFFER_INPUT_X_HALF(GBUFFER4);
+			#endif
 
 			#define ASE_NEEDS_FRAG_TEXTURE_COORDINATES0
 
@@ -579,10 +571,12 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				float4 positionCS : SV_POSITION;
 				float3 normalWS : TEXCOORD0;
 				float3 viewDirectionWS : TEXCOORD1;
-				float2 staticLightmapUV : TEXCOORD2;
-				float2 dynamicLightmapUV : TEXCOORD3;
-				float3 sh : TEXCOORD4;
-				float4 fogFactorAndVertexLight : TEXCOORD5;
+				float4 lightmapUVs : TEXCOORD2; // @diogo: packs both static (xy) and dynamic (zw)
+				float3 sh : TEXCOORD3;
+				float4 fogFactorAndVertexLight : TEXCOORD4;
+				#ifdef USE_APV_PROBE_OCCLUSION
+					float4 probeOcclusion : TEXCOORD5;
+				#endif
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
@@ -600,6 +594,7 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 			#if defined(DECAL_ANGLE_FADE)
 			float _DecalAngleFadeSupported;
 			#endif
+			UNITY_TEXTURE_STREAMING_DEBUG_VARS;
 			CBUFFER_END
 
             #ifdef SCENEPICKINGPASS
@@ -641,10 +636,21 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
                 surfaceData.baseColor.xyz = half3(surfaceDescription.BaseColor);
                 surfaceData.baseColor.w = half(surfaceDescription.Alpha * fadeFactor);
 
-                #if defined(_MATERIAL_AFFECTS_NORMAL)
-                    surfaceData.normalWS.xyz = mul((half3x3)normalToWorld, surfaceDescription.NormalTS.xyz);
-                #else
-                    surfaceData.normalWS.xyz = normalToWorld[2].xyz;
+                #if (SHADERPASS == SHADERPASS_DBUFFER_PROJECTOR) || (SHADERPASS == SHADERPASS_DECAL_SCREEN_SPACE_PROJECTOR) || (SHADERPASS == SHADERPASS_DECAL_GBUFFER_PROJECTOR)
+                    #if defined(_MATERIAL_AFFECTS_NORMAL)
+						surfaceData.normalWS.xyz = normalize(mul((half3x3)normalToWorld, surfaceDescription.NormalTS.xyz));
+                    #else
+						surfaceData.normalWS.xyz = normalize(normalToWorld[2].xyz);
+                    #endif
+                #elif (SHADERPASS == SHADERPASS_DBUFFER_MESH) || (SHADERPASS == SHADERPASS_DECAL_SCREEN_SPACE_MESH) || (SHADERPASS == SHADERPASS_DECAL_GBUFFER_MESH)
+                    #if defined(_MATERIAL_AFFECTS_NORMAL)
+                        float sgn = input.tangentWS.w;
+                        float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+                        half3x3 tangentToWorld = half3x3(input.tangentWS.xyz, bitangent.xyz, input.normalWS.xyz);
+                        surfaceData.normalWS.xyz = normalize(TransformTangentToWorld(surfaceDescription.NormalTS, tangentToWorld));
+                    #else
+						surfaceData.normalWS.xyz = normalize(half3(input.normalWS));
+                    #endif
                 #endif
 
                 surfaceData.normalWS.w = surfaceDescription.NormalAlpha * fadeFactor;
@@ -716,27 +722,44 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				inputData.viewDirectionWS = viewDirectionWS;
 				inputData.shadowCoord = float4(0, 0, 0, 0);
 
-				inputData.fogCoord = half(input.fogFactorAndVertexLight.x);
-				inputData.vertexLighting = half3(input.fogFactorAndVertexLight.yzw);
-
-				#if defined(VARYINGS_NEED_DYNAMIC_LIGHTMAP_UV) && defined(DYNAMICLIGHTMAP_ON)
-					inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.dynamicLightmapUV.xy, half3(input.sh), normalWS);
-				#elif defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV)
-					inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, half3(input.sh), normalWS);
+				#ifdef VARYINGS_NEED_FOG_AND_VERTEX_LIGHT
+					inputData.fogCoord = InitializeInputDataFog(float4(positionWS, 1.0), input.fogFactorAndVertexLight.x);
+					inputData.vertexLighting = input.fogFactorAndVertexLight.yzw;
 				#endif
 
-				#if defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV)
-					inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
+				#if defined(VARYINGS_NEED_DYNAMIC_LIGHTMAP_UV) && defined(DYNAMICLIGHTMAP_ON)
+					inputData.bakedGI = SAMPLE_GI(input.lightmapUVs.xy, input.lightmapUVs.zw, half3(input.sh), normalWS);
+					#if defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV)
+					inputData.shadowMask = SAMPLE_SHADOWMASK(input.lightmapUVs.xy);
+					#endif
+				#elif defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV)
+				#if !defined(LIGHTMAP_ON) && (defined(PROBE_VOLUMES_L1) || defined(PROBE_VOLUMES_L2))
+    				inputData.bakedGI = SAMPLE_GI(input.sh,
+					GetAbsolutePositionWS(inputData.positionWS),
+					inputData.normalWS,
+					inputData.viewDirectionWS,
+					input.positionCS.xy,
+					input.probeOcclusion,
+					inputData.shadowMask);
+				#else
+					inputData.bakedGI = SAMPLE_GI(input.lightmapUVs.xy, half3(input.sh), normalWS);
+					#if defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV)
+					inputData.shadowMask = SAMPLE_SHADOWMASK(input.lightmapUVs.xy);
+					#endif
+				#endif
 				#endif
 
 				#if defined(DEBUG_DISPLAY)
 					#if defined(VARYINGS_NEED_DYNAMIC_LIGHTMAP_UV) && defined(DYNAMICLIGHTMAP_ON)
-						inputData.dynamicLightmapUV = input.dynamicLightmapUV.xy;
+						inputData.dynamicLightmapUV = input.lightmapUVs.zw;
 					#endif
-					#if defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV && LIGHTMAP_ON)
-						inputData.staticLightmapUV = input.staticLightmapUV;
+					#if defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV) && defined(LIGHTMAP_ON)
+						inputData.staticLightmapUV = input.lightmapUVs.xy;
 					#elif defined(VARYINGS_NEED_SH)
 						inputData.vertexSH = input.sh;
+					#endif
+					#if defined(USE_APV_PROBE_OCCLUSION)
+						inputData.probeOcclusion = input.probeOcclusion;
 					#endif
 				#endif
 
@@ -788,11 +811,11 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				packedOutput.viewDirectionWS.xyz =  GetWorldSpaceViewDir(positionWS);
 
 				#if defined(LIGHTMAP_ON)
-					OUTPUT_LIGHTMAP_UV(inputMesh.uv1, unity_LightmapST, packedOutput.staticLightmapUV);
+					OUTPUT_LIGHTMAP_UV(inputMesh.uv1, unity_LightmapST, packedOutput.lightmapUVs.xy);
 				#endif
 
 				#if defined(DYNAMICLIGHTMAP_ON)
-					packedOutput.dynamicLightmapUV.xy = inputMesh.uv2.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
+					packedOutput.lightmapUVs.zw = inputMesh.uv2.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
 				#endif
 
 				#if !defined(LIGHTMAP_ON)
@@ -822,11 +845,21 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				clip((surfaceRenderingLayer & projectorRenderingLayer) - 0.1);
             #endif
 
-				#if UNITY_REVERSED_Z
-					float depth = LoadSceneDepth(packedInput.positionCS.xy);
-				#else
-					float depth = lerp(UNITY_NEAR_CLIP_VALUE, 1, LoadSceneDepth(packedInput.positionCS.xy));
-				#endif
+			#if defined(DECAL_PROJECTOR)
+			#if UNITY_REVERSED_Z
+			#if _RENDER_PASS_ENABLED
+				float depth = LOAD_FRAMEBUFFER_X_INPUT(GBUFFER3, packedInput.positionCS.xy).x;
+			#else
+				float depth = LoadSceneDepth(packedInput.positionCS.xy);
+			#endif
+			#else
+			#if _RENDER_PASS_ENABLED
+				float depth = lerp(UNITY_NEAR_CLIP_VALUE, 1, LOAD_FRAMEBUFFER_X_INPUT(GBUFFER3, packedInput.positionCS.xy));
+			#else
+				float depth = lerp(UNITY_NEAR_CLIP_VALUE, 1, LoadSceneDepth(packedInput.positionCS.xy));
+			#endif
+			#endif
+			#endif
 
 				#if defined(DECAL_RECONSTRUCT_NORMAL)
 					#if defined(_DECAL_NORMAL_BLEND_HIGH)
@@ -840,11 +873,20 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 					half3 normalWS = half3(LoadSceneNormals(packedInput.positionCS.xy));
 				#endif
 
-				float2 positionSS = packedInput.positionCS.xy * _ScreenSize.zw;
+				float2 positionSS = FoveatedRemapNonUniformToLinearCS(packedInput.positionCS.xy) * _ScreenSize.zw;
 
-				float3 positionWS = ComputeWorldSpacePosition(positionSS, depth, UNITY_MATRIX_I_VP);
+				float4 positionCS = ComputeClipSpacePosition( positionSS, depth );
+				float4 hpositionVS = mul( UNITY_MATRIX_I_P, positionCS );
 
-				float3 positionDS = TransformWorldToObject(positionWS);
+				float4 ScreenPosNorm = float4( positionSS, positionCS.zw );
+				float4 ClipPos = positionCS * packedInput.positionCS.w;
+				float4 ScreenPos = ComputeScreenPos( ClipPos );
+				float3 PositionRWS = mul( ( float3x3 )UNITY_MATRIX_I_V, hpositionVS.xyz / hpositionVS.w );
+				float3 PositionWS = PositionRWS + _WorldSpaceCameraPos;
+				float3 PositionOS = TransformWorldToObject( PositionWS );
+				float3 PositionVS = TransformWorldToView( PositionWS );
+
+				float3 positionDS = TransformWorldToObject(PositionWS);
 				positionDS = positionDS * float3(1.0, -1.0, 1.0);
 
 				float clipValue = 0.5 - Max3(abs(positionDS).x, abs(positionDS).y, abs(positionDS).z);
@@ -909,7 +951,7 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				// UV Offset
 				float2 fboffset17 = float2(fboffsetx17, fboffsety17);
 				// Flipbook UV
-				half2 fbuv17 = texCoord15 * fbtiling17 + fboffset17;
+				float2 fbuv17 = texCoord15 * fbtiling17 + fboffset17;
 				// *** END Flipbook UV Animation vars ***
 				int flipbookFrame17 = ( ( int )fbcurrenttileindex17);
 				float2 FlipUVs20 = fbuv17;
@@ -940,12 +982,13 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 
 				GetSurfaceData( surfaceDescription, angleFadeFactor, surfaceData);
 
+				half3 normalToPack = surfaceData.normalWS.xyz;
 				#ifdef DECAL_RECONSTRUCT_NORMAL
 					surfaceData.normalWS.xyz = normalize(lerp(normalWS.xyz, surfaceData.normalWS.xyz, surfaceData.normalWS.w));
 				#endif
 
 				InputData inputData;
-				InitializeInputData( packedInput, positionWS, surfaceData.normalWS.xyz, viewDirectionWS, inputData);
+				InitializeInputData( packedInput, PositionWS, surfaceData.normalWS.xyz, viewDirectionWS, inputData);
 
 				SurfaceData surface = (SurfaceData)0;
 				GetSurface(surfaceData, surface);
@@ -953,10 +996,6 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				half4 color = UniversalFragmentPBR(inputData, surface);
 				color.rgb = MixFog(color.rgb, inputData.fogCoord);
 				outColor = color;
-
-               #if defined(_FOVEATED_RENDERING_NON_UNIFORM_RASTER)
-               positionSS = RemapFoveatedRenderingDistortCS(packedInput.positionCS.xy, true) * _ScreenSize.zw;
-               #endif
 
 			}
 			ENDHLSL
@@ -988,7 +1027,8 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 			#define _MATERIAL_AFFECTS_NORMAL_BLEND 1
 			#define  _MATERIAL_AFFECTS_MAOS 1
 			#define DECAL_ANGLE_FADE 1
-			#define ASE_SRP_VERSION 140011
+			#define ASE_VERSION 19901
+			#define ASE_SRP_VERSION 170004
 
 
 			#pragma vertex Vert
@@ -998,13 +1038,7 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 			#pragma editor_sync_compilation
 
 			#pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
-
-			
-
-			
-			#pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
-           
-
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
 			#pragma multi_compile _DECAL_NORMAL_BLEND_LOW _DECAL_NORMAL_BLEND_MEDIUM _DECAL_NORMAL_BLEND_HIGH
 			#pragma multi_compile _ _DECAL_LAYERS
 			#pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
@@ -1012,6 +1046,7 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
             #define ATTRIBUTES_NEED_NORMAL
 			#define ATTRIBUTES_NEED_TEXCOORD0
@@ -1026,39 +1061,18 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 
             #define SHADERPASS SHADERPASS_DECAL_GBUFFER_PROJECTOR
 
-			#if _RENDER_PASS_ENABLED
-			#define GBUFFER3 0
-			#define GBUFFER4 1
-			FRAMEBUFFER_INPUT_HALF(GBUFFER3);
-			FRAMEBUFFER_INPUT_HALF(GBUFFER4);
-			#endif
-
-			
-
-			
-            #if ASE_SRP_VERSION >=140007
 			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-			#endif
-		
-
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
-			
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
+            #include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
+			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/DebugMipmapStreamingMacros.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ProbeVolumeVariants.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DecalInput.hlsl"
@@ -1067,6 +1081,13 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 		    #if defined(LOD_FADE_CROSSFADE)
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
             #endif
+
+			#if _RENDER_PASS_ENABLED
+			#define GBUFFER3 0
+			#define GBUFFER4 1
+			FRAMEBUFFER_INPUT_X_HALF(GBUFFER3);
+			FRAMEBUFFER_INPUT_X_HALF(GBUFFER4);
+			#endif
 
 			#define ASE_NEEDS_FRAG_TEXTURE_COORDINATES0
 
@@ -1098,9 +1119,11 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				float4 positionCS : SV_POSITION;
 				float3 normalWS : TEXCOORD0;
 				float3 viewDirectionWS : TEXCOORD1;
-				float2 staticLightmapUV : TEXCOORD2;
-				float2 dynamicLightmapUV : TEXCOORD3;
-				float3 sh : TEXCOORD4;
+				float4 lightmapUVs : TEXCOORD2; // @diogo: packs both static (xy) and dynamic (zw)
+				float3 sh : TEXCOORD3;
+				#ifdef USE_APV_PROBE_OCCLUSION
+					float4 probeOcclusion : TEXCOORD4;
+				#endif
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
@@ -1118,6 +1141,7 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 			#if defined(DECAL_ANGLE_FADE)
 			float _DecalAngleFadeSupported;
 			#endif
+			UNITY_TEXTURE_STREAMING_DEBUG_VARS;
 			CBUFFER_END
 
             #ifdef SCENEPICKINGPASS
@@ -1159,10 +1183,21 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
                 surfaceData.baseColor.xyz = half3(surfaceDescription.BaseColor);
                 surfaceData.baseColor.w = half(surfaceDescription.Alpha * fadeFactor);
 
-                #if defined(_MATERIAL_AFFECTS_NORMAL)
-                    surfaceData.normalWS.xyz = mul((half3x3)normalToWorld, surfaceDescription.NormalTS.xyz);
-                #else
-                    surfaceData.normalWS.xyz = normalToWorld[2].xyz;
+                #if (SHADERPASS == SHADERPASS_DBUFFER_PROJECTOR) || (SHADERPASS == SHADERPASS_DECAL_SCREEN_SPACE_PROJECTOR) || (SHADERPASS == SHADERPASS_DECAL_GBUFFER_PROJECTOR)
+                    #if defined(_MATERIAL_AFFECTS_NORMAL)
+						surfaceData.normalWS.xyz = normalize(mul((half3x3)normalToWorld, surfaceDescription.NormalTS.xyz));
+                    #else
+						surfaceData.normalWS.xyz = normalize(normalToWorld[2].xyz);
+                    #endif
+                #elif (SHADERPASS == SHADERPASS_DBUFFER_MESH) || (SHADERPASS == SHADERPASS_DECAL_SCREEN_SPACE_MESH) || (SHADERPASS == SHADERPASS_DECAL_GBUFFER_MESH)
+                    #if defined(_MATERIAL_AFFECTS_NORMAL)
+                        float sgn = input.tangentWS.w;
+                        float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+                        half3x3 tangentToWorld = half3x3(input.tangentWS.xyz, bitangent.xyz, input.normalWS.xyz);
+                        surfaceData.normalWS.xyz = normalize(TransformTangentToWorld(surfaceDescription.NormalTS, tangentToWorld));
+                    #else
+						surfaceData.normalWS.xyz = normalize(half3(input.normalWS));
+                    #endif
                 #endif
 
                 surfaceData.normalWS.w = surfaceDescription.NormalAlpha * fadeFactor;
@@ -1232,32 +1267,46 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				inputData.positionWS = positionWS;
 				inputData.normalWS = normalWS;
 				inputData.viewDirectionWS = viewDirectionWS;
-
 				inputData.shadowCoord = float4(0, 0, 0, 0);
 
 				#ifdef VARYINGS_NEED_FOG_AND_VERTEX_LIGHT
-					inputData.fogCoord = float4(input.fogFactorAndVertexLight.x);
-					inputData.vertexLighting = half3(input.fogFactorAndVertexLight.yzw);
+					inputData.fogCoord = InitializeInputDataFog(float4(positionWS, 1.0), input.fogFactorAndVertexLight.x);
+					inputData.vertexLighting = input.fogFactorAndVertexLight.yzw;
 				#endif
 
 				#if defined(VARYINGS_NEED_DYNAMIC_LIGHTMAP_UV) && defined(DYNAMICLIGHTMAP_ON)
-					inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.dynamicLightmapUV.xy, half3(input.sh), normalWS);
+					inputData.bakedGI = SAMPLE_GI(input.lightmapUVs.xy, input.lightmapUVs.zw, half3(input.sh), normalWS);
+					#if defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV)
+					inputData.shadowMask = SAMPLE_SHADOWMASK(input.lightmapUVs.xy);
+					#endif
 				#elif defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV)
-					inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, half3(input.sh), normalWS);
+				#if !defined(LIGHTMAP_ON) && (defined(PROBE_VOLUMES_L1) || defined(PROBE_VOLUMES_L2))
+    				inputData.bakedGI = SAMPLE_GI(input.sh,
+					GetAbsolutePositionWS(inputData.positionWS),
+					inputData.normalWS,
+					inputData.viewDirectionWS,
+					input.positionCS.xy,
+					input.probeOcclusion,
+					inputData.shadowMask);
+				#else
+					inputData.bakedGI = SAMPLE_GI(input.lightmapUVs.xy, half3(input.sh), normalWS);
+					#if defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV)
+					inputData.shadowMask = SAMPLE_SHADOWMASK(input.lightmapUVs.xy);
+					#endif
 				#endif
-
-				#if defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV)
-					inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
 				#endif
 
 				#if defined(DEBUG_DISPLAY)
 					#if defined(VARYINGS_NEED_DYNAMIC_LIGHTMAP_UV) && defined(DYNAMICLIGHTMAP_ON)
-						inputData.dynamicLightmapUV = input.dynamicLightmapUV.xy;
+						inputData.dynamicLightmapUV = input.lightmapUVs.zw;
 					#endif
-					#if defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV && LIGHTMAP_ON)
-						inputData.staticLightmapUV = input.staticLightmapUV;
+					#if defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV) && defined(LIGHTMAP_ON)
+						inputData.staticLightmapUV = input.lightmapUVs.xy;
 					#elif defined(VARYINGS_NEED_SH)
 						inputData.vertexSH = input.sh;
+					#endif
+					#if defined(USE_APV_PROBE_OCCLUSION)
+						inputData.probeOcclusion = input.probeOcclusion;
 					#endif
 				#endif
 
@@ -1299,11 +1348,11 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				packedOutput.viewDirectionWS.xyz =  GetWorldSpaceViewDir(positionWS);
 
 				#if defined(LIGHTMAP_ON)
-					OUTPUT_LIGHTMAP_UV(inputMesh.uv1, unity_LightmapST, packedOutput.staticLightmapUV);
+					OUTPUT_LIGHTMAP_UV(inputMesh.uv1, unity_LightmapST, packedOutput.lightmapUVs.xy);
 				#endif
 
 				#if defined(DYNAMICLIGHTMAP_ON)
-					packedOutput.dynamicLightmapUV.xy = inputMesh.uv2.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
+					packedOutput.lightmapUVs.zw = inputMesh.uv2.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
 				#endif
 
 				#if !defined(LIGHTMAP_ON)
@@ -1333,11 +1382,21 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				clip((surfaceRenderingLayer & projectorRenderingLayer) - 0.1);
             #endif
 
-				#if UNITY_REVERSED_Z
-					float depth = LoadSceneDepth(packedInput.positionCS.xy);
-				#else
-					float depth = lerp(UNITY_NEAR_CLIP_VALUE, 1, LoadSceneDepth(packedInput.positionCS.xy));
-				#endif
+			#if defined(DECAL_PROJECTOR)
+			#if UNITY_REVERSED_Z
+			#if _RENDER_PASS_ENABLED
+				float depth = LOAD_FRAMEBUFFER_X_INPUT(GBUFFER3, packedInput.positionCS.xy).x;
+			#else
+				float depth = LoadSceneDepth(packedInput.positionCS.xy);
+			#endif
+			#else
+			#if _RENDER_PASS_ENABLED
+				float depth = lerp(UNITY_NEAR_CLIP_VALUE, 1, LOAD_FRAMEBUFFER_X_INPUT(GBUFFER3, packedInput.positionCS.xy));
+			#else
+				float depth = lerp(UNITY_NEAR_CLIP_VALUE, 1, LoadSceneDepth(packedInput.positionCS.xy));
+			#endif
+			#endif
+			#endif
 
 				#if defined(DECAL_RECONSTRUCT_NORMAL)
 					#if defined(_DECAL_NORMAL_BLEND_HIGH)
@@ -1351,11 +1410,20 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 					half3 normalWS = half3(LoadSceneNormals(packedInput.positionCS.xy));
 				#endif
 
-				float2 positionSS = packedInput.positionCS.xy * _ScreenSize.zw;
+				float2 positionSS = FoveatedRemapNonUniformToLinearCS(packedInput.positionCS.xy) * _ScreenSize.zw;
 
-				float3 positionWS = ComputeWorldSpacePosition(positionSS, depth, UNITY_MATRIX_I_VP);
+				float4 positionCS = ComputeClipSpacePosition( positionSS, depth );
+				float4 hpositionVS = mul( UNITY_MATRIX_I_P, positionCS );
 
-				float3 positionDS = TransformWorldToObject(positionWS);
+				float4 ScreenPosNorm = float4( positionSS, positionCS.zw );
+				float4 ClipPos = positionCS * packedInput.positionCS.w;
+				float4 ScreenPos = ComputeScreenPos( ClipPos );
+				float3 PositionRWS = mul( ( float3x3 )UNITY_MATRIX_I_V, hpositionVS.xyz / hpositionVS.w );
+				float3 PositionWS = PositionRWS + _WorldSpaceCameraPos;
+				float3 PositionOS = TransformWorldToObject( PositionWS );
+				float3 PositionVS = TransformWorldToView( PositionWS );
+
+				float3 positionDS = TransformWorldToObject(PositionWS);
 				positionDS = positionDS * float3(1.0, -1.0, 1.0);
 
 				float clipValue = 0.5 - Max3(abs(positionDS).x, abs(positionDS).y, abs(positionDS).z);
@@ -1421,7 +1489,7 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				// UV Offset
 				float2 fboffset17 = float2(fboffsetx17, fboffsety17);
 				// Flipbook UV
-				half2 fbuv17 = texCoord15 * fbtiling17 + fboffset17;
+				float2 fbuv17 = texCoord15 * fbtiling17 + fboffset17;
 				// *** END Flipbook UV Animation vars ***
 				int flipbookFrame17 = ( ( int )fbcurrenttileindex17);
 				float2 FlipUVs20 = fbuv17;
@@ -1451,42 +1519,50 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 
 				GetSurfaceData(surfaceDescription, angleFadeFactor, surfaceData);
 
-				InputData inputData;
-				InitializeInputData(packedInput, positionWS, surfaceData.normalWS.xyz, viewDirectionWS, inputData);
+				half3 normalToPack = surfaceData.normalWS.xyz;
 
-				SurfaceData surface = (SurfaceData)0;
-				GetSurface(surfaceData, surface);
+				#ifdef DECAL_RECONSTRUCT_NORMAL
+					surfaceData.normalWS.xyz = normalize(lerp(normalWS.xyz, surfaceData.normalWS.xyz, surfaceData.normalWS.w));
+				#endif
 
-				BRDFData brdfData;
-				InitializeBRDFData(surface.albedo, surface.metallic, 0, surface.smoothness, surface.alpha, brdfData);
+					InputData inputData;
+					InitializeInputData(packedInput, PositionWS, surfaceData.normalWS.xyz, viewDirectionWS, inputData);
+
+					SurfaceData surface = (SurfaceData)0;
+					GetSurface(surfaceData, surface);
+
+					BRDFData brdfData;
+					InitializeBRDFData(surface.albedo, surface.metallic, 0, surface.smoothness, surface.alpha, brdfData);
 
 				#ifdef _MATERIAL_AFFECTS_ALBEDO
-					#ifdef DECAL_RECONSTRUCT_NORMAL
-						half3 normalGI = normalize(lerp(normalWS.xyz, surfaceData.normalWS.xyz, surfaceData.normalWS.w));
-					#else
-						half3 normalGI = surfaceData.normalWS.xyz;
-					#endif
-
 					Light mainLight = GetMainLight(inputData.shadowCoord, inputData.positionWS, inputData.shadowMask);
-					MixRealtimeAndBakedGI(mainLight, normalGI, inputData.bakedGI, inputData.shadowMask);
-					half3 color = GlobalIllumination(brdfData, inputData.bakedGI, surface.occlusion, normalGI, inputData.viewDirectionWS);
+					MixRealtimeAndBakedGI(mainLight, surfaceData.normalWS.xyz, inputData.bakedGI, inputData.shadowMask);
+					half3 color = GlobalIllumination(brdfData, inputData.bakedGI, surface.occlusion, surfaceData.normalWS.xyz, inputData.viewDirectionWS);
 				#else
 					half3 color = 0;
 				#endif
 
+				//PassGBuffer.template
 				half3 packedNormalWS = PackNormal(surfaceData.normalWS.xyz);
 				fragmentOutput.GBuffer0 = half4(surfaceData.baseColor.rgb, surfaceData.baseColor.a);
 				fragmentOutput.GBuffer1 = 0;
 				fragmentOutput.GBuffer2 = half4(packedNormalWS, surfaceData.normalWS.a);
+				#if defined(AFFECT_BASE_COLOR) || defined(AFFECT_EMISSIVE)
 				fragmentOutput.GBuffer3 = half4(surfaceData.emissive + color, surfaceData.baseColor.a);
+				#else
+				fragmentOutput.GBuffer3 = 0;
+				#endif
+				#if _RENDER_PASS_ENABLED
+				fragmentOutput.GBuffer4 = inputData.positionCS.xy;
+				#if OUTPUT_SHADOWMASK
+				fragmentOutput.GBuffer5 = inputData.shadowMask;
+				#endif
+				#else
 
 				#if OUTPUT_SHADOWMASK
-					fragmentOutput.GBuffer4 = inputData.shadowMask;
+				fragmentOutput.GBuffer4 = inputData.shadowMask;
 				#endif
-
-                #if defined(_FOVEATED_RENDERING_NON_UNIFORM_RASTER)
-                positionSS = RemapFoveatedRenderingDistortCS(packedInput.positionCS.xy, true) * _ScreenSize.zw;
-                #endif
+				#endif
 
 			}
             ENDHLSL
@@ -1514,7 +1590,8 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 			#define _MATERIAL_AFFECTS_NORMAL 1
 			#define _MATERIAL_AFFECTS_NORMAL_BLEND 1
 			#define  _MATERIAL_AFFECTS_MAOS 1
-			#define ASE_SRP_VERSION 140011
+			#define ASE_VERSION 19901
+			#define ASE_SRP_VERSION 170004
 
 
 			#pragma vertex Vert
@@ -1527,6 +1604,7 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
             #define ATTRIBUTES_NEED_NORMAL
             #define ATTRIBUTES_NEED_TANGENT
@@ -1542,39 +1620,18 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 
             #define SHADERPASS SHADERPASS_DBUFFER_MESH
 
-			#if _RENDER_PASS_ENABLED
-			#define GBUFFER3 0
-			#define GBUFFER4 1
-			FRAMEBUFFER_INPUT_HALF(GBUFFER3);
-			FRAMEBUFFER_INPUT_HALF(GBUFFER4);
-			#endif
-
-			
-
-			
-            #if ASE_SRP_VERSION >=140007
 			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-			#endif
-		
-
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
-			
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
+            #include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
+			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/DebugMipmapStreamingMacros.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ProbeVolumeVariants.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DecalInput.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderVariablesDecal.hlsl"
@@ -1584,7 +1641,16 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
             #endif
 
-            
+			#if _RENDER_PASS_ENABLED
+			#define GBUFFER3 0
+			#define GBUFFER4 1
+			FRAMEBUFFER_INPUT_X_HALF(GBUFFER3);
+			FRAMEBUFFER_INPUT_X_HALF(GBUFFER4);
+			#endif
+
+            #define ASE_NEEDS_TEXTURE_COORDINATES0
+            #define ASE_NEEDS_FRAG_TEXTURE_COORDINATES0
+
 
 			struct SurfaceDescription
 			{
@@ -1634,6 +1700,7 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 			#if defined(DECAL_ANGLE_FADE)
 			float _DecalAngleFadeSupported;
 			#endif
+			UNITY_TEXTURE_STREAMING_DEBUG_VARS;
 			CBUFFER_END
 
             #ifdef SCENEPICKINGPASS
@@ -1672,14 +1739,21 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
                 surfaceData.baseColor.xyz = half3(surfaceDescription.BaseColor);
                 surfaceData.baseColor.w = half(surfaceDescription.Alpha * fadeFactor);
 
-                #if defined(_MATERIAL_AFFECTS_NORMAL)
-                    float sgn = input.tangentWS.w;
-                    float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
-                    half3x3 tangentToWorld = half3x3(input.tangentWS.xyz, bitangent.xyz, input.normalWS.xyz);
-
-                    surfaceData.normalWS.xyz = normalize(TransformTangentToWorld(surfaceDescription.NormalTS, tangentToWorld));
-                #else
-                    surfaceData.normalWS.xyz = half3(input.normalWS);
+                #if (SHADERPASS == SHADERPASS_DBUFFER_PROJECTOR) || (SHADERPASS == SHADERPASS_DECAL_SCREEN_SPACE_PROJECTOR) || (SHADERPASS == SHADERPASS_DECAL_GBUFFER_PROJECTOR)
+                    #if defined(_MATERIAL_AFFECTS_NORMAL)
+						surfaceData.normalWS.xyz = normalize(mul((half3x3)normalToWorld, surfaceDescription.NormalTS.xyz));
+                    #else
+						surfaceData.normalWS.xyz = normalize(normalToWorld[2].xyz);
+                    #endif
+                #elif (SHADERPASS == SHADERPASS_DBUFFER_MESH) || (SHADERPASS == SHADERPASS_DECAL_SCREEN_SPACE_MESH) || (SHADERPASS == SHADERPASS_DECAL_GBUFFER_MESH)
+                    #if defined(_MATERIAL_AFFECTS_NORMAL)
+                        float sgn = input.tangentWS.w;
+                        float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+                        half3x3 tangentToWorld = half3x3(input.tangentWS.xyz, bitangent.xyz, input.normalWS.xyz);
+                        surfaceData.normalWS.xyz = normalize(TransformTangentToWorld(surfaceDescription.NormalTS, tangentToWorld));
+                    #else
+						surfaceData.normalWS.xyz = normalize(half3(input.normalWS));
+                    #endif
                 #endif
 
                 surfaceData.normalWS.w = surfaceDescription.NormalAlpha * fadeFactor;
@@ -1824,7 +1898,8 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 					half3 normalWS = half3(LoadSceneNormals(packedInput.positionCS.xy));
 				#endif
 
-				float2 positionSS = packedInput.positionCS.xy * _ScreenSize.zw;
+				float2 positionSS = FoveatedRemapNonUniformToLinearCS(packedInput.positionCS.xy) * _ScreenSize.zw;
+
 				float3 positionWS = packedInput.positionWS.xyz;
 				half3 viewDirectionWS = half3(1.0, 1.0, 1.0);
 
@@ -1859,7 +1934,7 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				// UV Offset
 				float2 fboffset17 = float2(fboffsetx17, fboffsety17);
 				// Flipbook UV
-				half2 fbuv17 = texCoord15 * fbtiling17 + fboffset17;
+				float2 fbuv17 = texCoord15 * fbtiling17 + fboffset17;
 				// *** END Flipbook UV Animation vars ***
 				int flipbookFrame17 = ( ( int )fbcurrenttileindex17);
 				float2 FlipUVs20 = fbuv17;
@@ -1886,9 +1961,6 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				GetSurfaceData(packedInput, surfaceDescription, surfaceData);
 				ENCODE_INTO_DBUFFER(surfaceData, outDBuffer);
 
-                #if defined(_FOVEATED_RENDERING_NON_UNIFORM_RASTER)
-                positionSS = RemapFoveatedRenderingDistortCS(packedInput.positionCS.xy, true) * _ScreenSize.zw;
-                #endif
 			}
 
             ENDHLSL
@@ -1911,7 +1983,8 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 			#define _MATERIAL_AFFECTS_NORMAL 1
 			#define _MATERIAL_AFFECTS_NORMAL_BLEND 1
 			#define  _MATERIAL_AFFECTS_MAOS 1
-			#define ASE_SRP_VERSION 140011
+			#define ASE_VERSION 19901
+			#define ASE_SRP_VERSION 170004
 
 
 			#pragma vertex Vert
@@ -1923,24 +1996,21 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 			#pragma multi_compile _ LIGHTMAP_ON
 			#pragma multi_compile _ DYNAMICLIGHTMAP_ON
 			#pragma multi_compile _ DIRLIGHTMAP_COMBINED
+			#pragma multi_compile _ USE_LEGACY_LIGHTMAPS
 			#pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
 			#pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
 			#pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
-
-			
-
-			
-			#pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
-           
-
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
 			#pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
 			#pragma multi_compile _ SHADOWS_SHADOWMASK
 			#pragma multi_compile _ _FORWARD_PLUS
 			#pragma multi_compile _DECAL_NORMAL_BLEND_LOW _DECAL_NORMAL_BLEND_MEDIUM _DECAL_NORMAL_BLEND_HIGH
+			#pragma multi_compile_fragment _ DEBUG_DISPLAY
 			#pragma multi_compile _ _DECAL_LAYERS
 
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
             #define ATTRIBUTES_NEED_NORMAL
             #define ATTRIBUTES_NEED_TANGENT
@@ -1961,39 +2031,18 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 
             #define SHADERPASS SHADERPASS_DECAL_SCREEN_SPACE_MESH
 
-			#if _RENDER_PASS_ENABLED
-			#define GBUFFER3 0
-			#define GBUFFER4 1
-			FRAMEBUFFER_INPUT_HALF(GBUFFER3);
-			FRAMEBUFFER_INPUT_HALF(GBUFFER4);
-			#endif
-
-			
-
-			
-            #if ASE_SRP_VERSION >=140007
 			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-			#endif
-		
-
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
-			
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
+            #include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
+			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/DebugMipmapStreamingMacros.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ProbeVolumeVariants.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DecalInput.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderVariablesDecal.hlsl"
@@ -2002,7 +2051,16 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
             #endif
 
-			
+			#if _RENDER_PASS_ENABLED
+			#define GBUFFER3 0
+			#define GBUFFER4 1
+			FRAMEBUFFER_INPUT_X_HALF(GBUFFER3);
+			FRAMEBUFFER_INPUT_X_HALF(GBUFFER4);
+			#endif
+
+			#define ASE_NEEDS_TEXTURE_COORDINATES0
+			#define ASE_NEEDS_FRAG_TEXTURE_COORDINATES0
+
 
             struct SurfaceDescription
 			{
@@ -2037,10 +2095,12 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				float4 tangentWS : TEXCOORD2;
 				float4 texCoord0 : TEXCOORD3;
 				float3 viewDirectionWS : TEXCOORD4;
-				float2 staticLightmapUV : TEXCOORD5;
-				float2 dynamicLightmapUV : TEXCOORD6;
-				float3 sh : TEXCOORD7;
-				float4 fogFactorAndVertexLight : TEXCOORD8;
+				float4 lightmapUVs : TEXCOORD5; // @diogo: packs both static (xy) and dynamic (zw)
+				float3 sh : TEXCOORD6;
+				float4 fogFactorAndVertexLight : TEXCOORD7;
+				#ifdef USE_APV_PROBE_OCCLUSION
+					float4 probeOcclusion : TEXCOORD8;
+				#endif
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
@@ -2058,6 +2118,7 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 			#if defined(DECAL_ANGLE_FADE)
 			float _DecalAngleFadeSupported;
 			#endif
+			UNITY_TEXTURE_STREAMING_DEBUG_VARS;
 			CBUFFER_END
 
             #ifdef SCENEPICKINGPASS
@@ -2100,14 +2161,21 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
                 surfaceData.baseColor.xyz = half3(surfaceDescription.BaseColor);
                 surfaceData.baseColor.w = half(surfaceDescription.Alpha * fadeFactor);
 
-                #if defined(_MATERIAL_AFFECTS_NORMAL)
-                    float sgn = input.tangentWS.w;
-                    float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
-                    half3x3 tangentToWorld = half3x3(input.tangentWS.xyz, bitangent.xyz, input.normalWS.xyz);
-
-                    surfaceData.normalWS.xyz = normalize(TransformTangentToWorld(surfaceDescription.NormalTS, tangentToWorld));
-                #else
-                    surfaceData.normalWS.xyz = half3(input.normalWS);
+                #if (SHADERPASS == SHADERPASS_DBUFFER_PROJECTOR) || (SHADERPASS == SHADERPASS_DECAL_SCREEN_SPACE_PROJECTOR) || (SHADERPASS == SHADERPASS_DECAL_GBUFFER_PROJECTOR)
+                    #if defined(_MATERIAL_AFFECTS_NORMAL)
+						surfaceData.normalWS.xyz = normalize(mul((half3x3)normalToWorld, surfaceDescription.NormalTS.xyz));
+                    #else
+						surfaceData.normalWS.xyz = normalize(normalToWorld[2].xyz);
+                    #endif
+                #elif (SHADERPASS == SHADERPASS_DBUFFER_MESH) || (SHADERPASS == SHADERPASS_DECAL_SCREEN_SPACE_MESH) || (SHADERPASS == SHADERPASS_DECAL_GBUFFER_MESH)
+                    #if defined(_MATERIAL_AFFECTS_NORMAL)
+                        float sgn = input.tangentWS.w;
+                        float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+                        half3x3 tangentToWorld = half3x3(input.tangentWS.xyz, bitangent.xyz, input.normalWS.xyz);
+                        surfaceData.normalWS.xyz = normalize(TransformTangentToWorld(surfaceDescription.NormalTS, tangentToWorld));
+                    #else
+						surfaceData.normalWS.xyz = normalize(half3(input.normalWS));
+                    #endif
                 #endif
 
                 surfaceData.normalWS.w = surfaceDescription.NormalAlpha * fadeFactor;
@@ -2187,32 +2255,46 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				inputData.positionWS = positionWS;
 				inputData.normalWS = normalWS;
 				inputData.viewDirectionWS = viewDirectionWS;
-
 				inputData.shadowCoord = float4(0, 0, 0, 0);
 
 				#ifdef VARYINGS_NEED_FOG_AND_VERTEX_LIGHT
-					inputData.fogCoord = half(input.fogFactorAndVertexLight.x);
-					inputData.vertexLighting = half3(input.fogFactorAndVertexLight.yzw);
+					inputData.fogCoord = InitializeInputDataFog(float4(positionWS, 1.0), input.fogFactorAndVertexLight.x);
+					inputData.vertexLighting = input.fogFactorAndVertexLight.yzw;
 				#endif
 
 				#if defined(VARYINGS_NEED_DYNAMIC_LIGHTMAP_UV) && defined(DYNAMICLIGHTMAP_ON)
-					inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.dynamicLightmapUV.xy, half3(input.sh), normalWS);
+					inputData.bakedGI = SAMPLE_GI(input.lightmapUVs.xy, input.lightmapUVs.zw, half3(input.sh), normalWS);
+					#if defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV)
+					inputData.shadowMask = SAMPLE_SHADOWMASK(input.lightmapUVs.xy);
+					#endif
 				#elif defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV)
-					inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, half3(input.sh), normalWS);
+				#if !defined(LIGHTMAP_ON) && (defined(PROBE_VOLUMES_L1) || defined(PROBE_VOLUMES_L2))
+    				inputData.bakedGI = SAMPLE_GI(input.sh,
+					GetAbsolutePositionWS(inputData.positionWS),
+					inputData.normalWS,
+					inputData.viewDirectionWS,
+					input.positionCS.xy,
+					input.probeOcclusion,
+					inputData.shadowMask);
+				#else
+					inputData.bakedGI = SAMPLE_GI(input.lightmapUVs.xy, half3(input.sh), normalWS);
+					#if defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV)
+					inputData.shadowMask = SAMPLE_SHADOWMASK(input.lightmapUVs.xy);
+					#endif
 				#endif
-
-				#if defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV)
-					inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
 				#endif
 
 				#if defined(DEBUG_DISPLAY)
 					#if defined(VARYINGS_NEED_DYNAMIC_LIGHTMAP_UV) && defined(DYNAMICLIGHTMAP_ON)
-						inputData.dynamicLightmapUV = input.dynamicLightmapUV.xy;
+						inputData.dynamicLightmapUV = input.lightmapUVs.zw;
 					#endif
-					#if defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV && LIGHTMAP_ON)
-						inputData.staticLightmapUV = input.staticLightmapUV;
+					#if defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV) && defined(LIGHTMAP_ON)
+						inputData.staticLightmapUV = input.lightmapUVs.xy;
 					#elif defined(VARYINGS_NEED_SH)
 						inputData.vertexSH = input.sh;
+					#endif
+					#if defined(USE_APV_PROBE_OCCLUSION)
+						inputData.probeOcclusion = input.probeOcclusion;
 					#endif
 				#endif
 
@@ -2279,11 +2361,11 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				packedOutput.viewDirectionWS.xyz =  GetWorldSpaceViewDir(positionWS);
 
 				#if defined(LIGHTMAP_ON)
-					OUTPUT_LIGHTMAP_UV(inputMesh.uv1, unity_LightmapST, packedOutput.staticLightmapUV);
+					OUTPUT_LIGHTMAP_UV(inputMesh.uv1, unity_LightmapST, packedOutput.lightmapUVs.xy);
 				#endif
 
 				#if defined(DYNAMICLIGHTMAP_ON)
-					packedOutput.dynamicLightmapUV.xy = inputMesh.uv2.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
+					packedOutput.lightmapUVs.zw = inputMesh.uv2.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
 				#endif
 
 				#if !defined(LIGHTMAP_ON)
@@ -2325,7 +2407,8 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 					half3 normalWS = half3(LoadSceneNormals(packedInput.positionCS.xy));
 				#endif
 
-				float2 positionSS = packedInput.positionCS.xy * _ScreenSize.zw;
+				float2 positionSS = FoveatedRemapNonUniformToLinearCS(packedInput.positionCS.xy) * _ScreenSize.zw;
+
 				float3 positionWS = packedInput.positionWS.xyz;
 				half3 viewDirectionWS = half3(packedInput.viewDirectionWS);
 
@@ -2360,7 +2443,7 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				// UV Offset
 				float2 fboffset17 = float2(fboffsetx17, fboffsety17);
 				// Flipbook UV
-				half2 fbuv17 = texCoord15 * fbtiling17 + fboffset17;
+				float2 fbuv17 = texCoord15 * fbtiling17 + fboffset17;
 				// *** END Flipbook UV Animation vars ***
 				int flipbookFrame17 = ( ( int )fbcurrenttileindex17);
 				float2 FlipUVs20 = fbuv17;
@@ -2390,6 +2473,7 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 
 				GetSurfaceData(packedInput, surfaceDescription, surfaceData);
 
+				half3 normalToPack = surfaceData.normalWS.xyz;
 				#ifdef DECAL_RECONSTRUCT_NORMAL
 					surfaceData.normalWS.xyz = normalize(lerp(normalWS.xyz, surfaceData.normalWS.xyz, surfaceData.normalWS.w));
 				#endif
@@ -2403,10 +2487,6 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				half4 color = UniversalFragmentPBR(inputData, surface);
 				color.rgb = MixFog(color.rgb, inputData.fogCoord);
 				outColor = color;
-
-                #if defined(_FOVEATED_RENDERING_NON_UNIFORM_RASTER)
-                positionSS = RemapFoveatedRenderingDistortCS(packedInput.positionCS.xy, true) * _ScreenSize.zw;
-                #endif
 
 			}
             ENDHLSL
@@ -2435,7 +2515,8 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 			#define _MATERIAL_AFFECTS_NORMAL 1
 			#define _MATERIAL_AFFECTS_NORMAL_BLEND 1
 			#define  _MATERIAL_AFFECTS_MAOS 1
-			#define ASE_SRP_VERSION 140011
+			#define ASE_VERSION 19901
+			#define ASE_SRP_VERSION 170004
 
 
 			#pragma vertex Vert
@@ -2447,14 +2528,9 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 			#pragma multi_compile _ LIGHTMAP_ON
 			#pragma multi_compile _ DYNAMICLIGHTMAP_ON
 			#pragma multi_compile _ DIRLIGHTMAP_COMBINED
+			#pragma multi_compile _ USE_LEGACY_LIGHTMAPS
 			#pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
-
-			
-
-			
-			#pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
-           
-
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
 			#pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
 			#pragma multi_compile _ _MIXED_LIGHTING_SUBTRACTIVE
 			#pragma multi_compile _DECAL_NORMAL_BLEND_LOW _DECAL_NORMAL_BLEND_MEDIUM _DECAL_NORMAL_BLEND_HIGH
@@ -2464,6 +2540,7 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
             #define ATTRIBUTES_NEED_NORMAL
             #define ATTRIBUTES_NEED_TANGENT
@@ -2484,39 +2561,18 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 
             #define SHADERPASS SHADERPASS_DECAL_GBUFFER_MESH
 
-			#if _RENDER_PASS_ENABLED
-			#define GBUFFER3 0
-			#define GBUFFER4 1
-			FRAMEBUFFER_INPUT_HALF(GBUFFER3);
-			FRAMEBUFFER_INPUT_HALF(GBUFFER4);
-			#endif
-
-			
-
-			
-            #if ASE_SRP_VERSION >=140007
 			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-			#endif
-		
-
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
-			
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
+            #include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
+			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/DebugMipmapStreamingMacros.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ProbeVolumeVariants.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DecalInput.hlsl"
@@ -2526,7 +2582,16 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
             #endif
 
-			
+			#if _RENDER_PASS_ENABLED
+			#define GBUFFER3 0
+			#define GBUFFER4 1
+			FRAMEBUFFER_INPUT_X_HALF(GBUFFER3);
+			FRAMEBUFFER_INPUT_X_HALF(GBUFFER4);
+			#endif
+
+			#define ASE_NEEDS_TEXTURE_COORDINATES0
+			#define ASE_NEEDS_FRAG_TEXTURE_COORDINATES0
+
 
 			struct SurfaceDescription
 			{
@@ -2561,10 +2626,12 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				float4 tangentWS : TEXCOORD2;
 				float4 texCoord0 : TEXCOORD3;
 				float3 viewDirectionWS : TEXCOORD4;
-				float2 staticLightmapUV : TEXCOORD5;
-				float2 dynamicLightmapUV : TEXCOORD6;
-				float3 sh : TEXCOORD7;
-				float4 fogFactorAndVertexLight : TEXCOORD8;
+				float4 lightmapUVs : TEXCOORD5; // @diogo: packs both static (xy) and dynamic (zw)
+				float3 sh : TEXCOORD6;
+				float4 fogFactorAndVertexLight : TEXCOORD7;
+				#ifdef USE_APV_PROBE_OCCLUSION
+					float4 probeOcclusion : TEXCOORD10;
+				#endif
 				
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
@@ -2582,6 +2649,7 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 			#if defined(DECAL_ANGLE_FADE)
 			float _DecalAngleFadeSupported;
 			#endif
+			UNITY_TEXTURE_STREAMING_DEBUG_VARS;
 			CBUFFER_END
 
             #ifdef SCENEPICKINGPASS
@@ -2624,14 +2692,21 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
                 surfaceData.baseColor.xyz = half3(surfaceDescription.BaseColor);
                 surfaceData.baseColor.w = half(surfaceDescription.Alpha * fadeFactor);
 
-                #if defined(_MATERIAL_AFFECTS_NORMAL)
-                    float sgn = input.tangentWS.w;
-                    float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
-                    half3x3 tangentToWorld = half3x3(input.tangentWS.xyz, bitangent.xyz, input.normalWS.xyz);
-
-                    surfaceData.normalWS.xyz = normalize(TransformTangentToWorld(surfaceDescription.NormalTS, tangentToWorld));
-                #else
-                    surfaceData.normalWS.xyz = half3(input.normalWS);
+                #if (SHADERPASS == SHADERPASS_DBUFFER_PROJECTOR) || (SHADERPASS == SHADERPASS_DECAL_SCREEN_SPACE_PROJECTOR) || (SHADERPASS == SHADERPASS_DECAL_GBUFFER_PROJECTOR)
+                    #if defined(_MATERIAL_AFFECTS_NORMAL)
+						surfaceData.normalWS.xyz = normalize(mul((half3x3)normalToWorld, surfaceDescription.NormalTS.xyz));
+                    #else
+						surfaceData.normalWS.xyz = normalize(normalToWorld[2].xyz);
+                    #endif
+                #elif (SHADERPASS == SHADERPASS_DBUFFER_MESH) || (SHADERPASS == SHADERPASS_DECAL_SCREEN_SPACE_MESH) || (SHADERPASS == SHADERPASS_DECAL_GBUFFER_MESH)
+                    #if defined(_MATERIAL_AFFECTS_NORMAL)
+                        float sgn = input.tangentWS.w;
+                        float3 bitangent = sgn * cross(input.normalWS.xyz, input.tangentWS.xyz);
+                        half3x3 tangentToWorld = half3x3(input.tangentWS.xyz, bitangent.xyz, input.normalWS.xyz);
+                        surfaceData.normalWS.xyz = normalize(TransformTangentToWorld(surfaceDescription.NormalTS, tangentToWorld));
+                    #else
+						surfaceData.normalWS.xyz = normalize(half3(input.normalWS));
+                    #endif
                 #endif
 
                 surfaceData.normalWS.w = surfaceDescription.NormalAlpha * fadeFactor;
@@ -2710,30 +2785,46 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				inputData.positionWS = positionWS;
 				inputData.normalWS = normalWS;
 				inputData.viewDirectionWS = viewDirectionWS;
-
 				inputData.shadowCoord = float4(0, 0, 0, 0);
 
-				inputData.fogCoord = half(input.fogFactorAndVertexLight.x);
-				inputData.vertexLighting = half3(input.fogFactorAndVertexLight.yzw);
-
-				#if defined(VARYINGS_NEED_DYNAMIC_LIGHTMAP_UV) && defined(DYNAMICLIGHTMAP_ON)
-					inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.dynamicLightmapUV.xy, half3(input.sh), normalWS);
-				#elif defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV)
-					inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, half3(input.sh), normalWS);
+				#ifdef VARYINGS_NEED_FOG_AND_VERTEX_LIGHT
+					inputData.fogCoord = InitializeInputDataFog(float4(positionWS, 1.0), input.fogFactorAndVertexLight.x);
+					inputData.vertexLighting = input.fogFactorAndVertexLight.yzw;
 				#endif
 
-				#if defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV)
-					inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
+				#if defined(VARYINGS_NEED_DYNAMIC_LIGHTMAP_UV) && defined(DYNAMICLIGHTMAP_ON)
+					inputData.bakedGI = SAMPLE_GI(input.lightmapUVs.xy, input.lightmapUVs.zw, half3(input.sh), normalWS);
+					#if defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV)
+					inputData.shadowMask = SAMPLE_SHADOWMASK(input.lightmapUVs.xy);
+					#endif
+				#elif defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV)
+				#if !defined(LIGHTMAP_ON) && (defined(PROBE_VOLUMES_L1) || defined(PROBE_VOLUMES_L2))
+    				inputData.bakedGI = SAMPLE_GI(input.sh,
+					GetAbsolutePositionWS(inputData.positionWS),
+					inputData.normalWS,
+					inputData.viewDirectionWS,
+					input.positionCS.xy,
+					input.probeOcclusion,
+					inputData.shadowMask);
+				#else
+					inputData.bakedGI = SAMPLE_GI(input.lightmapUVs.xy, half3(input.sh), normalWS);
+					#if defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV)
+					inputData.shadowMask = SAMPLE_SHADOWMASK(input.lightmapUVs.xy);
+					#endif
+				#endif
 				#endif
 
 				#if defined(DEBUG_DISPLAY)
 					#if defined(VARYINGS_NEED_DYNAMIC_LIGHTMAP_UV) && defined(DYNAMICLIGHTMAP_ON)
-						inputData.dynamicLightmapUV = input.dynamicLightmapUV.xy;
+						inputData.dynamicLightmapUV = input.lightmapUVs.zw;
 					#endif
-					#if defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV && LIGHTMAP_ON)
-						inputData.staticLightmapUV = input.staticLightmapUV;
+					#if defined(VARYINGS_NEED_STATIC_LIGHTMAP_UV) && defined(LIGHTMAP_ON)
+						inputData.staticLightmapUV = input.lightmapUVs.xy;
 					#elif defined(VARYINGS_NEED_SH)
 						inputData.vertexSH = input.sh;
+					#endif
+					#if defined(USE_APV_PROBE_OCCLUSION)
+						inputData.probeOcclusion = input.probeOcclusion;
 					#endif
 				#endif
 
@@ -2793,11 +2884,11 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				packedOutput.viewDirectionWS.xyz =  GetWorldSpaceViewDir(positionWS);
 
 				#if defined(LIGHTMAP_ON)
-					OUTPUT_LIGHTMAP_UV(inputMesh.uv1, unity_LightmapST, packedOutput.staticLightmapUV);
+					OUTPUT_LIGHTMAP_UV(inputMesh.uv1, unity_LightmapST, packedOutput.lightmapUVs.xy);
 				#endif
 
 				#if defined(DYNAMICLIGHTMAP_ON)
-					packedOutput.dynamicLightmapUV.xy = inputMesh.uv2.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
+					packedOutput.lightmapUVs.zw = inputMesh.uv2.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
 				#endif
 
 				#if !defined(LIGHTMAP_ON)
@@ -2847,7 +2938,8 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				half3 normalWS = half3(LoadSceneNormals(packedInput.positionCS.xy));
 			#endif
 
-				float2 positionSS = packedInput.positionCS.xy * _ScreenSize.zw;
+				float2 positionSS = FoveatedRemapNonUniformToLinearCS(packedInput.positionCS.xy) * _ScreenSize.zw;
+
 				float3 positionWS = packedInput.positionWS.xyz;
 				half3 viewDirectionWS = half3(packedInput.viewDirectionWS);
 
@@ -2882,7 +2974,7 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				// UV Offset
 				float2 fboffset17 = float2(fboffsetx17, fboffsety17);
 				// Flipbook UV
-				half2 fbuv17 = texCoord15 * fbtiling17 + fboffset17;
+				float2 fbuv17 = texCoord15 * fbtiling17 + fboffset17;
 				// *** END Flipbook UV Animation vars ***
 				int flipbookFrame17 = ( ( int )fbcurrenttileindex17);
 				float2 FlipUVs20 = fbuv17;
@@ -2912,30 +3004,30 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 
 				GetSurfaceData(packedInput, surfaceDescription, surfaceData);
 
-				InputData inputData;
-				InitializeInputData(packedInput, positionWS, surfaceData.normalWS.xyz, viewDirectionWS, inputData);
+				half3 normalToPack = surfaceData.normalWS.xyz;
+				#ifdef DECAL_RECONSTRUCT_NORMAL
+					surfaceData.normalWS.xyz = normalize(lerp(normalWS.xyz, surfaceData.normalWS.xyz, surfaceData.normalWS.w));
+				#endif
 
-				SurfaceData surface = (SurfaceData)0;
-				GetSurface(surfaceData, surface);
+					InputData inputData;
+					InitializeInputData(packedInput, positionWS, surfaceData.normalWS.xyz, viewDirectionWS, inputData);
 
-				BRDFData brdfData;
-				InitializeBRDFData(surface.albedo, surface.metallic, 0, surface.smoothness, surface.alpha, brdfData);
+					SurfaceData surface = (SurfaceData)0;
+					GetSurface(surfaceData, surface);
+
+					BRDFData brdfData;
+					InitializeBRDFData(surface.albedo, surface.metallic, 0, surface.smoothness, surface.alpha, brdfData);
 
 				#ifdef _MATERIAL_AFFECTS_ALBEDO
-					#ifdef DECAL_RECONSTRUCT_NORMAL
-						half3 normalGI = normalize(lerp(normalWS.xyz, surfaceData.normalWS.xyz, surfaceData.normalWS.w));
-					#else
-						half3 normalGI = surfaceData.normalWS.xyz;
-					#endif
-
 					Light mainLight = GetMainLight(inputData.shadowCoord, inputData.positionWS, inputData.shadowMask);
-					MixRealtimeAndBakedGI(mainLight, normalGI, inputData.bakedGI, inputData.shadowMask);
-					half3 color = GlobalIllumination(brdfData, inputData.bakedGI, surface.occlusion, normalGI, inputData.viewDirectionWS);
+					MixRealtimeAndBakedGI(mainLight, surfaceData.normalWS.xyz, inputData.bakedGI, inputData.shadowMask);
+					half3 color = GlobalIllumination(brdfData, inputData.bakedGI, surface.occlusion, surfaceData.normalWS.xyz, inputData.viewDirectionWS);
 				#else
 					half3 color = 0;
 				#endif
 
-				half3 packedNormalWS = PackNormal(surfaceData.normalWS.xyz);
+				#pragma warning (disable : 3578) // The output value isn't completely initialized.
+				half3 packedNormalWS = PackNormal(normalToPack);
 				fragmentOutput.GBuffer0 = half4(surfaceData.baseColor.rgb, surfaceData.baseColor.a);
 				fragmentOutput.GBuffer1 = 0;
 				fragmentOutput.GBuffer2 = half4(packedNormalWS, surfaceData.normalWS.a);
@@ -2945,9 +3037,7 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 					fragmentOutput.GBuffer4 = inputData.shadowMask;
 				#endif
 
-                #if defined(_FOVEATED_RENDERING_NON_UNIFORM_RASTER)
-                positionSS = RemapFoveatedRenderingDistortCS(packedInput.positionCS.xy, true) * _ScreenSize.zw;
-                #endif
+				#pragma warning (default : 3578) // Restore output value isn't completely initialized.
 
 			}
 
@@ -2969,7 +3059,8 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 			#define _MATERIAL_AFFECTS_NORMAL 1
 			#define _MATERIAL_AFFECTS_NORMAL_BLEND 1
 			#define  _MATERIAL_AFFECTS_MAOS 1
-			#define ASE_SRP_VERSION 140011
+			#define ASE_VERSION 19901
+			#define ASE_SRP_VERSION 170004
 
 
 			#pragma multi_compile_instancing
@@ -2979,6 +3070,7 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
             #define HAVE_MESH_MODIFICATION
 
@@ -2988,8 +3080,8 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 			#if _RENDER_PASS_ENABLED
 			#define GBUFFER3 0
 			#define GBUFFER4 1
-			FRAMEBUFFER_INPUT_HALF(GBUFFER3);
-			FRAMEBUFFER_INPUT_HALF(GBUFFER4);
+			FRAMEBUFFER_INPUT_X_HALF(GBUFFER3);
+			FRAMEBUFFER_INPUT_X_HALF(GBUFFER4);
 			#endif
 
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
@@ -2998,23 +3090,16 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/TextureStack.hlsl"
-
-			
-            #if ASE_SRP_VERSION >=140009
-			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-			#endif
-		
-
-			
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRendering.hlsl"
-           
-
+            #include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
+			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/DebugMipmapStreamingMacros.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderGraphFunctions.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DecalInput.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderVariablesDecal.hlsl"
 
-			
+			#define ASE_NEEDS_TEXTURE_COORDINATES0
+
 
 			struct Attributes
 			{
@@ -3045,6 +3130,7 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 			#if defined(DECAL_ANGLE_FADE)
 			float _DecalAngleFadeSupported;
 			#endif
+			UNITY_TEXTURE_STREAMING_DEBUG_VARS;
 			CBUFFER_END
 
             #ifdef SCENEPICKINGPASS
@@ -3166,7 +3252,7 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 				// UV Offset
 				float2 fboffset17 = float2(fboffsetx17, fboffsety17);
 				// Flipbook UV
-				half2 fbuv17 = texCoord15 * fbtiling17 + fboffset17;
+				float2 fbuv17 = texCoord15 * fbtiling17 + fboffset17;
 				// *** END Flipbook UV Animation vars ***
 				int flipbookFrame17 = ( ( int )fbcurrenttileindex17);
 				float2 FlipUVs20 = fbuv17;
@@ -3186,32 +3272,32 @@ Shader  "AmplifyShaderPack/Decal Muddy Ground"
 	Fallback Off
 }
 /*ASEBEGIN
-Version=19602
-Node;AmplifyShaderEditor.CommentaryNode;24;-1393.936,-96.76087;Inherit;False;817;368;Decal flipbook, put all your decals in a single atlas to simplify their use.;5;15;18;19;17;20;;1,1,1,1;0;0
-Node;AmplifyShaderEditor.RangedFloatNode;19;-1360.936,173.2391;Inherit;False;Property;_DecalType;Decal Type;6;1;[IntRange];Create;True;0;0;0;False;0;False;3;0;0;3;0;1;FLOAT;0
-Node;AmplifyShaderEditor.TextureCoordinatesNode;15;-1343.936,-46.76087;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.RangedFloatNode;18;-1305.936,81.23914;Inherit;False;Property;_DecalQuantity;Decal Quantity;5;0;Create;True;0;0;0;False;0;False;2;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.TFHCFlipBookUVAnimation;17;-1082.936,-11.76087;Inherit;False;0;0;7;0;FLOAT2;0,0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;4;FLOAT;0;False;5;FLOAT;0;False;6;FLOAT;-1;False;4;FLOAT2;0;FLOAT;1;FLOAT;2;INT;3
-Node;AmplifyShaderEditor.RegisterLocalVarNode;20;-800.9363,-4.760866;Inherit;False;FlipUVs;-1;True;1;0;FLOAT2;0,0;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.GetLocalVarNode;21;-557,-69;Inherit;False;20;FlipUVs;1;0;OBJECT;;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.RangedFloatNode;14;-588,247;Inherit;False;Property;_NormalIntensity;Normal Intensity;4;0;Create;True;0;0;0;False;0;False;1;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;13;-407,623;Inherit;False;Property;_SmoothnessMultiplier;Smoothness Multiplier;3;0;Create;True;0;0;0;False;0;False;0;0;0;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.GetLocalVarNode;22;-565,169;Inherit;False;20;FlipUVs;1;0;OBJECT;;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.GetLocalVarNode;23;-548,403;Inherit;False;20;FlipUVs;1;0;OBJECT;;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.SimpleMultiplyOpNode;12;-18,563;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.SamplerNode;11;-377,364;Inherit;True;Property;_Mask;Mask;1;0;Create;True;0;0;0;False;0;False;-1;7d02b70a11844539aa69f4dfdf8a5771;7d02b70a11844539aa69f4dfdf8a5771;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.TextureCoordinatesNode;26;-224.7173,-436.5936;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.SamplerNode;10;-373,148;Inherit;True;Property;_Normal;Normal;2;0;Create;True;0;0;0;False;0;False;-1;ba478537f03c452f82cf7e0c4a9587c2;ba478537f03c452f82cf7e0c4a9587c2;True;0;True;bump;Auto;True;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.SamplerNode;9;-393,-94;Inherit;True;Property;_BaseColor;Base Color;0;0;Create;True;0;0;0;False;0;False;-1;3f19e5aabc6340ee9098748a5c075c67;3f19e5aabc6340ee9098748a5c075c67;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;0;0,-85;Float;False;False;-1;2;UnityEditor.Rendering.Universal.DecalShaderGraphGUI;0;1;New Amplify Shader;c2a467ab6d5391a4ea692226d82ffefd;True;DBufferProjector;0;0;DBufferProjector;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;5;RenderPipeline=UniversalPipeline;PreviewType=Plane;DisableBatching=LODFading=DisableBatching;ShaderGraphShader=true;ShaderGraphTargetId=UniversalDecalSubTarget;True;3;True;12;all;0;False;True;2;5;False;;10;False;;1;0;False;;10;False;;False;False;True;2;5;False;;10;False;;1;0;False;;10;False;;False;False;True;2;5;False;;10;False;;1;0;False;;10;False;;False;False;False;False;False;False;True;1;False;;False;False;False;True;True;True;True;True;0;False;;False;True;True;True;True;True;0;False;;False;False;False;False;False;True;2;False;;True;2;False;;False;True;1;LightMode=DBufferProjector;False;True;9;d3d11;metal;vulkan;xboxone;xboxseries;playstation;ps4;ps5;switch;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;2;176,-85;Float;False;True;-1;2;UnityEditor.Rendering.Universal.DecalShaderGraphGUI;0;14;AmplifyShaderPack/Decal Muddy Ground;c2a467ab6d5391a4ea692226d82ffefd;True;DecalScreenSpaceProjector;0;2;DecalScreenSpaceProjector;9;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;5;RenderPipeline=UniversalPipeline;PreviewType=Plane;DisableBatching=LODFading=DisableBatching;ShaderGraphShader=true;ShaderGraphTargetId=UniversalDecalSubTarget;True;3;True;12;all;0;False;True;2;5;False;;10;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;;False;False;False;False;False;False;False;False;False;False;False;True;2;False;;True;2;False;;False;True;1;LightMode=DecalScreenSpaceProjector;False;False;0;;0;0;Standard;7;Affect BaseColor;1;0;Affect Normal;1;0;Blend;1;0;Affect MAOS;1;0;Affect Emission;0;0;Support LOD CrossFade;0;0;Angle Fade;1;0;0;9;True;False;True;True;True;False;True;True;True;False;;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;1;0,-85;Float;False;False;-1;2;UnityEditor.Rendering.Universal.DecalShaderGraphGUI;0;1;New Amplify Shader;c2a467ab6d5391a4ea692226d82ffefd;True;DecalProjectorForwardEmissive;0;1;DecalProjectorForwardEmissive;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;5;RenderPipeline=UniversalPipeline;PreviewType=Plane;DisableBatching=LODFading=DisableBatching;ShaderGraphShader=true;ShaderGraphTargetId=UniversalDecalSubTarget;True;3;True;12;all;0;False;True;8;5;False;;1;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;;False;False;False;False;False;False;False;False;False;False;False;True;2;False;;True;2;False;;False;True;1;LightMode=DecalProjectorForwardEmissive;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;3;0,0;Float;False;False;-1;2;UnityEditor.Rendering.Universal.DecalShaderGraphGUI;0;1;New Amplify Shader;c2a467ab6d5391a4ea692226d82ffefd;True;DecalGBufferProjector;0;3;DecalGBufferProjector;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;5;RenderPipeline=UniversalPipeline;PreviewType=Plane;DisableBatching=LODFading=DisableBatching;ShaderGraphShader=true;ShaderGraphTargetId=UniversalDecalSubTarget;True;3;True;12;all;0;False;True;2;5;False;;10;False;;0;1;False;;0;False;;False;False;True;2;5;False;;10;False;;0;1;False;;0;False;;False;False;True;2;5;False;;10;False;;0;1;False;;0;False;;False;False;True;2;5;False;;10;False;;0;1;False;;0;False;;False;False;False;True;1;False;;False;False;False;True;False;False;False;False;0;False;;False;True;True;True;True;False;0;False;;False;True;True;True;True;False;0;False;;False;False;False;True;2;False;;True;2;False;;False;True;1;LightMode=DecalGBufferProjector;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;6;0,0;Float;False;False;-1;2;UnityEditor.Rendering.Universal.DecalShaderGraphGUI;0;1;New Amplify Shader;c2a467ab6d5391a4ea692226d82ffefd;True;DecalScreenSpaceMesh;0;6;DecalScreenSpaceMesh;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;5;RenderPipeline=UniversalPipeline;PreviewType=Plane;DisableBatching=LODFading=DisableBatching;ShaderGraphShader=true;ShaderGraphTargetId=UniversalDecalSubTarget;True;3;True;12;all;0;False;True;2;5;False;;10;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;;True;3;False;;False;True;1;LightMode=DecalScreenSpaceMesh;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;7;0,-85;Float;False;False;-1;2;UnityEditor.Rendering.Universal.DecalShaderGraphGUI;0;1;New Amplify Shader;c2a467ab6d5391a4ea692226d82ffefd;True;DecalGBufferMesh;0;7;DecalGBufferMesh;1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;5;RenderPipeline=UniversalPipeline;PreviewType=Plane;DisableBatching=LODFading=DisableBatching;ShaderGraphShader=true;ShaderGraphTargetId=UniversalDecalSubTarget;True;3;True;12;all;0;False;True;2;5;False;;10;False;;0;1;False;;0;False;;False;False;True;2;5;False;;10;False;;0;1;False;;0;False;;False;False;True;2;5;False;;10;False;;0;1;False;;0;False;;False;False;True;2;5;False;;10;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;True;False;False;False;False;0;False;;False;True;True;True;True;False;0;False;;False;True;True;True;True;False;0;False;;False;False;False;True;2;False;;False;False;True;1;LightMode=DecalGBufferMesh;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;8;0,0;Float;False;False;-1;2;UnityEditor.Rendering.Universal.DecalShaderGraphGUI;0;1;New Amplify Shader;c2a467ab6d5391a4ea692226d82ffefd;True;ScenePickingPass;0;8;ScenePickingPass;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;5;RenderPipeline=UniversalPipeline;PreviewType=Plane;DisableBatching=LODFading=DisableBatching;ShaderGraphShader=true;ShaderGraphTargetId=UniversalDecalSubTarget;True;3;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Picking;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;4;0,0;Float;False;False;-1;2;UnityEditor.Rendering.Universal.DecalShaderGraphGUI;0;1;New Amplify Shader;c2a467ab6d5391a4ea692226d82ffefd;True;DBufferMesh;0;4;DBufferMesh;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;5;RenderPipeline=UniversalPipeline;PreviewType=Plane;DisableBatching=LODFading=DisableBatching;ShaderGraphShader=true;ShaderGraphTargetId=UniversalDecalSubTarget;True;3;True;12;all;0;False;True;2;5;False;;10;False;;1;0;False;;10;False;;False;False;True;2;5;False;;10;False;;1;0;False;;10;False;;False;False;True;2;5;False;;10;False;;1;0;False;;10;False;;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;True;True;True;True;True;0;False;;False;False;False;False;False;True;2;False;;True;3;False;;False;True;1;LightMode=DBufferMesh;False;False;0;;0;0;Standard;0;False;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;5;0,0;Float;False;False;-1;2;UnityEditor.Rendering.Universal.DecalShaderGraphGUI;0;1;New Amplify Shader;c2a467ab6d5391a4ea692226d82ffefd;True;DecalMeshForwardEmissive;0;5;DecalMeshForwardEmissive;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;5;RenderPipeline=UniversalPipeline;PreviewType=Plane;DisableBatching=LODFading=DisableBatching;ShaderGraphShader=true;ShaderGraphTargetId=UniversalDecalSubTarget;True;3;True;12;all;0;False;True;8;5;False;;1;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;;True;3;False;;False;True;1;LightMode=DecalMeshForwardEmissive;False;False;0;;0;0;Standard;0;False;0
+Version=19901
+Node;AmplifyShaderEditor.CommentaryNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;24;-1393.936,-96.76087;Inherit;False;817;368;Decal flipbook, put all your decals in a single atlas to simplify their use.;5;15;18;19;17;20;;1,1,1,1;0;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;19;-1360.936,173.2391;Inherit;False;Property;_DecalType;Decal Type;6;1;[IntRange];Create;True;0;0;0;False;0;False;3;0;0;3;0;1;FLOAT;0
+Node;AmplifyShaderEditor.TextureCoordinatesNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;15;-1343.936,-46.76087;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;18;-1305.936,81.23914;Inherit;False;Property;_DecalQuantity;Decal Quantity;5;0;Create;True;0;0;0;False;0;False;2;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.TFHCFlipBookUVAnimation, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;17;-1082.936,-11.76087;Inherit;False;0;0;7;0;FLOAT2;0,0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;4;FLOAT;0;False;5;FLOAT;0;False;6;FLOAT;-1;False;4;FLOAT2;0;FLOAT;1;FLOAT;2;INT;3
+Node;AmplifyShaderEditor.RegisterLocalVarNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;20;-800.9363,-4.760866;Inherit;False;FlipUVs;-1;True;1;0;FLOAT2;0,0;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.GetLocalVarNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;21;-557,-69;Inherit;False;20;FlipUVs;1;0;OBJECT;;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;14;-588,247;Inherit;False;Property;_NormalIntensity;Normal Intensity;4;0;Create;True;0;0;0;False;0;False;1;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;13;-407,623;Inherit;False;Property;_SmoothnessMultiplier;Smoothness Multiplier;3;0;Create;True;0;0;0;False;0;False;0;0;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.GetLocalVarNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;22;-565,169;Inherit;False;20;FlipUVs;1;0;OBJECT;;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.GetLocalVarNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;23;-548,403;Inherit;False;20;FlipUVs;1;0;OBJECT;;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.SimpleMultiplyOpNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;12;-18,563;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SamplerNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;11;-377,364;Inherit;True;Property;_Mask;Mask;1;0;Create;True;0;0;0;False;0;False;-1;7d02b70a11844539aa69f4dfdf8a5771;7d02b70a11844539aa69f4dfdf8a5771;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.TextureCoordinatesNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;26;-224.7173,-436.5936;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.SamplerNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;10;-373,148;Inherit;True;Property;_Normal;Normal;2;0;Create;True;0;0;0;False;0;False;-1;ba478537f03c452f82cf7e0c4a9587c2;ba478537f03c452f82cf7e0c4a9587c2;True;0;True;bump;Auto;True;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.SamplerNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;9;-393,-94;Inherit;True;Property;_BaseColor;Base Color;0;0;Create;True;0;0;0;False;0;False;-1;3f19e5aabc6340ee9098748a5c075c67;3f19e5aabc6340ee9098748a5c075c67;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;6;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT3;5
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;0;0,-85;Float;False;False;-1;2;UnityEditor.Rendering.Universal.DecalShaderGraphGUI;0;1;New Amplify Shader;c2a467ab6d5391a4ea692226d82ffefd;True;DBufferProjector;0;0;DBufferProjector;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;5;RenderPipeline=UniversalPipeline;PreviewType=Plane;DisableBatching=LODFading=DisableBatching;ShaderGraphShader=true;ShaderGraphTargetId=UniversalDecalSubTarget;True;3;True;12;all;0;False;True;2;5;False;;10;False;;1;0;False;;10;False;;False;False;True;2;5;False;;10;False;;1;0;False;;10;False;;False;False;True;2;5;False;;10;False;;1;0;False;;10;False;;False;False;False;False;False;False;True;1;False;;False;False;False;True;True;True;True;True;0;False;;False;True;True;True;True;True;0;False;;False;False;False;False;False;True;2;False;;True;2;False;;False;True;1;LightMode=DBufferProjector;False;True;9;d3d11;metal;vulkan;xboxone;xboxseries;playstation;ps4;ps5;switch;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;2;176,-85;Float;False;True;-1;2;UnityEditor.Rendering.Universal.DecalShaderGraphGUI;0;14;AmplifyShaderPack/Decal Muddy Ground;c2a467ab6d5391a4ea692226d82ffefd;True;DecalScreenSpaceProjector;0;2;DecalScreenSpaceProjector;9;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;5;RenderPipeline=UniversalPipeline;PreviewType=Plane;DisableBatching=LODFading=DisableBatching;ShaderGraphShader=true;ShaderGraphTargetId=UniversalDecalSubTarget;True;3;True;12;all;0;False;True;2;5;False;;10;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;;False;False;False;False;False;False;False;False;False;False;False;True;2;False;;True;2;False;;False;True;1;LightMode=DecalScreenSpaceProjector;False;False;0;;0;0;Standard;7;Affect BaseColor;1;0;Affect Normal;1;0;  Blend;1;0;Affect MAOS;1;0;Affect Emission;0;0;Support LOD CrossFade;0;0;Angle Fade;1;0;0;9;True;False;True;True;True;False;True;True;True;False;;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;1;0,-85;Float;False;False;-1;2;UnityEditor.Rendering.Universal.DecalShaderGraphGUI;0;1;New Amplify Shader;c2a467ab6d5391a4ea692226d82ffefd;True;DecalProjectorForwardEmissive;0;1;DecalProjectorForwardEmissive;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;5;RenderPipeline=UniversalPipeline;PreviewType=Plane;DisableBatching=LODFading=DisableBatching;ShaderGraphShader=true;ShaderGraphTargetId=UniversalDecalSubTarget;True;3;True;12;all;0;False;True;8;5;False;;1;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;;False;False;False;False;False;False;False;False;False;False;False;True;2;False;;True;2;False;;False;True;1;LightMode=DecalProjectorForwardEmissive;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;3;0,0;Float;False;False;-1;2;UnityEditor.Rendering.Universal.DecalShaderGraphGUI;0;1;New Amplify Shader;c2a467ab6d5391a4ea692226d82ffefd;True;DecalGBufferProjector;0;3;DecalGBufferProjector;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;5;RenderPipeline=UniversalPipeline;PreviewType=Plane;DisableBatching=LODFading=DisableBatching;ShaderGraphShader=true;ShaderGraphTargetId=UniversalDecalSubTarget;True;3;True;12;all;0;False;True;2;5;False;;10;False;;0;1;False;;0;False;;False;False;True;2;5;False;;10;False;;0;1;False;;0;False;;False;False;True;2;5;False;;10;False;;0;1;False;;0;False;;False;False;True;2;5;False;;10;False;;0;1;False;;0;False;;False;False;False;True;1;False;;False;False;False;True;False;False;False;False;0;False;;False;True;True;True;True;False;0;False;;False;True;True;True;True;False;0;False;;False;False;False;True;2;False;;True;2;False;;False;True;1;LightMode=DecalGBufferProjector;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;6;0,0;Float;False;False;-1;2;UnityEditor.Rendering.Universal.DecalShaderGraphGUI;0;1;New Amplify Shader;c2a467ab6d5391a4ea692226d82ffefd;True;DecalScreenSpaceMesh;0;6;DecalScreenSpaceMesh;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;5;RenderPipeline=UniversalPipeline;PreviewType=Plane;DisableBatching=LODFading=DisableBatching;ShaderGraphShader=true;ShaderGraphTargetId=UniversalDecalSubTarget;True;3;True;12;all;0;False;True;2;5;False;;10;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;;True;3;False;;False;True;1;LightMode=DecalScreenSpaceMesh;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;7;0,-85;Float;False;False;-1;2;UnityEditor.Rendering.Universal.DecalShaderGraphGUI;0;1;New Amplify Shader;c2a467ab6d5391a4ea692226d82ffefd;True;DecalGBufferMesh;0;7;DecalGBufferMesh;1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;5;RenderPipeline=UniversalPipeline;PreviewType=Plane;DisableBatching=LODFading=DisableBatching;ShaderGraphShader=true;ShaderGraphTargetId=UniversalDecalSubTarget;True;3;True;12;all;0;False;True;2;5;False;;10;False;;0;1;False;;0;False;;False;False;True;2;5;False;;10;False;;0;1;False;;0;False;;False;False;True;2;5;False;;10;False;;0;1;False;;0;False;;False;False;True;2;5;False;;10;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;True;False;False;False;False;0;False;;False;True;True;True;True;False;0;False;;False;True;True;True;True;False;0;False;;False;False;False;True;2;False;;False;False;True;1;LightMode=DecalGBufferMesh;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;8;0,0;Float;False;False;-1;2;UnityEditor.Rendering.Universal.DecalShaderGraphGUI;0;1;New Amplify Shader;c2a467ab6d5391a4ea692226d82ffefd;True;ScenePickingPass;0;8;ScenePickingPass;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;5;RenderPipeline=UniversalPipeline;PreviewType=Plane;DisableBatching=LODFading=DisableBatching;ShaderGraphShader=true;ShaderGraphTargetId=UniversalDecalSubTarget;True;3;True;12;all;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Picking;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;4;0,0;Float;False;False;-1;2;UnityEditor.Rendering.Universal.DecalShaderGraphGUI;0;1;New Amplify Shader;c2a467ab6d5391a4ea692226d82ffefd;True;DBufferMesh;0;4;DBufferMesh;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;5;RenderPipeline=UniversalPipeline;PreviewType=Plane;DisableBatching=LODFading=DisableBatching;ShaderGraphShader=true;ShaderGraphTargetId=UniversalDecalSubTarget;True;3;True;12;all;0;False;True;2;5;False;;10;False;;1;0;False;;10;False;;False;False;True;2;5;False;;10;False;;1;0;False;;10;False;;False;False;True;2;5;False;;10;False;;1;0;False;;10;False;;False;False;False;False;False;False;False;False;False;False;True;True;True;True;True;0;False;;False;True;True;True;True;True;0;False;;False;False;False;False;False;True;2;False;;True;3;False;;False;True;1;LightMode=DBufferMesh;False;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode, AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;5;0,0;Float;False;False;-1;2;UnityEditor.Rendering.Universal.DecalShaderGraphGUI;0;1;New Amplify Shader;c2a467ab6d5391a4ea692226d82ffefd;True;DecalMeshForwardEmissive;0;5;DecalMeshForwardEmissive;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;5;RenderPipeline=UniversalPipeline;PreviewType=Plane;DisableBatching=LODFading=DisableBatching;ShaderGraphShader=true;ShaderGraphTargetId=UniversalDecalSubTarget;True;3;True;12;all;0;False;True;8;5;False;;1;False;;0;1;False;;0;False;;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;;True;3;False;;False;True;1;LightMode=DecalMeshForwardEmissive;False;False;0;;0;0;Standard;0;False;0
 WireConnection;17;0;15;0
 WireConnection;17;1;18;0
 WireConnection;17;2;18;0
@@ -3232,4 +3318,4 @@ WireConnection;2;5;11;2
 WireConnection;2;6;12;0
 WireConnection;2;7;9;4
 ASEEND*/
-//CHKSM=6898DB4F479A8EFD0087F92040BD73DF03AF70DE
+//CHKSM=E179BE3D4097F6FDA95105E13A7DF9E377794BE4

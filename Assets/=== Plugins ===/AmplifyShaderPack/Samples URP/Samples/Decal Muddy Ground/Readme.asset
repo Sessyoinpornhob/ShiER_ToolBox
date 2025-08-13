@@ -16,7 +16,7 @@ MonoBehaviour:
   Title: Decal Muddy Ground
   Description:
     Heading: 
-    Text: This sample makes use of URP decal system.
+    Text: This sample makes use of HDRP decal system.
     LinkText: 
     Url: 
   PropertiesHeader:

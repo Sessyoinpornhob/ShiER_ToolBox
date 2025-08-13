@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4898795562259088705}
   - component: {fileID: 3574907341334132736}
-  - component: {fileID: 2863130227288001298}
   m_Layer: 0
   m_Name: Scene Light L SoftBox
   m_TagString: Untagged
@@ -28,7 +27,6 @@ Transform:
   m_LocalRotation: {x: 0, y: -0.5, z: 0, w: 0.8660254}
   m_LocalPosition: {x: 5.2, y: 2.05, z: -3.44}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -44,11 +42,11 @@ Light:
   serializedVersion: 10
   m_Type: 0
   m_Shape: 0
-  m_Color: {r: 0.99215686, g: 0.95686275, b: 0.89411765, a: 1}
+  m_Color: {r: 0.990566, g: 0.9559729, b: 0.8924439, a: 1}
   m_Intensity: 2
   m_Range: 8
   m_SpotAngle: 152.4107
-  m_InnerSpotAngle: 93.10894
+  m_InnerSpotAngle: 106.82729
   m_CookieSize: 10
   m_Shadows:
     m_Type: 2
@@ -88,30 +86,10 @@ Light:
   m_LightShadowCasterMode: 2
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
-  m_ColorTemperature: 4000
+  m_ColorTemperature: 6000
   m_UseColorTemperature: 1
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 3
   m_ShadowAngle: 0
---- !u!114 &2863130227288001298
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3574907341334132739}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Version: 1
-  m_UsePipelineSettings: 1
-  m_AdditionalLightsShadowResolutionTier: 2
-  m_LightLayerMask: 1
-  m_CustomShadowLayers: 0
-  m_ShadowLayerMask: 1
-  m_LightCookieSize: {x: 1, y: 1}
-  m_LightCookieOffset: {x: 0, y: 0}

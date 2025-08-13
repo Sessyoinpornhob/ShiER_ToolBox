@@ -37,24 +37,15 @@ namespace AmplifyShaderPack
 						// check version here
 						if( show == ASPPreferences.ShowOption.OnNewVersion )
 						{
-						#if UNITY_2022_1_OR_NEWER
-							if ( PlayerSettings.insecureHttpOption == InsecureHttpOption.NotAllowed )
+							ASPStartScreen.StartBackgroundTask( StartRequest( ASPStartScreen.ChangelogURL , () =>
 							{
-								Debug.LogWarning( "[AmplifyShaderPack] " + ASPStartScreen.OnlineVersionWarning );								
-							}
-							else
-						#endif
-							{
-								ASPStartScreen.StartBackgroundTask( StartRequest( ASPStartScreen.ChangelogURL , () =>
+								var changeLog = ChangeLogInfo.CreateFromJSON( www.downloadHandler.text );
+								if( changeLog != null )
 								{
-									var changeLog = ChangeLogInfo.CreateFromJSON( www.downloadHandler.text );
-									if( changeLog != null )
-									{
-										if( changeLog.Version > VersionInfo.FullNumber )
-											ASPStartScreen.Init();
-									}
-								} ) );
+									if( changeLog.Version > VersionInfo.FullNumber )
+										ASPStartScreen.Init();
 								}
+							} ) );
 						}
 					}
 				}
@@ -71,11 +62,7 @@ namespace AmplifyShaderPack
 			www = UnityWebRequest.Get( url );
 			if ( www != null )
 			{
-			#if UNITY_2017_2_OR_NEWER
 				yield return www.SendWebRequest();
-			#else
-				yield return www.Send();
-			#endif
 
 				while( www.isDone == false )
 					yield return null;

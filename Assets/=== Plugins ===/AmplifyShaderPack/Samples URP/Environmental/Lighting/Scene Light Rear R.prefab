@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8377417926944810661}
   - component: {fileID: 7545700513860809513}
-  - component: {fileID: 4389129104681621225}
   m_Layer: 0
   m_Name: Scene Light Rear R
   m_TagString: Untagged
@@ -28,7 +27,6 @@ Transform:
   m_LocalRotation: {x: -0, y: -0.94106996, z: 0, w: -0.33821216}
   m_LocalPosition: {x: -7.71, y: 2.08, z: 7.37}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -44,7 +42,7 @@ Light:
   serializedVersion: 10
   m_Type: 0
   m_Shape: 0
-  m_Color: {r: 0.99215686, g: 0.95686275, b: 0.89411765, a: 1}
+  m_Color: {r: 0.990566, g: 0.9559729, b: 0.8924439, a: 1}
   m_Intensity: 2
   m_Range: 20
   m_SpotAngle: 145.47694
@@ -88,30 +86,10 @@ Light:
   m_LightShadowCasterMode: 2
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
-  m_ColorTemperature: 4000
+  m_ColorTemperature: 6000
   m_UseColorTemperature: 1
   m_BoundingSphereOverride: {x: 7.92e-43, y: 1e-45, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 3
   m_ShadowAngle: 0
---- !u!114 &4389129104681621225
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7545700513860809512}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Version: 1
-  m_UsePipelineSettings: 1
-  m_AdditionalLightsShadowResolutionTier: 2
-  m_LightLayerMask: 1
-  m_CustomShadowLayers: 0
-  m_ShadowLayerMask: 1
-  m_LightCookieSize: {x: 1, y: 1}
-  m_LightCookieOffset: {x: 0, y: 0}
