@@ -9,6 +9,7 @@
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Deprecated.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceData.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/BRDF.hlsl"
+    #include "Assets/Art/MaterialLibrary/CustomHLSL/ShiER_KajiyaKay_HairData.hlsl"
 
     // 试试搞个自己的 struct
     // 这里不行 很多函数跟这个结构体相关
@@ -28,6 +29,25 @@
         half normalizationTerm;     // roughness * 4.0 + 2.0
         half roughness2MinusOne;    // roughness^2 - 1.0
     };
+
+    float3 shiftTangent(float3 T, float3 N, float shift)
+    {
+        float3 shiftedT = T + shift * N;
+        return normalize(shiftedT);
+    }
+
+    //计算各向异性光照系数，基于Kajyiya-Kay Model
+    float strandSpecular(float3 T, float3 V, float3 L, float exponent, half specularWidth)
+        {
+            // V = viewDirWS
+            // T = tangentWS or bitangentWS
+            // L = lightDirWS
+            float3 H = normalize(L + V);
+            float dotTH = dot(T, H);
+            float sinTH = sqrt(1.0 - dotTH * dotTH);
+            float dirAtten = smoothstep(-specularWidth, 0, dotTH);
+            return dirAtten * pow(sinTH, exponent);
+        }
 
     // 允许在 metallic 流程中使用高光颜色
     // Initialize BRDFData for material, managing both specular and metallic setup using shader keyword _SPECULAR_SETUP.
@@ -82,6 +102,30 @@
         // On platforms where half actually means something, the denominator has a risk of overflow
         // clamp below was added specifically to "fix" that, but dx compiler (we convert bytecode to metal/gles)
         // sees that specularTerm have only non-negative terms, so it skips max(0,..) in clamp (leaving only min(100,...))
+    #if REAL_IS_HALF
+        specularTerm = specularTerm - HALF_MIN;
+        // Update: Conservative bump from 100.0 to 1000.0 to better match the full float specular look.
+        // Roughly 65504.0 / 32*2 == 1023.5,
+        // or HALF_MAX / ((mobile) MAX_VISIBLE_LIGHTS * 2),
+        // to reserve half of the per light range for specular and half for diffuse + indirect + emissive.
+        specularTerm = clamp(specularTerm, 0.0, 1000.0); // Prevent FP16 overflow on mobiles
+    #endif
+
+        return specularTerm;
+    }
+
+    // Computes the scalar specular term for Minimalist CookTorrance BRDF
+    // NOTE: needs to be multiplied with reflectance f0, i.e. specular color to complete
+    half DirectBRDFSpecular_ShiER_Hair(BRDFData brdfData, KajiyaKay_HairData KKHairData, half3 normalWS, half3 lightDirectionWS, half3 viewDirectionWS)
+    {
+        half specularTerm = 0;
+        float3 t1 = shiftTangent(KKHairData.t, KKHairData.normalWS, KKHairData.ShiftOffset_01 + KKHairData.shiftTexVal);
+        float3 t2 = shiftTangent(KKHairData.t, KKHairData.normalWS, KKHairData.ShiftOffset_02 + KKHairData.shiftTexVal);
+        specularTerm = KKHairData.SpecularColor * strandSpecular
+            (t1, KKHairData.viewDirWS, KKHairData.lightDirWS, KKHairData.exponent, KKHairData.SpecularWidth);
+        specularTerm += KKHairData.SpecularColor * strandSpecular
+            (t2, KKHairData.viewDirWS, KKHairData.lightDirWS, KKHairData.exponent, KKHairData.SpecularWidth);
+        
     #if REAL_IS_HALF
         specularTerm = specularTerm - HALF_MIN;
         // Update: Conservative bump from 100.0 to 1000.0 to better match the full float specular look.

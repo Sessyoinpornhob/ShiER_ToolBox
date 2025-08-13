@@ -9,7 +9,7 @@
 // - 叠加菲涅尔效果
 // --------------------------------
 
-Shader "ShiERTest/CustomLit_Opaque"
+Shader "ALab/CustomLit_Hair"
 {
     Properties
     {
@@ -45,10 +45,19 @@ Shader "ShiERTest/CustomLit_Opaque"
         // 毛发高光相关
         [Header(Hair Specular Ring)][Space(10)]
         [SingleLineTexture] _SpecularShiftTexture ("Specular Shift Texture", 2D) = "white" {}
+        _HairSpecularTillingOffset                ("HairSpecularTillingOffset", Vector) = (1,1,0,0)
         _Exponent               ("Exponent", Range(0, 400)) = 1
         _ShiftOffset_01         ("ShiftOffset_01", Range(-1, 1)) = 0
         _ShiftOffset_02         ("ShiftOffset_02", Range(-1, 1)) = 0
         _SpecularWidth          ("SpecularWidth", Range(0, 1)) = 0
+        
+        // 溶解效果
+		[Header(Dissolve)][Space(10)]
+        [NoScaleOffset][SingleLineTexture]_NoiseMap("NoiseMap", 2D) = "white" {}
+        _NoiseTillingOffset("NoiseTillingOffset", Vector) = (1,1,1,1)
+		_Dissolve("Dissolve", Range( -0.1 , 1.1)) = 0.5427703
+		_EdgeColor("EdgeColor", Color) = (0,0,0)
+		_EdgeWidth("EdgeWidth", Range( 0 , 0.1)) = 0
         
         // Blending state
         [HideInInspector] _Surface("__surface", Float) = 0.0
@@ -114,7 +123,7 @@ Shader "ShiERTest/CustomLit_Opaque"
             // Shader Stages
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment
-
+            
             // -------------------------------------
             // Material Keywords
             #pragma shader_feature_local _NORMALMAP
@@ -146,8 +155,7 @@ Shader "ShiERTest/CustomLit_Opaque"
             #pragma multi_compile _ _LIGHT_LAYERS
             #pragma multi_compile _ _FORWARD_PLUS
             #include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-
-
+            
             // -------------------------------------
             // Unity defined keywords
             #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
@@ -207,11 +215,18 @@ Shader "ShiERTest/CustomLit_Opaque"
                 // half _Surface;
 
                 // Hair Specular Ring
+                half4 _HairSpecularTillingOffset;
                 float _Exponent;
                 float _Scale;
                 half _ShiftOffset_01;
                 half _ShiftOffset_02;
                 half _SpecularWidth;
+
+                // FX Dissolve
+                half4 _NoiseTillingOffset;
+                half _Dissolve;
+                half4 _EdgeColor;
+                half _EdgeWidth;
                 UNITY_TEXTURE_STREAMING_DEBUG_VARS;
             CBUFFER_END
 
@@ -222,8 +237,9 @@ Shader "ShiERTest/CustomLit_Opaque"
             TEXTURE2D(_BaseMap);            SAMPLER(sampler_BaseMap);
             TEXTURE2D(_BumpMap);            SAMPLER(sampler_BumpMap);
             TEXTURE2D(_EmissionMap);        SAMPLER(sampler_EmissionMap);
-            TEXTURE2D(_ARMMaskMap);        SAMPLER(sampler_ARMMaskMap);
+            TEXTURE2D(_ARMMaskMap);         SAMPLER(sampler_ARMMaskMap);
             TEXTURE2D(_SpecularShiftTexture);       SAMPLER(sampler_SpecularShiftTexture);
+            TEXTURE2D(_NoiseMap);           SAMPLER(sampler_NoiseMap);
             
             ///////////////////////////////////////////////////////////////////////////////
             //                      Material Property Helpers                            //
@@ -278,15 +294,16 @@ Shader "ShiERTest/CustomLit_Opaque"
 
                 outkkHairData.ShiftOffset_01 = _ShiftOffset_01;
                 outkkHairData.ShiftOffset_02 = _ShiftOffset_02;
-
+                outkkHairData.SpecularWidth = _SpecularWidth;
                 outkkHairData.SpecularColor = _SpecColor;
+                outkkHairData.exponent = _Exponent;
             }
             
             inline void InitializeStandardLitSurfaceData(float2 uv, out SurfaceData outSurfaceData)
             {
                 float4 albedoAlpha = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, uv);
                 float alpha = albedoAlpha.a;
-                clip(alpha - _Cutoff);
+                // clip(alpha - _Cutoff);
                 outSurfaceData.alpha = saturate(alpha);// AlphaDiscard(albedoAlpha.a, _Cutoff);
                 outSurfaceData.albedo = albedoAlpha.rgb * _BaseColor.rgb;
                 outSurfaceData.albedo = AlphaModulate(outSurfaceData.albedo, outSurfaceData.alpha);
@@ -337,6 +354,22 @@ Shader "ShiERTest/CustomLit_Opaque"
             {
                 inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.vertexSH, inputData.normalWS);
                 inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
+            }
+
+            // 溶解特效计算函数 inout 输入输出都是此参数
+            void InitialFXData(Varyings input, inout SurfaceData outSurfaceData)
+            {
+                float2 FX_Dissolve_UV_xy = float2(_NoiseTillingOffset.x , _NoiseTillingOffset.y);
+				float2 FX_Dissolve_UV_zw = float2(_TimeParameters.x * _NoiseTillingOffset.z , _TimeParameters.x * _NoiseTillingOffset.w);
+				float2 FX_Dissolve_UV = input.uv.xy * FX_Dissolve_UV_xy + FX_Dissolve_UV_zw;
+				float4 NoiseMapValue = SAMPLE_TEXTURE2D( _NoiseMap, sampler_NoiseMap, FX_Dissolve_UV);
+                // FX emission
+                half3 emission = ( step( ( NoiseMapValue.rgb - _EdgeWidth ) , _Dissolve ) * _EdgeColor );
+                outSurfaceData.emission = emission;
+                // FX alpha
+                half AlphaValue145 = outSurfaceData.alpha * step( _Dissolve , NoiseMapValue.r );
+                clip(AlphaValue145 - _Cutoff);
+                outSurfaceData.alpha = AlphaValue145;
             }
 
             ///////////////////////////////////////////////////////////////////////////////
@@ -401,9 +434,14 @@ Shader "ShiERTest/CustomLit_Opaque"
 
                 // 头发类高光信息
                 KajiyaKay_HairData hair_data;
-                InitializeKajiyaKay_HairData(input.uv, input, hair_data);
-                
+                float2 hairSpecularUV = input.uv.xy * _HairSpecularTillingOffset.xy + _HairSpecularTillingOffset.zw;
+                InitializeKajiyaKay_HairData(hairSpecularUV, input, hair_data);
+
+                // 环境光照相关
                 InitializeBakedGIData(input, inputData);
+
+                // 特效计算函数
+                InitialFXData(input, surfaceData);
 
                 half4 color = UniversalFragmentPBR_ShiER_Hair(inputData, surfaceData, hair_data);
                 color.rgb = MixFog(color.rgb, inputData.fogCoord);
