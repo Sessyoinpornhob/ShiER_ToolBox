@@ -2,20 +2,24 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Material Sample Fabric Standard
   m_Shader: {fileID: 4800000, guid: 95e42a2e818a4c68ae2e4ed21fe362e2, type: 3}
-  m_ShaderKeywords: 
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -51,38 +55,59 @@ Material:
         m_Texture: {fileID: 2800000, guid: 87a0e3a1aa76a6a4ebb3ad823532a982, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
+    - _AlphaCutoff: 0.5
     - _BaseAffectUVchannel0: 1
     - _BaseAffectUVchannel1: 0
     - _BaseAffectUVchannel2: 0
     - _BaseAffectUVchannel3: 0
-    - _BaseBrightnessBackFace: 0.447
-    - _BaseBrightnessFrontFace: 1
+    - _BaseBrightnessBackFace: 0.76
+    - _BaseBrightnessFrontFace: 1.51
     - _Cull: 0
+    - _EnvironmentReflections: 1
     - _FuzzMaskEnable: 1
-    - _FuzzMaskStrength: 0.589
+    - _FuzzMaskStrength: 0.763
     - _GlossyReflections: 1
-    - _NormalStrength: 1.04
-    - _OcclusionStrengthAO: 0.817
-    - _SmoothnessStrength: 0.504
+    - _NormalStrength: 2
+    - _OcclusionStrengthAO: 1
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _ReceiveShadows: 1
+    - _SmoothnessStrength: 0.629
     - _SpecularColorIOR: 0
     - _SpecularColorWeight: 1
     - _SpecularHighlights: 1
-    - _SpecularStrength: 0.04
+    - _SpecularStrength: 0.05
     - _ThreadMaskEnable: 1
-    - _ThreadMaskOcclusionStrength: 0.24
-    - _ThreadMaskSmoothnessStrength: 0.301
+    - _ThreadMaskOcclusionStrength: 0.294
+    - _ThreadMaskSmoothnessStrength: 0.299
     - _ThreadMaskUVAffectchannel0: 1
     - _ThreadMaskUVAffectchannel1: 0
     - _ThreadMaskUVAffectchannel2: 0
     - _ThreadMaskUVAffectchannel3: 0
-    - _ThreadNormalStrength: 0.85
+    - _ThreadNormalStrength: 1
     - __dirty: 0
     m_Colors:
     - _BaseColor1: {r: 0.7294118, g: 0.7294118, b: 0.7294118, a: 0}
-    - _BaseColorBackFace: {r: 0.3679245, g: 0.3679245, b: 0.3679245, a: 0}
+    - _BaseColorBackFace: {r: 0.5377358, g: 0.5377358, b: 0.5377358, a: 0}
     - _BaseMainUV: {r: 1, g: 1, b: 0, a: 0}
+    - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _FuzzMaskColor: {r: 0.7294118, g: 0.7294118, b: 0.7294118, a: 0}
     - _FuzzMaskUV: {r: 2, g: 2, b: 0, a: 0}
-    - _SpecularColor: {r: 1, g: 1, b: 1, a: 0}
+    - _SpecularColor: {r: 1, g: 0, b: 0, a: 0}
     - _ThreadMaskUV: {r: 3, g: 3, b: 0, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

@@ -13,7 +13,7 @@ OcclusionCullingSettings:
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 9
+  serializedVersion: 10
   m_Fog: 0
   m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_FogMode: 3
@@ -42,8 +42,8 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
-  m_GIWorkflowMode: 0
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 1
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -66,9 +66,6 @@ LightmapSettings:
     m_LightmapParameters: {fileID: 0}
     m_LightmapsBakeMode: 1
     m_TextureCompression: 1
-    m_FinalGather: 0
-    m_FinalGatherFiltering: 1
-    m_FinalGatherRayCount: 256
     m_ReflectionCompression: 2
     m_MixedBakeMode: 1
     m_BakeBackend: 0
@@ -96,7 +93,8 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: 58f771ce022c64f8bb28b18b69eeb926,
+    type: 2}
   m_LightingSettings: {fileID: 4890085278179872738, guid: 9c9b9382205e43e4b1d9ba04370791e8,
     type: 2}
 --- !u!196 &4
@@ -384,6 +382,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Scene Light L SoftBox
       objectReference: {fileID: 0}
+    - target: {fileID: 3574907341334132739, guid: 46494f77328091340a6f768b8f2be354,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4898795562259088705, guid: 46494f77328091340a6f768b8f2be354,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -564,6 +567,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Scene Light R SoftBox
+      objectReference: {fileID: 0}
+    - target: {fileID: 4001575982364265384, guid: 86e4fc2eef266e54f83cba5d5bff4359,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7083184808732367456, guid: 86e4fc2eef266e54f83cba5d5bff4359,
         type: 3}
@@ -1148,6 +1156,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Scene Light L
+      objectReference: {fileID: 0}
+    - target: {fileID: 147446028270774865, guid: 4d487b143f592084d946be704dcac7b5,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5980860011824412207, guid: 4d487b143f592084d946be704dcac7b5,
         type: 3}
@@ -1849,6 +1862,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Scene Light Rear L SoftBox
       objectReference: {fileID: 0}
+    - target: {fileID: 7887334320380601607, guid: bc41b13513c7b8944abdf05299aaf580,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1979,6 +1997,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Scene Light R
+      objectReference: {fileID: 0}
+    - target: {fileID: 5832709188586201466, guid: ec51aa44828a081418c8b79fca28c252,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7982147188531356141, guid: ec51aa44828a081418c8b79fca28c252,
         type: 3}
@@ -2160,6 +2183,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Scene Showroom
+      objectReference: {fileID: 0}
+    - target: {fileID: 4849010149000709407, guid: a3aecec39c50cf64bb559fac5523bb94,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5188416866355503013, guid: a3aecec39c50cf64bb559fac5523bb94,
         type: 3}
