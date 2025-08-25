@@ -14,41 +14,44 @@ Shader "ALab/CustomLit_Base"
     Properties
     {
         // 颜色调整
-        [Header(ColorAdjust)][Space(10)]
+        [Header(ColorAdjust)][Space(10)] [ext]
         [MainColor] _BaseColor("Color", Color) = (1,1,1,1)
         
         // UV
-        [Header(UV)][Space(10)]
+        [Header(UV)][Space(10)] [ext]
         _TillingOffset("TillingOffset", Vector) = (1,1,0,0)
         
         // PBR 纹理
-        [Header(PBR_Map)][Space(10)]
+        [Header(PBR_Map)][Space(10)] [ext]
         [SingleLineTexture] [MainTexture] _BaseMap("Albedo", 2D) = "white" {}
-        [SingleLineTexture] _ARMMaskMap("ARMMaskMap", 2D) = "white" {}
-        [SingleLineTexture] _EmissionMap("EmissionMap", 2D) = "white" {}
-        [SingleLineTexture] _BumpMap("Normal Map", 2D) = "bump" {}
-        _BumpScale("Normal Scale", Range(0.0, 2.0)) = 1.0
+        [ext] [SingleLineTexture] _ARMMaskMap("ARMMaskMap", 2D) = "white" {}
+        [ext] [SingleLineTexture] _EmissionMap("EmissionMap", 2D) = "white" {}
+        [ext] [SingleLineTexture] _BumpMap("Normal Map", 2D) = "bump" {}
+        [ext]_BumpScale("Normal Scale", Range(0.0, 2.0)) = 1.0
         
-        // PBR 参数
-        [Header(PBR_Data)][Space(10)]
         [ToggleOff] _SpecularHighlights("Specular Highlights", Float) = 1.0
         [ToggleOff] _EnvironmentReflections("Environment Reflections", Float) = 1.0
-        _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
-        _SmoothnessMin("SmoothnessMin", Range(0.0, 1.0)) = 0.5
-        _SmoothnessMax("SmoothnessMax", Range(0.0, 1.0)) = 0.5
-        _SpecColor("Specular", Color) = (0.2, 0.2, 0.2)
-        _OcclusionStrength("AO_Strength", Range(0.0, 1.0)) = 1.0
-        _MetallicMin("MetallicMin", Range(0.0, 1.0)) = 1.0
-        _MetallicMax("MetallicMax", Range(0.0, 1.0)) = 1.0
-        [HDR] _EmissionColor("EmissionColor", Color) = (0,0,0)
         
+        // PBR 参数
+        _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
+        
+        [Header(PBR_Data)][Space(10)]
+        [ext]_SmoothnessMin("SmoothnessMin", Range(0.0, 1.0)) = 0.5
+        [ext]_SmoothnessMax("SmoothnessMax", Range(0.0, 1.0)) = 0.5
+        [ext]_SpecColor("Specular", Color) = (0.2, 0.2, 0.2)
+        [ext]_OcclusionStrength("AO_Strength", Range(0.0, 1.0)) = 1.0
+        [ext]_MetallicMin("MetallicMin", Range(0.0, 1.0)) = 1.0
+        [ext]_MetallicMax("MetallicMax", Range(0.0, 1.0)) = 1.0
+        [ext][HDR] _EmissionColor("EmissionColor", Color) = (0,0,0)
+        
+
         // 溶解效果
-		[Header(Dissolve)][Space(10)]
+		[Header(Dissolve)][Space(10)] [ext]
         [NoScaleOffset][SingleLineTexture]_NoiseMap("NoiseMap", 2D) = "white" {}
-        _NoiseTillingOffset("NoiseTillingOffset", Vector) = (1,1,1,1)
-		_Dissolve("Dissolve", Range( -0.1 , 1.1)) = 0.5427703
-		_EdgeColor("EdgeColor", Color) = (0,0,0)
-		_EdgeWidth("EdgeWidth", Range( 0 , 0.1)) = 0
+        [ext] _NoiseTillingOffset("NoiseTillingOffset", Vector) = (1,1,1,1)
+		[ext] _Dissolve("Dissolve", Range( -0.1 , 1.1)) = 0.5427703
+		[ext] _EdgeColor("EdgeColor", Color) = (0,0,0)
+		[ext] _EdgeWidth("EdgeWidth", Range( 0 , 0.1)) = 0
         
         // Blending state
         [HideInInspector] _Surface("__surface", Float) = 0.0
@@ -64,7 +67,7 @@ Shader "ALab/CustomLit_Base"
         [HideInInspector] _AlphaToMask("__alphaToMask", Float) = 0.0
         [HideInInspector] _AddPrecomputedVelocity("_AddPrecomputedVelocity", Float) = 0.0
 
-        [ToggleUI] [Space(10)] _ReceiveShadows("Receive Shadows", Float) = 1.0
+        [ToggleUI] _ReceiveShadows("Receive Shadows", Float) = 1.0
         // Editmode props
         _QueueOffset("Queue offset", Float) = 0.0
 
@@ -102,10 +105,10 @@ Shader "ALab/CustomLit_Base"
             // -------------------------------------
             // Render State Commands
             Blend[_SrcBlend][_DstBlend], [_SrcBlendAlpha][_DstBlendAlpha]
-            ZWrite On// [_ZWrite]
+            ZWrite [_ZWrite]
             ZTest LEqual
-            Cull Off// [_Cull]
-            AlphaToMask On// [_AlphaToMask]
+            Cull [_Cull]
+            AlphaToMask [_AlphaToMask]
 
             HLSLPROGRAM
             #pragma target 4.0
@@ -302,8 +305,8 @@ Shader "ALab/CustomLit_Base"
                 
                 inputData.viewDirectionWS = viewDirWS;
                 
-                // inputData.shadowCoord = input.shadowCoord;
-                inputData.shadowCoord = TransformWorldToShadowCoord(inputData.positionWS);
+                inputData.shadowCoord = input.shadowCoord;
+                // inputData.shadowCoord = TransformWorldToShadowCoord(inputData.positionWS);
 
                 // 多光源
                 inputData.fogCoord = InitializeInputDataFog(float4(input.positionWS, 1.0), input.fogFactorAndVertexLight.x);
@@ -651,5 +654,6 @@ Shader "ALab/CustomLit_Base"
     }
 
     FallBack "Hidden/Universal Render Pipeline/FallbackError"
-    CustomEditor "UnityEditor.ShaderGraphLitGUI"
+    // CustomEditor "UnityEditor.ShaderGraphLitGUI"
+    CustomEditor "URPLitExtGUI"
 }
