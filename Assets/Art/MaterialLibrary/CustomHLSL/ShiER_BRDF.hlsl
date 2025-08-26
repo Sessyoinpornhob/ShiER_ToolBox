@@ -11,6 +11,8 @@
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/BRDF.hlsl"
     #include "Assets/Art/MaterialLibrary/CustomHLSL/ShiER_KajiyaKay_HairData.hlsl"
 
+    #define ShiERkDielectricSpec half4(0.04, 0.04, 0.04, 1.0 - 0.04) // standard dielectric reflectivity coef at incident angle (= 4%)
+
     // 试试搞个自己的 struct
     // 这里不行 很多函数跟这个结构体相关
     struct BRDFData_ShiER
@@ -49,6 +51,7 @@
             return dirAtten * pow(sinTH, exponent);
         }
 
+    // TODO 和宏联动 开关
     // 允许在 metallic 流程中使用高光颜色
     // Initialize BRDFData for material, managing both specular and metallic setup using shader keyword _SPECULAR_SETUP.
     inline void InitializeBRDFData_ShiER(half3 albedo, half metallic, half3 specular, half smoothness, inout half alpha, out BRDFData outBRDFData)
@@ -59,12 +62,22 @@
         // half3 brdfDiffuse = albedo * oneMinusReflectivity;
         // half3 brdfSpecular = specular;
 
+        half3 specularColor_ShiER = half3(0.0, 0.0, 0.0);
+
         // metallic 流程
         half oneMinusReflectivity = OneMinusReflectivityMetallic(metallic);
         half reflectivity = half(1.0) - oneMinusReflectivity;
         half3 brdfDiffuse = albedo * oneMinusReflectivity;
+
+        // 使用 SPECULAR_COLOR 就判定为非金属
+        #ifdef USE_SPECULAR_COLOR
+            specularColor_ShiER = specular;   // half3(0.0, 0.0, 0.0);
+        #else
+            specularColor_ShiER = lerp(kDielectricSpec.rgb, albedo, metallic);
+        #endif
+        
         // half3 brdfSpecular = lerp(kDielectricSpec.rgb, albedo, metallic);
-        half3 brdfSpecular = specular;
+        half3 brdfSpecular = specularColor_ShiER;
         
         InitializeBRDFDataDirect(albedo, brdfDiffuse, brdfSpecular, reflectivity, oneMinusReflectivity, smoothness, alpha, outBRDFData);
     }

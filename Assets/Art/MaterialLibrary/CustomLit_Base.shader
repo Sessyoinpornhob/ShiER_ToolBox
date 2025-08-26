@@ -13,51 +13,65 @@ Shader "ALab/CustomLit_Base"
 {
     Properties
     {
-        // 颜色调整
-        [Header(ColorAdjust)][Space(10)] [ext]
-        [MainColor] _BaseColor("Color", Color) = (1,1,1,1)
-        
-        // UV
-        [Header(UV)][Space(10)] [ext]
-        _TillingOffset("TillingOffset", Vector) = (1,1,0,0)
-        
-        // PBR 纹理
-        [Header(PBR_Map)][Space(10)] [ext]
-        [SingleLineTexture] [MainTexture] _BaseMap("Albedo", 2D) = "white" {}
-        [ext] [SingleLineTexture] _ARMMaskMap("ARMMaskMap", 2D) = "white" {}
-        [ext] [SingleLineTexture] _EmissionMap("EmissionMap", 2D) = "white" {}
-        [ext] [SingleLineTexture] _BumpMap("Normal Map", 2D) = "bump" {}
-        [ext]_BumpScale("Normal Scale", Range(0.0, 2.0)) = 1.0
-        
+        [Toggle(_RECEIVE_SHADOWS_OFF)] _ReceiveShadows("Receive Shadows", Float) = 0.0
         [ToggleOff] _SpecularHighlights("Specular Highlights", Float) = 1.0
         [ToggleOff] _EnvironmentReflections("Environment Reflections", Float) = 1.0
+        _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
+        [ToggleUI] _AlphaClip("Alpha Clipping", Float) = 0.0    // 用于显示 AlphaClip 滑条
+        
+        // 颜色调整
+        [Header(ColorAdjust)][Space(10)]
+        [ext][MainColor] _BaseColor("Color", Color) = (1,1,1,1)
+        
+        // UV
+        [Header(UV)][Space(10)]
+        [ext]_TillingOffset("TillingOffset", Vector) = (1,1,0,0)
+        
+        // PBR 纹理
+        [Header(PBR_Map)][Space(10)]
+        [ext][SingleLineTexture] [MainTexture] _BaseMap("Albedo", 2D) = "white" {}
+        [ext][SingleLineTexture] _ARMMaskMap("ARMMaskMap", 2D) = "white" {}
+        [ext][SingleLineTexture] _EmissionMap("EmissionMap", 2D) = "white" {}
+        [ext][SingleLineTexture] _BumpMap("Normal Map", 2D) = "bump" {}
+        [ext]_BumpScale("Normal Scale", Range(0.0, 2.0)) = 1.0
         
         // PBR 参数
-        _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
-        
         [Header(PBR_Data)][Space(10)]
         [ext]_SmoothnessMin("SmoothnessMin", Range(0.0, 1.0)) = 0.5
         [ext]_SmoothnessMax("SmoothnessMax", Range(0.0, 1.0)) = 0.5
+        [ext] [Toggle(USE_SPECULAR_COLOR)] _UseSpecularColor ("使用高光颜色", Float) = 1
         [ext]_SpecColor("Specular", Color) = (0.2, 0.2, 0.2)
         [ext]_OcclusionStrength("AO_Strength", Range(0.0, 1.0)) = 1.0
         [ext]_MetallicMin("MetallicMin", Range(0.0, 1.0)) = 1.0
         [ext]_MetallicMax("MetallicMax", Range(0.0, 1.0)) = 1.0
         [ext][HDR] _EmissionColor("EmissionColor", Color) = (0,0,0)
         
-
         // 溶解效果
-		[Header(Dissolve)][Space(10)] [ext]
-        [NoScaleOffset][SingleLineTexture]_NoiseMap("NoiseMap", 2D) = "white" {}
-        [ext] _NoiseTillingOffset("NoiseTillingOffset", Vector) = (1,1,1,1)
-		[ext] _Dissolve("Dissolve", Range( -0.1 , 1.1)) = 0.5427703
-		[ext] _EdgeColor("EdgeColor", Color) = (0,0,0)
-		[ext] _EdgeWidth("EdgeWidth", Range( 0 , 0.1)) = 0
+		[Header(Dissolve)][Space(10)]
+        [ext][NoScaleOffset][SingleLineTexture]_NoiseMap("NoiseMap", 2D) = "white" {}
+        [ext]_NoiseTillingOffset("NoiseTillingOffset", Vector) = (1,1,1,1)
+		[ext]_Dissolve("Dissolve", Range( -0.1 , 1.1)) = 0.5427703
+		[ext]_EdgeColor("EdgeColor", Color) = (0,0,0)
+		[ext]_EdgeWidth("EdgeWidth", Range( 0 , 0.1)) = 0
+        
+        [ext][Foldout] _MytestName("溶解面板",Range (0,1)) = 0
+        [ext][if(_MytestName)] [Toggle(GAME_TEST)] _Mytest ("启动溶解宏", Float) = 0
+        [ext][if(_MytestName)] _Value("溶解参数1",Range (0,1)) = 0
+        [ext][if(_MytestName)] [IntRange] _Alpha ("溶解参数4", Range (0, 255)) = 100
+        [ext][if(_MytestName)] [SingleLineTexture] _MainTex2 ("溶解图", 2D) = "white" {}
+        [ext][if(_MytestName)] [SingleLineTexture] [Normal] _MainTex3 ("溶解图2", 2D) = "white" {}
+        [ext][if(_MytestName)] [PowerSlider(3.0)] _Shininess ("溶解参数3", Range (0.01, 1)) = 0.08
+        
+     
+        [ext][Foldout] _Mytest2Name("特殊面板",Range (0,1)) = 0
+        [ext][if(_Mytest2Name)] [Toggle] _Mytest2 ("启动特殊宏", Float) = 0
+        [ext][if(_Mytest2Name)] _FirstColor("特殊颜色", Color) = (1, 1, 1, 1)
+        [ext][if(_Mytest2Name)] _FirstValue("特殊向量", Vector) = (1, 1, 1, 1)
         
         // Blending state
         [HideInInspector] _Surface("__surface", Float) = 0.0
         [HideInInspector] _Blend("__blend", Float) = 0.0
         [HideInInspector] _Cull("__cull", Float) = 2.0
-        [HideInInspector] _AlphaClip("_AlphaClip", Float) = 0.0
         [HideInInspector] _SrcBlend("__src", Float) = 1.0
         [HideInInspector] _DstBlend("__dst", Float) = 0.0
         [HideInInspector] _SrcBlendAlpha("__srcA", Float) = 1.0
@@ -66,8 +80,7 @@ Shader "ALab/CustomLit_Base"
         [HideInInspector] _BlendModePreserveSpecular("_BlendModePreserveSpecular", Float) = 1.0
         [HideInInspector] _AlphaToMask("__alphaToMask", Float) = 0.0
         [HideInInspector] _AddPrecomputedVelocity("_AddPrecomputedVelocity", Float) = 0.0
-
-        [ToggleUI] _ReceiveShadows("Receive Shadows", Float) = 1.0
+        
         // Editmode props
         _QueueOffset("Queue offset", Float) = 0.0
 
@@ -104,11 +117,13 @@ Shader "ALab/CustomLit_Base"
 
             // -------------------------------------
             // Render State Commands
+            
             Blend[_SrcBlend][_DstBlend], [_SrcBlendAlpha][_DstBlendAlpha]
-            ZWrite [_ZWrite]
+            ZWrite[_ZWrite]
             ZTest LEqual
-            Cull [_Cull]
-            AlphaToMask [_AlphaToMask]
+            Cull[_Cull]
+            AlphaToMask[_AlphaToMask]   // 这个跟MSAA相关 不常用
+
 
             HLSLPROGRAM
             #pragma target 4.0
@@ -123,16 +138,21 @@ Shader "ALab/CustomLit_Base"
             #pragma shader_feature_local _NORMALMAP
             #pragma shader_feature_local _PARALLAXMAP
             #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
-            #pragma shader_feature_local_fragment _SURFACE_TYPE_TRANSPARENT
+            #pragma shader_feature_local_fragment _SURFACE_TYPE_TRANSPARENT  // 是否透明
             #pragma shader_feature_local_fragment _ALPHATEST_ON
-            // #pragma shader_feature_local_fragment _ _ALPHAPREMULTIPLY_ON _ALPHAMODULATE_ON
-            // #pragma shader_feature_local_fragment _EMISSION
-            // #pragma shader_feature_local_fragment _METALLICSPECGLOSSMAP
-            // #pragma shader_feature_local_fragment _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
-            // #pragma shader_feature_local_fragment _OCCLUSIONMAP
             #pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
             #pragma shader_feature_local_fragment _ENVIRONMENTREFLECTIONS_OFF
             #pragma shader_feature_local_fragment _SPECULAR_SETUP
+            // -------------------------------------
+            // 自定义宏
+            #pragma shader_feature_local GAME_TEST
+            // #ifdef GAME_TEST
+            //     outColor = half4(1,1,1,1);
+            // #endif
+            #pragma shader_feature_local USE_SPECULAR_COLOR
+            // #ifdef USE_SPECULAR_COLOR
+            //     outColor = half4(1,1,1,1);
+            // #endif
 
             // -------------------------------------
             // Universal Pipeline keywords
@@ -144,7 +164,6 @@ Shader "ALab/CustomLit_Base"
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
             #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
             #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
-            // #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
             #pragma multi_compile _ _LIGHT_LAYERS
             #pragma multi_compile _ _FORWARD_PLUS
@@ -160,13 +179,13 @@ Shader "ALab/CustomLit_Base"
             #pragma multi_compile _ USE_LEGACY_LIGHTMAPS
             #pragma multi_compile _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fog
-            // #pragma multi_compile_fragment _ DEBUG_DISPLAY
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ProbeVolumeVariants.hlsl"
 
-            //--------------------------------------
+
+            // --------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
+            
             // LitInput 相关 拉到本地来
             // #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
             // #include "Packages/com.unity.render-pipelines.universal/Shaders/LitForwardPass.hlsl"
@@ -176,13 +195,9 @@ Shader "ALab/CustomLit_Base"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DBuffer.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/DebugMipmapStreamingMacros.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-            #include "Assets/Art/MaterialLibrary/CustomHLSL/ShiERFunctions.hlsl"
             //--------------------------------------
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"
             // #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
             //------------ SurfaceInput.hlsl ----------------
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceData.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Packing.hlsl"
             #include "Assets/Art/MaterialLibrary/CustomHLSL/ShiER_Lighting.hlsl"
@@ -256,7 +271,7 @@ Shader "ALab/CustomLit_Base"
                 float4 shadowCoord              : TEXCOORD6;    // REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR
                 float2 dynamicLightmapUV        : TEXCOORD7;    // Dynamic lightmap UVs
                 DECLARE_LIGHTMAP_OR_SH(staticLightmapUV, vertexSH, 8);
-                float3 bitangentWS              : TEXCOORD9;
+                float3 bitangentWS              : TEXCOORD10;
                 float4 positionCS               : SV_POSITION;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
                 UNITY_VERTEX_OUTPUT_STEREO
@@ -266,8 +281,7 @@ Shader "ALab/CustomLit_Base"
             {
                 float4 albedoAlpha = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, uv);
                 float alpha = albedoAlpha.a;
-
-                // clip(alpha - _Cutoff);
+                
                 outSurfaceData.alpha = saturate(alpha);// AlphaDiscard(albedoAlpha.a, _Cutoff);
                 outSurfaceData.albedo = albedoAlpha.rgb * _BaseColor.rgb;
                 outSurfaceData.albedo = AlphaModulate(outSurfaceData.albedo, outSurfaceData.alpha);
@@ -277,7 +291,13 @@ Shader "ALab/CustomLit_Base"
                 // Metallic workflow
                 outSurfaceData.metallic = ARMMaskColor.b;
                 // 可以自定义高光颜色
-                outSurfaceData.specular = _SpecColor;   // half3(0.0, 0.0, 0.0);
+                
+                #ifdef USE_SPECULAR_COLOR
+                    outSurfaceData.specular = _SpecColor;   // half3(0.0, 0.0, 0.0);
+                #else
+                    outSurfaceData.specular = half3(0.0, 0.0, 0.0);
+                #endif
+                
 
                 outSurfaceData.smoothness = lerp(_SmoothnessMin, _SmoothnessMax, ARMMaskColor.g);
                 outSurfaceData.normalTS = UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uv), _BumpScale);
@@ -329,7 +349,7 @@ Shader "ALab/CustomLit_Base"
 				float4 NoiseMapValue = SAMPLE_TEXTURE2D( _NoiseMap, sampler_NoiseMap, FX_Dissolve_UV);
                 // FX emission
                 half3 emission = ( step( ( NoiseMapValue.rgb - _EdgeWidth ) , _Dissolve ) * _EdgeColor );
-                outSurfaceData.emission = emission;
+                outSurfaceData.emission += emission;
                 // FX alpha
                 half AlphaValue145 = outSurfaceData.alpha * step( _Dissolve , NoiseMapValue.r );
                 clip(AlphaValue145 - _Cutoff);
@@ -365,7 +385,7 @@ Shader "ALab/CustomLit_Base"
 
                 OUTPUT_LIGHTMAP_UV(input.staticLightmapUV, unity_LightmapST, output.staticLightmapUV);
                 output.dynamicLightmapUV = input.dynamicLightmapUV.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
-                OUTPUT_SH4(vertexInput.positionWS, output.normalWS.xyz, GetWorldSpaceNormalizeViewDir(vertexInput.positionWS), output.vertexSH, output.probeOcclusion);
+                OUTPUT_SH(vertexInput.positionWS, output.vertexSH);
 
                 // 多光源
                 half fogFactor = 0;
@@ -373,7 +393,7 @@ Shader "ALab/CustomLit_Base"
                 output.fogFactorAndVertexLight = half4(fogFactor, vertexLight);
                 
                 output.positionWS = vertexInput.positionWS;
-                // REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR
+                // REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR 
                 output.shadowCoord = GetShadowCoord(vertexInput);
                 output.positionCS = vertexInput.positionCS;
                 float3 ViewDirWS = GetWorldSpaceNormalizeViewDir(vertexInput.positionWS);
@@ -408,6 +428,7 @@ Shader "ALab/CustomLit_Base"
                 color.a = 1.0f;
 
                 outColor = color;
+                
                 
             }
 
@@ -498,7 +519,6 @@ Shader "ALab/CustomLit_Base"
             #pragma shader_feature_local _NORMALMAP
             #pragma shader_feature_local_fragment _ALPHATEST_ON
             //#pragma shader_feature_local_fragment _ALPHAPREMULTIPLY_ON
-            #pragma shader_feature_local_fragment _EMISSION
             #pragma shader_feature_local_fragment _METALLICSPECGLOSSMAP
             #pragma shader_feature_local_fragment _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
             #pragma shader_feature_local_fragment _OCCLUSIONMAP
