@@ -9,6 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Parallax Occlusion Mapping
   m_Shader: {fileID: 4800000, guid: 1bae747ec41d4a72b45a5885fe911899, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 5
@@ -17,12 +19,13 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
     - _Albedo:
         m_Texture: {fileID: 2800000, guid: 4998839cc7304cff87a29e2535dd1bbb, type: 3}
-        m_Scale: {x: 1, y: 1}
+        m_Scale: {x: 1, y: 0.5}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 0}
@@ -30,7 +33,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _HeightMap:
         m_Texture: {fileID: 2800000, guid: 085af6efd01d48aaa9981d4b8d75ecce, type: 3}
-        m_Scale: {x: 1, y: 1}
+        m_Scale: {x: 1, y: 0.5}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 0}
@@ -38,7 +41,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _Metallic:
         m_Texture: {fileID: 2800000, guid: 0f1be42ec7d6427fbeb99bb7a4480d54, type: 3}
-        m_Scale: {x: 1, y: 1}
+        m_Scale: {x: 1, y: 0.5}
         m_Offset: {x: 0, y: 0}
     - _NewAlbedo:
         m_Texture: {fileID: 2800000, guid: 433c486a4b3bf12429cb2a5c0a2b2ce7, type: 3}
@@ -50,15 +53,15 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _Normal:
         m_Texture: {fileID: 2800000, guid: 0e5318892134427a92eb01a797250708, type: 3}
-        m_Scale: {x: 1, y: 1}
+        m_Scale: {x: 1, y: 0.5}
         m_Offset: {x: 0, y: 0}
     - _Occlusion:
         m_Texture: {fileID: 2800000, guid: d6dd85c78644495f98c427634c7d81e7, type: 3}
-        m_Scale: {x: 1, y: 1}
+        m_Scale: {x: 1, y: 0.5}
         m_Offset: {x: 0, y: 0}
     - _Roughness:
         m_Texture: {fileID: 2800000, guid: b6a6c7bc322040c5b1fed27b535af25f, type: 3}
-        m_Scale: {x: 1, y: 1}
+        m_Scale: {x: 1, y: 0.5}
         m_Offset: {x: 0, y: 0}
     - _SSSDepth:
         m_Texture: {fileID: 0}
@@ -88,7 +91,7 @@ Material:
     m_Floats:
     - _AlphaCutoff: 0.5
     - _Bias: 0.61
-    - _CurvFix: 1
+    - _CurvFix: 0
     - _CurvatureU: 0
     - _CurvatureV: 0
     - _EnvironmentReflections: 1
@@ -100,8 +103,8 @@ Material:
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _Ref: -0.03
-    - _RoughScale: 0.5
-    - _Scale: 0.095
+    - _RoughScale: 1
+    - _Scale: 0.153
     - _ScatteringPower: 0.1
     - _SpecularHighlights: 1
     - _Translucency: 0
@@ -114,3 +117,4 @@ Material:
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _SSSColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1
