@@ -7,9 +7,10 @@
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/BSDF.hlsl"
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Deprecated.hlsl"
-    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceData.hlsl"
+    // #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceData.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/BRDF.hlsl"
     #include "Assets/Art/MaterialLibrary/CustomHLSL/ShiER_KajiyaKay_HairData.hlsl"
+    #include "Assets/Art/MaterialLibrary/CustomHLSL/ShiER_Struct.hlsl"
 
     #define ShiERkDielectricSpec half4(0.04, 0.04, 0.04, 1.0 - 0.04) // standard dielectric reflectivity coef at incident angle (= 4%)
 
@@ -62,7 +63,7 @@
         // half3 brdfDiffuse = albedo * oneMinusReflectivity;
         // half3 brdfSpecular = specular;
 
-        half3 specularColor_ShiER = half3(0.0, 0.0, 0.0);
+        half3 specularColor_ShiER = specular;
 
         // metallic 流程
         half oneMinusReflectivity = OneMinusReflectivityMetallic(metallic);
