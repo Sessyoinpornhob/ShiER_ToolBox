@@ -53,10 +53,10 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _Roughness: 0.425
+    - _Roughness: 0.439
     - _SpecularHighlights: 1
     - _Speed: 0.2
-    - _Timeposition: 0.207
+    - _Timeposition: 0.741
     - _UseTime: 1
     m_Colors:
     - _Color: {r: 1, g: 0.5773492, b: 0, a: 0}

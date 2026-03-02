@@ -1,0 +1,59 @@
+#root {
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+#titleLabel {
+    -unity-font-style: bold;
+    /*color: white;*/
+    font-size: 18px;
+    margin-bottom: 6px;
+}
+
+#textLabel {
+    -unity-font-style: normal;
+    /*color: white;*/
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+#rootField {
+    margin-bottom: 8px;
+}
+
+#btnRow {
+    flex-direction: column;
+    margin-bottom: 8px;
+}
+
+#scanBtn {
+    flex-grow: 1;
+    min-height: 28px;
+    margin-right: 8px; /* 模拟 gap */
+}
+
+#runBtn {
+    flex-grow: 1;
+    min-height: 28px;
+}
+
+#clearBtn {
+    flex-grow: 1;
+    min-height: 28px;
+}
+
+#runReplaceBtn {
+    flex-grow: 1;
+    min-height: 28px;
+}
+
+#convertBtn {
+    flex-grow: 1;
+    min-height: 28px;
+}
+
+#logField {
+    flex-grow: 1;
+}

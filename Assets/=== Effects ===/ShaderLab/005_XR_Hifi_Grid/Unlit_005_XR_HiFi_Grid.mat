@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Unlit_005_XR_HiFi_Grid
+  m_Shader: {fileID: 4800000, guid: 0a2e47943db654221aa0a7cd873cc46b, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: fdf5e7fb9c3964502a7862e6f76852ef, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _CharacterMap:
+        m_Texture: {fileID: 2800000, guid: fdf5e7fb9c3964502a7862e6f76852ef, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _CharactorMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MaskMap:
+        m_Texture: {fileID: 2800000, guid: b05baad2ecaf747ada3a2b044c8c6a91, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AlphaClip: 0
+    - _AlphaL1: 0.276
+    - _AlphaL2: 0.51
+    - _Cutoff: 0.5
+    - _FXIntensity: 1
+    - _FresnelPow: 3.93
+    - _GridDensity: 4.4
+    - _GridDensity_X: 8
+    - _GridDensity_Y: 8
+    - _GridSpeed_X: 0
+    - _GridSpeed_Y: -0.4
+    - _GridTimer_Y: 0.5
+    - _LineWidth: 0.02
+    - _PointRadius: 0.0307
+    - _TillingOffset: 0.5
+    m_Colors:
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BaseColorL1: {r: 0, g: 1, b: 0.7887945, a: 1}
+    - _BaseColorL2: {r: 0.25490195, g: 0.8, b: 0.71084434, a: 1}
+    - _TillingOffset: {r: 0.2, g: 0.2, b: 0, a: -1.55}
+    - _TillingOffset_C: {r: 1, g: 1, b: 0, a: -0.3}
+    - _TillingOffset_M: {r: 1, g: 1.31, b: 0, a: -0.3}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

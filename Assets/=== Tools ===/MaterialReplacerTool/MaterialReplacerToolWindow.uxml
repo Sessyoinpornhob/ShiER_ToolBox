@@ -1,0 +1,21 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" editor-extension-mode="True">
+    <Style src="project://database/Assets/ArtDeveloper/ShiER_Test/Tool/MaterialReplacerTool/MaterialReplacerToolWindow.uss?fileID=7433441132597879392&amp;guid=e9a55f454e15e475693a7c97d8a6e67c&amp;type=3#MaterialReplacerToolWindow" />
+    <ui:VisualElement name="root">
+        <ui:VisualElement name="rootField" style="flex-grow: 1;">
+            <ui:Label text="材质批处理面板" name="titleLabel" />
+            <ui:Label text="使用此面板的函数可以用于修改场景中使用的材质，并替换材质使用的shader，以及其他功能。此面板功能如下：" name="textLabel" style="white-space: normal;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="btnRow">
+            <ui:Label text="1.替换材质的shader" name="textLabel" style="white-space: normal;" />
+            <ui:Label text="将目标shader替换为资源shader" name="textLabel" style="white-space: normal;" />
+            <editor:ObjectField label="目标Shader" name="targetShader" />
+            <editor:ObjectField label="资源Shader" name="resourceShader" />
+            <ui:Button name="clearBtn" text="清除选项" />
+            <ui:Button name="runReplaceBtn" text="执行替换" enable-rich-text="true" />
+        </ui:VisualElement>
+        <ui:VisualElement name="btnRow" enabled="false">
+            <ui:Label text="2.Change Keywords" name="textLabel" style="white-space: normal;" />
+            <ui:Button name="convertBtn" text="Convert Btn" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

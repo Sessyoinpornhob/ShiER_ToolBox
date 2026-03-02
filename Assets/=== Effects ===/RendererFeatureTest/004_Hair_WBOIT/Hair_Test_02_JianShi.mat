@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Hair_Test_02_JianShi
+  m_Shader: {fileID: 4800000, guid: 73a0b3bf103d84303ae8671d3dfc992a, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 2501
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: 012a94f6462f26a489883452aa230fdd, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AlphaClip: 0
+    - _Cutoff: 0.4
+    - _DitherWidth: 0.0685
+    - _EdgeBias: 0.915
+    - _EdgeScale: 0.973
+    - _HairAlphaLOD: 0
+    - _OITAlphaBias: 0.549
+    - _OITAlphaGamma: 2.81
+    - _OITAlphaScale: 1.77
+    - _OITDepthBeta: 3.09
+    - _OITDepthEps: 0.74
+    - _UseClip: 0
+    m_Colors:
+    - _BaseColor: {r: 0.7924528, g: 0.7924528, b: 0.7924528, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

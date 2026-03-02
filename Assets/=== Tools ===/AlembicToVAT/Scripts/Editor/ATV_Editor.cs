@@ -161,7 +161,7 @@ public class ATV_Editor : EditorWindow
 				Debug.Log("Checking max triangle count");
 				int framesCount = Mathf.RoundToInt((EndTime-StartTime) * SampleRate + 0.5f);	
 
-				for(int frame = 0;frame<framesCount;frame++)
+				for(int frame = 0; frame < framesCount; frame++)
 				{
 					float timing = StartTime + ((float)frame)/SampleRate;
 					timeProp.floatValue = timing; 
@@ -214,10 +214,10 @@ public class ATV_Editor : EditorWindow
 	{
 		Vector2Int uv = new Vector2Int();
 		
-		int columnIndex = Yindex/Ysize;
+		int columnIndex = Yindex / Ysize;
 		int verticalIndex = Yindex % Ysize;
 
-		uv.x = Xindex + columnIndex*columnSize;
+		uv.x = Xindex + columnIndex * columnSize;
 		uv.y = verticalIndex;
 
 		return uv;
@@ -264,7 +264,7 @@ public class ATV_Editor : EditorWindow
 			}
 			else
 			{
-				for(int i=0;i<MeshToBake.childCount;i++)
+				for(int i=0; i<MeshToBake.childCount; i++)
 				{
 					MeshFilter localMeshFilter = MeshToBake.GetChild(i).GetComponent<MeshFilter>();
 
@@ -536,7 +536,7 @@ public class ATV_Editor : EditorWindow
 			newMaterial.SetTexture("_VAT_positions",resPosTexture );
 			newMaterial.SetTexture("_VAT_normals",resNormalTexture);
 
-			AssetDatabase.CreateAsset(newMaterial,finalExportPath+ExportFilename+"_material.mat" );
+			AssetDatabase.CreateAsset(newMaterial,finalExportPath + ExportFilename+"_material.mat" );
 			AssetDatabase.SaveAssets();
 
 			GameObject newGameObject = new GameObject(ExportFilename+"_Object");
