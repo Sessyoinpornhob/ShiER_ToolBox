@@ -194,6 +194,31 @@ public class URPLitExtGUI : BaseShaderGUI
                         }
                     }
                 }
+                // 面板的各种标签的情况 toggle 打勾 开启/关闭宏
+                // 在 ValidateMaterial() 方法中统一设置关键字
+                // else if (a.Contains("Toggle"))
+                // {
+                //     if (properties[i].type == MaterialProperty.PropType.Float)
+                //     {
+                //         string keyword = string.Empty;
+                //         var m = kFuncWithArgs.Match(a);
+                //         
+                //         if (m.Success) 
+                //             keyword = m.Groups[2].Value.Trim();
+                //         
+                //         // 没写参数时，fallback：把属性名转成大写 + "_ON"
+                //         if (string.IsNullOrEmpty(keyword)) 
+                //             keyword = p.name.ToUpperInvariant() + "_ON";
+                //         
+                //         foreach (Material t in p.targets)
+                //         {
+                //             if (Mathf.Approximately(p.floatValue, 1f)) 
+                //                 t.EnableKeyword(keyword);
+                //             else 
+                //                 t.DisableKeyword(keyword);
+                //         }
+                //     }
+                // }
                 // 面板的各种标签的情况 tip 面板解释
                 else if (a.StartsWith("tipKey"))
                 {
@@ -288,7 +313,10 @@ public class URPLitExtGUI : BaseShaderGUI
 
         var targets = materialEditor.targets;
         var mat = materialEditor.target as Material;
-        
+
+        // DrawSurfaceOptions(mat);
+        // DrawAdvancedOptions(mat);
+        // DrawRenderQueueField(materialEditor);
         DrawRendererOptions(mat);
         DrawExtFoldout(materialEditor, props);
 

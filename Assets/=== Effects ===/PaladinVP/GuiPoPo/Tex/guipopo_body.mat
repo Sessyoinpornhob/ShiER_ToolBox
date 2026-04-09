@@ -8,11 +8,13 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: guipopo_body
-  m_Shader: {fileID: 4800000, guid: 35210f48999e94a918f4c8eff58deaed, type: 3}
+  m_Shader: {fileID: 4800000, guid: 86e9274f8e3d910469fcc6a43cfe8871, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - FX_Death_Dissolve_Regular
   - _ALPHATEST_ON
+  - _NO_SHADOWCAST
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -24,6 +26,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _ARMMaskMap:
+        m_Texture: {fileID: 2800000, guid: 9785dfe18b23046d6a5ad0fb46b25491, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _ARM_Mask:
         m_Texture: {fileID: 2800000, guid: 9785dfe18b23046d6a5ad0fb46b25491, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -32,12 +38,16 @@ Material:
         m_Texture: {fileID: 2800000, guid: 880bbd57055f746d084f5dfa0651a807, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _BaseMap:
+    - _AlphaCrack:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: 880bbd57055f746d084f5dfa0651a807, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BumpMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 96f528da007d044f9a9939a80ea31aa0, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
@@ -113,6 +123,7 @@ Material:
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
+    - _Crack: 0
     - _Cull: 2
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
@@ -124,21 +135,31 @@ Material:
     - _EnvironmentReflections: 1
     - _Eye_Emission_Pow: 1
     - _FXIntensity: 0
+    - _FXIntensityBack: 0
+    - _FX_Death_Dissolve_Regular: 1
+    - _FX_Death_Dissolve_Regular_Foldout: 1
+    - _FX_Fresnel: 1
     - _Fraction: 0
     - _FresnelPower: 2.2
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _Metallic: 0
+    - _MetallicMax: 0.2
+    - _MetallicMin: 0
     - _Metallic_Max: 0.734
     - _Metallic_Min: 0
+    - _NoShadowCast: 0
     - _Normal_Str: 1
     - _OcclusionStrength: 1
+    - _PBR_Data: 1
     - _Parallax: 0.005
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _Smoothness: 0.5
+    - _SmoothnessMax: 0.2
+    - _SmoothnessMin: 0
     - _SmoothnessOffset: 0
     - _SmoothnessTextureChannel: 0
     - _Smoothness_Max: 0.879
@@ -147,6 +168,7 @@ Material:
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
+    - _UseSpecularColor: 0
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
@@ -159,6 +181,7 @@ Material:
     - _NoiseTillingOffset: {r: 5, g: 1, b: 0, a: -0.05}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
+    - _TillingOffset: {r: 1, g: 1, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &7695978259278245396

@@ -99,8 +99,8 @@ Material:
     - _OITDepthEps: 0.3
     - _OcclusionPow: 1
     - _OcclusionStrength: 0.5
-    - _SmoothnessMax: 1
-    - _SmoothnessMin: 0.217
+    - _SmoothnessMax: 0.779
+    - _SmoothnessMin: 0
     - _TEST: 0
     - _USE_SPECULAR_COLOR: 0
     - _UseClip: 1
